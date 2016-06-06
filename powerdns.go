@@ -206,7 +206,7 @@ func (p *PowerDNS) GetRecords() ([]Record, error) {
 	u.Host = p.hostname + ":" + p.port
 	u.Scheme = p.scheme
 	u.Path = "/servers/" + p.vhost + "/zones/"
-	fmt.Printf("%v\n", u.String())
+
 	resp, err := p.getSling().Path(p.domain).Set("X-API-Key", p.apikey).Receive(zone, error)
 
 	if err != nil {
