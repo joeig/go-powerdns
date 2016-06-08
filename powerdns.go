@@ -95,7 +95,7 @@ func New(baseURL string, vhost string, domain string, apikey string) *PowerDNS {
 	hp := strings.Split(u.Host, ":")
 	hostname := hp[0]
 	var port string
-	if hp[1] != "" {
+	if len(hp) > 1 {
 		port = hp[1]
 	} else {
 		if u.Scheme == "https" {
