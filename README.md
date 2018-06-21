@@ -1,6 +1,3 @@
-# powerdns
-Go PowerDNS API Client
+# go-powerdns
 
-Forked from github.com/waynz0r/powerdns
-
-Documentation to come. 
+PowerDNS 4.1 API client ("API v1")
