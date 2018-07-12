@@ -1,10 +1,6 @@
 package powerdns
 
-import (
-	"strings"
-	"github.com/dghubble/sling"
-	"net/url"
-)
+import "strings"
 
 type Zone struct {
 	ID             string   `json:"id"`
@@ -90,13 +86,14 @@ func (p *PowerDNS) patchRRset(rrset RRset) (*Zone, error) {
 		rrset.Name += "."
 	}
 
-	json := RRsets{}
-	json.Sets = append(json.Sets, rrset)
+	payload := RRsets{}
+	payload.Sets = append(payload.Sets, rrset)
 
 	error := new(Error)
 	zone := new(Zone)
 
-	resp, err := p.getSling().Patch(p.domain).BodyJSON(json).Receive(zone, error)
+	zonesSling := p.makeSling(p.vhost + "/zones/")
+	resp, err := zonesSling.New().Patch(p.domain).BodyJSON(payload).Receive(zone, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
@@ -104,17 +101,4 @@ func (p *PowerDNS) patchRRset(rrset RRset) (*Zone, error) {
 	}
 
 	return zone, err
-}
-
-func (p *PowerDNS) getSling() *sling.Sling {
-	u := new(url.URL)
-	u.Host = p.hostname + ":" + p.port
-	u.Scheme = p.scheme
-	u.Path = "/api/v1/servers/" + p.vhost + "/zones/"
-
-	Sling := sling.New().Base(u.String())
-
-	Sling.Set("X-API-Key", p.apikey)
-
-	return Sling
 }

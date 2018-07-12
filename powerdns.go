@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"fmt"
+	"github.com/dghubble/sling"
 	"log"
 	"net/url"
 	"strings"
@@ -54,4 +55,17 @@ func NewClient(baseURL string, vhost string, domain string, apikey string) *Powe
 		domain:   domain,
 		apikey:   apikey,
 	}
+}
+
+func (p *PowerDNS) makeSling(path string) *sling.Sling {
+	u := url.URL{}
+	u.Host = p.hostname + ":" + p.port
+	u.Scheme = p.scheme
+	u.Path = "/api/v1/" + path
+
+	mySling := sling.New()
+	mySling.Base(u.String())
+	mySling.Set("X-API-Key", p.apikey)
+
+	return mySling
 }

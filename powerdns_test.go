@@ -1,5 +1,0 @@
-package powerdns
-
-import (
-    "testing"
-)
