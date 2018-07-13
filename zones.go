@@ -92,8 +92,8 @@ func (p *PowerDNS) patchRRset(rrset RRset) (*Zone, error) {
 	error := new(Error)
 	zone := new(Zone)
 
-	zonesSling := p.makeSling(p.vhost + "/zones/")
-	resp, err := zonesSling.New().Patch(p.domain).BodyJSON(payload).Receive(zone, error)
+	zonesSling := p.makeSling(p.VHost + "/zones/")
+	resp, err := zonesSling.New().Patch(p.Domain).BodyJSON(payload).Receive(zone, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
