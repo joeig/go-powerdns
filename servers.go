@@ -14,31 +14,29 @@ type Server struct {
 	ZonesURL   string `json:"zones_url"`
 }
 
-func (p *PowerDNS) GetServers() ([]Server, error) {
-	serversSling := p.makeSling("servers")
-
+func (p *PowerDNS) GetServers() (*[]Server, error) {
 	servers := make([]Server, 0)
 	error := new(Error)
-	resp, err := serversSling.New().Get("").Receive(&servers, error)
+	serversSling := p.makeSling()
+	resp, err := serversSling.New().Get("servers").Receive(&servers, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
 		return nil, error
 	}
 
-	return servers, err
+	return &servers, err
 }
 
-func (p *PowerDNS) GetServer(serverID string) (Server, error) {
-	serversSling := p.makeSling("servers/")
-
-	server := Server{}
+func (p *PowerDNS) GetServer() (*Server, error) {
+	server := &Server{}
 	error := new(Error)
-	resp, err := serversSling.New().Get(serverID).Receive(&server, error)
+	serversSling := p.makeSling()
+	resp, err := serversSling.New().Get("servers/"+p.VHost).Receive(&server, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return Server{}, error
+		return &Server{}, error
 	}
 
 	return server, err

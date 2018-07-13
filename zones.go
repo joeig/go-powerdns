@@ -1,6 +1,8 @@
 package powerdns
 
-import "strings"
+import (
+	"strings"
+)
 
 type Zone struct {
 	ID             string   `json:"id"`
@@ -49,6 +51,52 @@ type RRsets struct {
 	Sets []RRset `json:"rrsets"`
 }
 
+type NotifyResult struct {
+	Result string `json:"result"`
+}
+
+func (p *PowerDNS) GetZones() (*[]Zone, error) {
+	zones := make([]Zone, 0)
+	error := new(Error)
+	serversSling := p.makeSling()
+	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones").Receive(&zones, error)
+
+	if err == nil && resp.StatusCode >= 400 {
+		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
+		return nil, error
+	}
+
+	return &zones, err
+}
+
+func (p *PowerDNS) GetZone() (*Zone, error) {
+	zone := &Zone{}
+	error := new(Error)
+	serversSling := p.makeSling()
+	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones/"+p.Domain).Receive(zone, error)
+
+	if err == nil && resp.StatusCode >= 400 {
+		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
+		return &Zone{}, error
+	}
+
+	return zone, err
+}
+
+func (p *PowerDNS) Notify() (*NotifyResult, error) {
+	notifyResult := &NotifyResult{}
+	error := new(Error)
+	serversSling := p.makeSling()
+	resp, err := serversSling.New().Put("servers/"+p.VHost+"/zones/"+p.Domain+"/notify").Receive(notifyResult, error)
+
+	if err == nil && resp.StatusCode >= 400 {
+		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
+		return &NotifyResult{}, error
+	}
+
+	return notifyResult, err
+}
+
 func (p *PowerDNS) AddRecord(name string, recordType string, ttl int, content []string) (*Zone, error) {
 	return p.ChangeRecord(name, recordType, ttl, content)
 }
@@ -92,8 +140,8 @@ func (p *PowerDNS) patchRRset(rrset RRset) (*Zone, error) {
 	error := new(Error)
 	zone := new(Zone)
 
-	zonesSling := p.makeSling(p.VHost + "/zones/")
-	resp, err := zonesSling.New().Patch(p.Domain).BodyJSON(payload).Receive(zone, error)
+	zonesSling := p.makeSling()
+	resp, err := zonesSling.New().Patch("servers/"+p.VHost+"/zones/"+p.Domain).BodyJSON(payload).Receive(zone, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")

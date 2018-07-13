@@ -1,6 +1,8 @@
 package powerdns
 
-import "strings"
+import (
+	"strings"
+)
 
 type Statistic struct {
 	Name  string `json:"name"`
@@ -8,17 +10,16 @@ type Statistic struct {
 	Value string `json:"value"`
 }
 
-func (p *PowerDNS) GetStatistics(serverID string) ([]Statistic, error) {
-	serversSling := p.makeSling("servers/")
-
+func (p *PowerDNS) GetStatistics() (*[]Statistic, error) {
 	statistics := make([]Statistic, 0)
 	error := new(Error)
-	resp, err := serversSling.New().Get(serverID+"/statistics").Receive(&statistics, error)
+	serversSling := p.makeSling()
+	resp, err := serversSling.New().Get("servers/"+p.VHost+"/statistics").Receive(&statistics, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
 		return nil, error
 	}
 
-	return statistics, err
+	return &statistics, err
 }

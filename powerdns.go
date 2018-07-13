@@ -57,11 +57,11 @@ func NewClient(baseURL string, vhost string, domain string, apikey string) *Powe
 	}
 }
 
-func (p *PowerDNS) makeSling(path string) *sling.Sling {
+func (p *PowerDNS) makeSling() *sling.Sling {
 	u := url.URL{}
 	u.Host = p.Hostname + ":" + p.Port
 	u.Scheme = p.Scheme
-	u.Path = "/api/v1/" + path
+	u.Path = "/api/v1/"
 
 	mySling := sling.New()
 	mySling.Base(u.String())
