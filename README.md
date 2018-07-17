@@ -2,6 +2,8 @@
 
 This community project provides bindings for the currently latest version of PowerDNS.
 
+[![Build Status](https://travis-ci.org/joeig/go-powerdns.svg?branch=master)](https://travis-ci.org/joeig/go-powerdns)
+
 ## Requirements
 
 - PowerDNS 4.1 ("API v1")
