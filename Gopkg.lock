@@ -13,9 +13,15 @@
   packages = ["query"]
   revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 
+[[projects]]
+  branch = "v1"
+  name = "gopkg.in/jarcoal/httpmock.v1"
+  packages = ["."]
+  revision = "16f9a43967d613f0adc2000f0094a17b9f6c4c20"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0510a9a09eb0e6e2f97c8899c3d344d07d083b1e242154bd2b120c53788b4856"
+  inputs-digest = "a24564308f44150e1eac8b4232fa09b3b6de98cd1dfffe60b49c134077cf4bd1"
   solver-name = "gps-cdcl"
   solver-version = 1
