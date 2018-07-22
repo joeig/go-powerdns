@@ -21,11 +21,10 @@ type PowerDNS struct {
 	Hostname string
 	Port     string
 	VHost    string
-	Domain   string
 	APIKey   string
 }
 
-func NewClient(baseURL string, vhost string, domain string, apikey string) *PowerDNS {
+func NewClient(baseURL string, vhost string, apikey string) *PowerDNS {
 	if vhost == "" {
 		vhost = "localhost"
 	}
@@ -52,7 +51,6 @@ func NewClient(baseURL string, vhost string, domain string, apikey string) *Powe
 		Hostname: hostname,
 		Port:     port,
 		VHost:    vhost,
-		Domain:   domain,
 		APIKey:   apikey,
 	}
 }

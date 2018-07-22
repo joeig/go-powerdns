@@ -10,7 +10,7 @@ type Statistic struct {
 	Value string `json:"value"`
 }
 
-func (p *PowerDNS) GetStatistics() (*[]Statistic, error) {
+func (p *PowerDNS) GetStatistics() ([]Statistic, error) {
 	statistics := make([]Statistic, 0)
 	error := new(Error)
 	serversSling := p.makeSling()
@@ -21,5 +21,5 @@ func (p *PowerDNS) GetStatistics() (*[]Statistic, error) {
 		return nil, error
 	}
 
-	return &statistics, err
+	return statistics, err
 }

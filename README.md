@@ -24,25 +24,25 @@ go get github.com/joeig/go-powerdns
 ```go
 import "github.com/joeig/go-powerdns"
 
-pdns := powerdns.NewClient("http://localhost:80", "localhost", "example.com", "apipw")
+pdns := powerdns.NewClient("http://localhost:80", "localhost", "apipw")
 ```
 
 Assuming that the server is listening on http://localhost:80 for virtual host `localhost`, the API password is `apipw` and you want to edit the domain `example.com`.
 
-### Add/change/delete resource records
-
-```go
-zone, err := pdns.AddRecord("www.example.com", "AAAA", 60, ["::1"])
-zone, err := pdns.ChangeRecord("www.example.com", "AAAA", 3600, ["::1"])
-zone, err := pdns.DeleteRecord("www.example.com", "A")
-notifyResult, err := pdns.Notify()
-```
-
 ### Request zone data
 
 ```go
-zone, err := pdns.GetZone()
+zone, err := pdns.GetZone("example.com")
 zones, err := pdns.GetZones()
+```
+
+### Add/change/delete resource records
+
+```go
+err := zone.AddRecord("www.example.com", "AAAA", 60, ["::1"])
+err := zone.ChangeRecord("www.example.com", "AAAA", 3600, ["::1"])
+err := zone.DeleteRecord("www.example.com", "A")
+notifyResult, err := zone.Notify()
 ```
 
 ### Request server information and statistics

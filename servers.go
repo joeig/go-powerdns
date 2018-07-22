@@ -14,7 +14,7 @@ type Server struct {
 	ZonesURL   string `json:"zones_url"`
 }
 
-func (p *PowerDNS) GetServers() (*[]Server, error) {
+func (p *PowerDNS) GetServers() ([]Server, error) {
 	servers := make([]Server, 0)
 	error := new(Error)
 	serversSling := p.makeSling()
@@ -25,7 +25,7 @@ func (p *PowerDNS) GetServers() (*[]Server, error) {
 		return nil, error
 	}
 
-	return &servers, err
+	return servers, err
 }
 
 func (p *PowerDNS) GetServer() (*Server, error) {

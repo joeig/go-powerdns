@@ -31,12 +31,12 @@ func TestGetServers(t *testing.T) {
 		},
 	)
 
-	p := powerdns.NewClient("http://localhost:8080/", "localhost", "example.com", "apipw")
+	p := powerdns.NewClient("http://localhost:8080/", "localhost", "apipw")
 	servers, err := p.GetServers()
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if len(*servers) == 0 {
+	if len(servers) == 0 {
 		t.Error("Received amount of servers is 0")
 	}
 }
@@ -63,7 +63,7 @@ func TestGetServer(t *testing.T) {
 		},
 	)
 
-	p := powerdns.NewClient("http://localhost:8080/", "localhost", "example.com", "apipw")
+	p := powerdns.NewClient("http://localhost:8080/", "localhost", "apipw")
 	server, err := p.GetServer()
 	if err != nil {
 		t.Errorf("%s", err)

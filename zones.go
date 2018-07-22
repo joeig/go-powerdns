@@ -24,6 +24,7 @@ type Zone struct {
 	Zone           string   `json:"zone"`
 	Account        string   `json:"account"`
 	Nameservers    []string `json:"nameservers"`
+	PowerDNSHandle *PowerDNS
 }
 
 type RRset struct {
@@ -55,7 +56,7 @@ type NotifyResult struct {
 	Result string `json:"result"`
 }
 
-func (p *PowerDNS) GetZones() (*[]Zone, error) {
+func (p *PowerDNS) GetZones() ([]Zone, error) {
 	zones := make([]Zone, 0)
 	error := new(Error)
 	serversSling := p.makeSling()
@@ -66,28 +67,29 @@ func (p *PowerDNS) GetZones() (*[]Zone, error) {
 		return nil, error
 	}
 
-	return &zones, err
+	return zones, err
 }
 
-func (p *PowerDNS) GetZone() (*Zone, error) {
+func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
 	zone := &Zone{}
 	error := new(Error)
 	serversSling := p.makeSling()
-	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones/"+p.Domain).Receive(zone, error)
+	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(zone, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
 		return &Zone{}, error
 	}
 
+	zone.PowerDNSHandle = p
 	return zone, err
 }
 
-func (p *PowerDNS) Notify() (*NotifyResult, error) {
+func (z *Zone) Notify() (*NotifyResult, error) {
 	notifyResult := &NotifyResult{}
 	error := new(Error)
-	serversSling := p.makeSling()
-	resp, err := serversSling.New().Put("servers/"+p.VHost+"/zones/"+p.Domain+"/notify").Receive(notifyResult, error)
+	serversSling := z.PowerDNSHandle.makeSling()
+	resp, err := serversSling.New().Put(strings.TrimRight(z.URL, ".")+"/notify").Receive(notifyResult, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
@@ -97,11 +99,11 @@ func (p *PowerDNS) Notify() (*NotifyResult, error) {
 	return notifyResult, err
 }
 
-func (p *PowerDNS) AddRecord(name string, recordType string, ttl int, content []string) (*Zone, error) {
-	return p.ChangeRecord(name, recordType, ttl, content)
+func (z *Zone) AddRecord(name string, recordType string, ttl int, content []string) error {
+	return z.ChangeRecord(name, recordType, ttl, content)
 }
 
-func (p *PowerDNS) ChangeRecord(name string, recordType string, ttl int, content []string) (*Zone, error) {
+func (z *Zone) ChangeRecord(name string, recordType string, ttl int, content []string) error {
 	rrset := new(RRset)
 	rrset.Name = name
 	rrset.Type = recordType
@@ -113,23 +115,19 @@ func (p *PowerDNS) ChangeRecord(name string, recordType string, ttl int, content
 		rrset.Records = append(rrset.Records, r)
 	}
 
-	zone, err := p.patchRRset(*rrset)
-
-	return zone, err
+	return z.patchRRset(*rrset)
 }
 
-func (p *PowerDNS) DeleteRecord(name string, recordType string) (*Zone, error) {
+func (z *Zone) DeleteRecord(name string, recordType string) error {
 	rrset := new(RRset)
 	rrset.Name = name
 	rrset.Type = recordType
 	rrset.ChangeType = "DELETE"
 
-	zone, err := p.patchRRset(*rrset)
-
-	return zone, err
+	return z.patchRRset(*rrset)
 }
 
-func (p *PowerDNS) patchRRset(rrset RRset) (*Zone, error) {
+func (z *Zone) patchRRset(rrset RRset) error {
 	if !strings.HasSuffix(rrset.Name, ".") {
 		rrset.Name += "."
 	}
@@ -140,13 +138,13 @@ func (p *PowerDNS) patchRRset(rrset RRset) (*Zone, error) {
 	error := new(Error)
 	zone := new(Zone)
 
-	zonesSling := p.makeSling()
-	resp, err := zonesSling.New().Patch("servers/"+p.VHost+"/zones/"+p.Domain).BodyJSON(payload).Receive(zone, error)
+	zonesSling := z.PowerDNSHandle.makeSling()
+	resp, err := zonesSling.New().Patch(strings.TrimRight(z.URL, ".")).BodyJSON(payload).Receive(zone, error)
 
 	if err == nil && resp.StatusCode >= 400 {
 		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return nil, error
+		return error
 	}
 
-	return zone, err
+	return err
 }
