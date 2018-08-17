@@ -53,6 +53,15 @@ server, err := pdns.GetServer()
 servers, err := pdns.GetServers()
 ```
 
+### Handle DNSSEC cryptographic material
+
+```go
+cryptokeys, err := z.GetCryptokeys()
+cryptokey, err := z.GetCryptokey("1337")
+err := cryptokey.ToggleCryptokey()
+err := cryptokey.DeleteCryptokey()
+```
+
 ## Documentation
 
 See [GoDoc](https://godoc.org/github.com/joeig/go-powerdns).
