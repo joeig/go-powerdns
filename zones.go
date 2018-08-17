@@ -67,6 +67,10 @@ func (p *PowerDNS) GetZones() ([]Zone, error) {
 		return nil, error
 	}
 
+	for i := range zones {
+		zones[i].PowerDNSHandle = p
+	}
+
 	return zones, err
 }
 
