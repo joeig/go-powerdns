@@ -146,5 +146,9 @@ func (z *Zone) patchRRset(rrset RRset) error {
 		return error
 	}
 
+	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
+		return nil
+	}
+
 	return err
 }
