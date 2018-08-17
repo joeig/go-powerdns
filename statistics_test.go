@@ -1,7 +1,6 @@
-package powerdns_test
+package powerdns
 
 import (
-	"github.com/joeig/go-powerdns"
 	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
@@ -13,7 +12,7 @@ func TestGetStatistics(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/statistics",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
-				statisticsMock := []powerdns.Statistic{
+				statisticsMock := []Statistic{
 					{
 						Name:  "corrupt-packets",
 						Type:  "StatisticItem",
@@ -57,7 +56,7 @@ func TestGetStatistics(t *testing.T) {
 		},
 	)
 
-	p := powerdns.NewClient("http://localhost:8080/", "localhost", "apipw")
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
 	statistics, err := p.GetStatistics()
 	if err != nil {
 		t.Errorf("%s", err)

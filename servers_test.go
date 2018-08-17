@@ -1,7 +1,6 @@
-package powerdns_test
+package powerdns
 
 import (
-	"github.com/joeig/go-powerdns"
 	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
@@ -13,7 +12,7 @@ func TestGetServers(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
-				serversMock := []powerdns.Server{
+				serversMock := []Server{
 					{
 						Type:       "Server",
 						ID:         "localhost",
@@ -31,7 +30,7 @@ func TestGetServers(t *testing.T) {
 		},
 	)
 
-	p := powerdns.NewClient("http://localhost:8080/", "localhost", "apipw")
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
 	servers, err := p.GetServers()
 	if err != nil {
 		t.Errorf("%s", err)
@@ -47,7 +46,7 @@ func TestGetServer(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
-				serverMock := powerdns.Server{
+				serverMock := Server{
 					Type:       "Server",
 					ID:         "localhost",
 					DaemonType: "authoritative",
@@ -63,7 +62,7 @@ func TestGetServer(t *testing.T) {
 		},
 	)
 
-	p := powerdns.NewClient("http://localhost:8080/", "localhost", "apipw")
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
 	server, err := p.GetServer()
 	if err != nil {
 		t.Errorf("%s", err)

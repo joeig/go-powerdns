@@ -1,7 +1,6 @@
-package powerdns_test
+package powerdns
 
 import (
-	"github.com/joeig/go-powerdns"
 	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
@@ -13,7 +12,7 @@ func TestGetZones(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
-				zonesMock := []powerdns.Zone{
+				zonesMock := []Zone{
 					{
 						ID:             "example.com.",
 						Name:           "example.com.",
@@ -30,7 +29,7 @@ func TestGetZones(t *testing.T) {
 		},
 	)
 
-	p := powerdns.NewClient("http://localhost:8080/", "localhost", "apipw")
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
 	zones, err := p.GetZones()
 	if err != nil {
 		t.Errorf("%s", err)
@@ -46,17 +45,17 @@ func TestGetZone(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := powerdns.Zone{
+				zoneMock := Zone{
 					ID:   "example.com.",
 					Name: "example.com.",
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 					Kind: "Native",
-					RRsets: []powerdns.RRset{
+					RRsets: []RRset{
 						{
 							Name: "example.com.",
 							Type: "SOA",
 							TTL:  3600,
-							Records: []powerdns.Record{
+							Records: []Record{
 								{
 									Content: "a.misconfigured.powerdns.server. hostmaster.example.com. 1337 10800 3600 604800 3600",
 								},
@@ -73,7 +72,7 @@ func TestGetZone(t *testing.T) {
 		},
 	)
 
-	p := powerdns.NewClient("http://localhost:8080/", "localhost", "apipw")
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
 	zone, err := p.GetZone("example.com")
 	if err != nil {
 		t.Errorf("%s", err)
@@ -89,7 +88,7 @@ func TestNotify(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := powerdns.Zone{
+				zoneMock := Zone{
 					Name: "example.com.",
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
@@ -109,7 +108,7 @@ func TestNotify(t *testing.T) {
 		},
 	)
 
-	p := powerdns.NewClient("http://localhost:8080/", "localhost", "apipw")
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
 	z, err := p.GetZone("example.com")
 	if err != nil {
 		t.Errorf("%s", err)
