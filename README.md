@@ -56,8 +56,8 @@ servers, err := pdns.GetServers()
 ### Handle DNSSEC cryptographic material
 
 ```go
-cryptokeys, err := z.GetCryptokeys()
-cryptokey, err := z.GetCryptokey("1337")
+cryptokeys, err := zone.GetCryptokeys()
+cryptokey, err := zone.GetCryptokey("1337")
 err := cryptokey.ToggleCryptokey()
 err := cryptokey.DeleteCryptokey()
 ```
