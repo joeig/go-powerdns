@@ -2,26 +2,35 @@
 
 
 [[projects]]
+  digest = "1:ace1aef6acdf2c4647365dc87c14fb8b71ed8bb0b3ae114ffb216614a24da219"
   name = "github.com/dghubble/sling"
   packages = ["."]
+  pruneopts = "UT"
   revision = "eb56e89ac5088bebb12eef3cb4b293300f43608b"
   version = "v1.1.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
   name = "github.com/google/go-querystring"
   packages = ["query"]
+  pruneopts = "UT"
   revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 
 [[projects]]
   branch = "v1"
+  digest = "1:23fc86a644517c24115801c487921dbca64199a17b4c4bd057dcd97e59605684"
   name = "gopkg.in/jarcoal/httpmock.v1"
   packages = ["."]
-  revision = "16f9a43967d613f0adc2000f0094a17b9f6c4c20"
+  pruneopts = "UT"
+  revision = "8007e27cdb3239fcfc95c1274d7d8cbcc68b7d52"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a24564308f44150e1eac8b4232fa09b3b6de98cd1dfffe60b49c134077cf4bd1"
+  input-imports = [
+    "github.com/dghubble/sling",
+    "gopkg.in/jarcoal/httpmock.v1",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
