@@ -1,10 +1,10 @@
 version: '3.3'
 
 services:
-  mysql:
-    image: mysql:5.7
+  mariadb:
+    image: mariadb:10.3
     volumes:
-    - mysql_data:/var/lib/mysql
+    - mariadb_data:/var/lib/mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -14,19 +14,19 @@ services:
 
   powerdns:
     depends_on:
-    - mysql
+    - mariadb
     image: psitrax/powerdns:4.1
     ports:
     - "8053:53"
     - "8053:53/udp"
     - "8080:80"
     links:
-    - mysql
+    - mariadb
     volumes:
     - ./scripts/init_docker_fixtures.sh:/init_docker_fixtures.sh:ro
     restart: always
     environment:
-      MYSQL_HOST: mysql
+      MYSQL_HOST: mariadb
       MYSQL_DB: powerdns
       MYSQL_USER: powerdns
       MYSQL_PASS: powerdns
@@ -49,4 +49,4 @@ services:
     ]
 
 volumes:
-  mysql_data:
+  mariadb_data:
