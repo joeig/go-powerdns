@@ -70,4 +70,11 @@ See [GoDoc](https://godoc.org/github.com/joeig/go-powerdns).
 
 This API client has not been completed yet, so feel free to contribute.
 
+Start a PowerDNS authoritative server including a generic MySQL backend, NSSEC support and some fixtures using Docker compose:
+
+```bash
+docker-compose up
+docker-compose exec powerdns sh init_docker_fixtures.sh
+```
+
 Based on the work of [jgreat](https://github.com/jgreat/powerdns) and [waynz0r](https://github.com/waynz0r/go-powerdns).
