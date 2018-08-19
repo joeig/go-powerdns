@@ -58,13 +58,13 @@ type NotifyResult struct {
 
 func (p *PowerDNS) GetZones() ([]Zone, error) {
 	zones := make([]Zone, 0)
-	error := new(Error)
+	myError := new(Error)
 	serversSling := p.makeSling()
-	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones").Receive(&zones, error)
+	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones").Receive(&zones, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return nil, error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return nil, myError
 	}
 
 	for i := range zones {
@@ -76,13 +76,13 @@ func (p *PowerDNS) GetZones() ([]Zone, error) {
 
 func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
 	zone := &Zone{}
-	error := new(Error)
+	myError := new(Error)
 	serversSling := p.makeSling()
-	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(zone, error)
+	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(zone, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return &Zone{}, error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return &Zone{}, myError
 	}
 
 	zone.PowerDNSHandle = p
@@ -91,13 +91,13 @@ func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
 
 func (z *Zone) Notify() (*NotifyResult, error) {
 	notifyResult := &NotifyResult{}
-	error := new(Error)
+	myError := new(Error)
 	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Put(strings.TrimRight(z.URL, ".")+"/notify").Receive(notifyResult, error)
+	resp, err := serversSling.New().Put(strings.TrimRight(z.URL, ".")+"/notify").Receive(notifyResult, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return &NotifyResult{}, error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return &NotifyResult{}, myError
 	}
 
 	return notifyResult, err
@@ -139,15 +139,15 @@ func (z *Zone) patchRRset(rrset RRset) error {
 	payload := RRsets{}
 	payload.Sets = append(payload.Sets, rrset)
 
-	error := new(Error)
+	myError := new(Error)
 	zone := new(Zone)
 
 	zonesSling := z.PowerDNSHandle.makeSling()
-	resp, err := zonesSling.New().Patch(strings.TrimRight(z.URL, ".")).BodyJSON(payload).Receive(zone, error)
+	resp, err := zonesSling.New().Patch(strings.TrimRight(z.URL, ".")).BodyJSON(payload).Receive(zone, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return myError
 	}
 
 	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {

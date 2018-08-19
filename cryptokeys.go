@@ -17,13 +17,13 @@ type Cryptokey struct {
 
 func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
 	cryptokeys := make([]Cryptokey, 0)
-	error := new(Error)
+	myError := new(Error)
 	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys").Receive(&cryptokeys, error)
+	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys").Receive(&cryptokeys, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return nil, error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return nil, myError
 	}
 
 	for i := range cryptokeys {
@@ -35,13 +35,13 @@ func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
 
 func (z *Zone) GetCryptokey(id string) (*Cryptokey, error) {
 	cryptokey := new(Cryptokey)
-	error := new(Error)
+	myError := new(Error)
 	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+id).Receive(cryptokey, error)
+	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+id).Receive(cryptokey, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return nil, error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return nil, myError
 	}
 
 	cryptokey.ZoneHandle = z
@@ -50,13 +50,13 @@ func (z *Zone) GetCryptokey(id string) (*Cryptokey, error) {
 
 func (c *Cryptokey) ToggleCryptokey() error {
 	cryptokey := new(Cryptokey)
-	error := new(Error)
+	myError := new(Error)
 	serversSling := c.ZoneHandle.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Put(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+c.ID).Receive(cryptokey, error)
+	resp, err := serversSling.New().Put(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+c.ID).Receive(cryptokey, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return myError
 	}
 
 	return nil
@@ -64,13 +64,13 @@ func (c *Cryptokey) ToggleCryptokey() error {
 
 func (c *Cryptokey) DeleteCryptokey() error {
 	cryptokey := new(Cryptokey)
-	error := new(Error)
+	myError := new(Error)
 	serversSling := c.ZoneHandle.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Delete(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+c.ID).Receive(cryptokey, error)
+	resp, err := serversSling.New().Delete(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+c.ID).Receive(cryptokey, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return myError
 	}
 
 	return nil

@@ -12,13 +12,13 @@ type Statistic struct {
 
 func (p *PowerDNS) GetStatistics() ([]Statistic, error) {
 	statistics := make([]Statistic, 0)
-	error := new(Error)
+	myError := new(Error)
 	serversSling := p.makeSling()
-	resp, err := serversSling.New().Get("servers/"+p.VHost+"/statistics").Receive(&statistics, error)
+	resp, err := serversSling.New().Get("servers/"+p.VHost+"/statistics").Receive(&statistics, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
-		error.Message = strings.Join([]string{resp.Status, error.Message}, " ")
-		return nil, error
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return nil, myError
 	}
 
 	return statistics, err
