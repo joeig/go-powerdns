@@ -32,8 +32,9 @@ Assuming that the server is listening on http://localhost:80 for virtual host `l
 ### Request zone data
 
 ```go
-zone, err := pdns.GetZone("example.com")
 zones, err := pdns.GetZones()
+zone, err := pdns.GetZone("example.com")
+export, err := zone.Export()
 ```
 
 ### Add/change/delete resource records
@@ -49,8 +50,8 @@ notifyResult, err := zone.Notify()
 
 ```go
 statistics, err := pdns.GetStatistics()
-server, err := pdns.GetServer()
 servers, err := pdns.GetServers()
+server, err := pdns.GetServer()
 ```
 
 ### Handle DNSSEC cryptographic material

@@ -121,3 +121,159 @@ func TestNotify(t *testing.T) {
 		t.Error("Notification was not queued successfully")
 	}
 }
+
+func TestAddRecord(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				zoneMock := Zone{
+					Name: "example.com.",
+					URL:  "/api/v1/servers/localhost/zones/example.com.",
+				}
+				return httpmock.NewJsonResponse(200, zoneMock)
+			} else {
+				return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			}
+		},
+	)
+	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				zoneMock := Zone{
+					Name: "example.com.",
+					URL:  "/api/v1/servers/localhost/zones/example.com.",
+				}
+				return httpmock.NewJsonResponse(200, zoneMock)
+			} else {
+				return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			}
+		},
+	)
+
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	z, err := p.GetZone("example.com")
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if z.AddRecord("foo.example.com", "TXT", 300, []string{"bar"}) != nil {
+		t.Errorf("%s", err)
+	}
+}
+
+func TestChangeRecord(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				zoneMock := Zone{
+					Name: "example.com.",
+					URL:  "/api/v1/servers/localhost/zones/example.com.",
+				}
+				return httpmock.NewJsonResponse(200, zoneMock)
+			} else {
+				return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			}
+		},
+	)
+	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				zoneMock := Zone{
+					Name: "example.com.",
+					URL:  "/api/v1/servers/localhost/zones/example.com.",
+				}
+				return httpmock.NewJsonResponse(200, zoneMock)
+			} else {
+				return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			}
+		},
+	)
+
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	z, err := p.GetZone("example.com")
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if z.ChangeRecord("foo.example.com", "TXT", 300, []string{"bar"}) != nil {
+		t.Errorf("%s", err)
+	}
+}
+
+func TestDeleteRecord(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				zoneMock := Zone{
+					Name: "example.com.",
+					URL:  "/api/v1/servers/localhost/zones/example.com.",
+				}
+				return httpmock.NewJsonResponse(200, zoneMock)
+			} else {
+				return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			}
+		},
+	)
+	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				zoneMock := Zone{
+					Name: "example.com.",
+					URL:  "/api/v1/servers/localhost/zones/example.com.",
+				}
+				return httpmock.NewJsonResponse(200, zoneMock)
+			} else {
+				return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			}
+		},
+	)
+
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	z, err := p.GetZone("example.com")
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if z.DeleteRecord("foo.example.com", "TXT") != nil {
+		t.Errorf("%s", err)
+	}
+}
+
+func TestExport(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				zoneMock := Zone{
+					Name: "example.com.",
+					URL:  "/api/v1/servers/localhost/zones/example.com.",
+				}
+				return httpmock.NewJsonResponse(200, zoneMock)
+			} else {
+				return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			}
+		},
+	)
+	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/export",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				return httpmock.NewStringResponse(200, "example.com.	3600	SOA	a.misconfigured.powerdns.server. hostmaster.example.com. 1 10800 3600 604800 3600"), nil
+			} else {
+				return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			}
+		},
+	)
+
+	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	z, err := p.GetZone("example.com")
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if _, err := z.Export(); err != nil {
+		t.Errorf("%s", err)
+	}
+}

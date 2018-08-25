@@ -1,6 +1,8 @@
 package powerdns
 
 import (
+	"io/ioutil"
+	"net/http"
 	"strings"
 )
 
@@ -56,11 +58,13 @@ type NotifyResult struct {
 	Result string `json:"result"`
 }
 
+type Export string
+
 func (p *PowerDNS) GetZones() ([]Zone, error) {
 	zones := make([]Zone, 0)
 	myError := new(Error)
-	serversSling := p.makeSling()
-	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones").Receive(&zones, myError)
+	zonesSling := p.makeSling()
+	resp, err := zonesSling.New().Get("servers/"+p.VHost+"/zones").Receive(&zones, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
@@ -77,8 +81,8 @@ func (p *PowerDNS) GetZones() ([]Zone, error) {
 func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
 	zone := &Zone{}
 	myError := new(Error)
-	serversSling := p.makeSling()
-	resp, err := serversSling.New().Get("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(zone, myError)
+	zoneSling := p.makeSling()
+	resp, err := zoneSling.New().Get("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(zone, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
@@ -92,8 +96,8 @@ func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
 func (z *Zone) Notify() (*NotifyResult, error) {
 	notifyResult := &NotifyResult{}
 	myError := new(Error)
-	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Put(strings.TrimRight(z.URL, ".")+"/notify").Receive(notifyResult, myError)
+	notifySling := z.PowerDNSHandle.makeSling()
+	resp, err := notifySling.New().Put(strings.TrimRight(z.URL, ".")+"/notify").Receive(notifyResult, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
@@ -155,4 +159,19 @@ func (z *Zone) patchRRset(rrset RRset) error {
 	}
 
 	return err
+}
+
+func (z *Zone) Export() (Export, error) {
+	myError := new(Error)
+	exportSling := z.PowerDNSHandle.makeSling()
+	req, err := exportSling.New().Get(strings.TrimRight(z.URL, ".") + "/export").Request()
+	resp, err := http.DefaultClient.Do(req)
+
+	if err == nil && resp.StatusCode >= 400 {
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return "", myError
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	return Export(bodyBytes), nil
 }
