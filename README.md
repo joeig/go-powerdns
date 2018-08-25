@@ -69,7 +69,7 @@ See [GoDoc](https://godoc.org/github.com/joeig/go-powerdns).
 
 ## Contribution
 
-This API client has not been completed yet, so feel free to contribute.
+This API client has not been completed yet, so feel free to contribute. The [OpenAPI specification](https://github.com/PowerDNS/pdns/blob/master/docs/http-api/swagger/authoritative-api-swagger.yaml) might be a good reference.
 
 Start a PowerDNS authoritative server including a generic MySQL backend, NSSEC support and some fixtures using Docker compose:
 
