@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Zone structure with JSON API metadata
 type Zone struct {
 	ID             string   `json:"id"`
 	Name           string   `json:"name"`
@@ -29,6 +30,7 @@ type Zone struct {
 	PowerDNSHandle *PowerDNS
 }
 
+// RRset structure with JSON API metadata
 type RRset struct {
 	Name       string    `json:"name"`
 	Type       string    `json:"type"`
@@ -38,28 +40,34 @@ type RRset struct {
 	Comments   []Comment `json:"comments"`
 }
 
+// Record structure with JSON API metadata
 type Record struct {
 	Content  string `json:"content"`
 	Disabled bool   `json:"disabled"`
 	SetPTR   bool   `json:"set-ptr"`
 }
 
+// Comment structure with JSON API metadata
 type Comment struct {
 	Content    string `json:"content"`
 	Account    string `json:"account"`
 	ModifiedAt int    `json:"modified_at"`
 }
 
+// RRsets structure with JSON API metadata
 type RRsets struct {
 	Sets []RRset `json:"rrsets"`
 }
 
+// NotifyResult structure with JSON API metadata
 type NotifyResult struct {
 	Result string `json:"result"`
 }
 
+// Export string type
 type Export string
 
+// GetZones retrieves a list of Zones
 func (p *PowerDNS) GetZones() ([]Zone, error) {
 	zones := make([]Zone, 0)
 	myError := new(Error)
@@ -78,6 +86,7 @@ func (p *PowerDNS) GetZones() ([]Zone, error) {
 	return zones, err
 }
 
+// GetZone returns a certain Zone for a given domain
 func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
 	zone := &Zone{}
 	myError := new(Error)
@@ -93,6 +102,7 @@ func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
 	return zone, err
 }
 
+// Notify sends a DNS notify packet to all slaves
 func (z *Zone) Notify() (*NotifyResult, error) {
 	notifyResult := &NotifyResult{}
 	myError := new(Error)
@@ -107,10 +117,12 @@ func (z *Zone) Notify() (*NotifyResult, error) {
 	return notifyResult, err
 }
 
+// AddRecord creates a new resource record
 func (z *Zone) AddRecord(name string, recordType string, ttl int, content []string) error {
 	return z.ChangeRecord(name, recordType, ttl, content)
 }
 
+// ChangeRecord replaces an existing resource record
 func (z *Zone) ChangeRecord(name string, recordType string, ttl int, content []string) error {
 	rrset := new(RRset)
 	rrset.Name = name
@@ -126,6 +138,7 @@ func (z *Zone) ChangeRecord(name string, recordType string, ttl int, content []s
 	return z.patchRRset(*rrset)
 }
 
+// DeleteRecord removes an existing resource record
 func (z *Zone) DeleteRecord(name string, recordType string) error {
 	rrset := new(RRset)
 	rrset.Name = name
@@ -161,6 +174,7 @@ func (z *Zone) patchRRset(rrset RRset) error {
 	return err
 }
 
+// Export returns a BIND-like Zone file
 func (z *Zone) Export() (Export, error) {
 	myError := new(Error)
 	exportSling := z.PowerDNSHandle.makeSling()

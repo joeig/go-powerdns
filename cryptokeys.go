@@ -2,6 +2,7 @@ package powerdns
 
 import "strings"
 
+// Cryptokey structure with JSON API metadata
 type Cryptokey struct {
 	Type       string   `json:"type"`
 	ID         string   `json:"id"`
@@ -15,6 +16,7 @@ type Cryptokey struct {
 	ZoneHandle *Zone
 }
 
+// GetCryptokeys retrieves a list of Cryptokeys that belong to a Zone
 func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
 	cryptokeys := make([]Cryptokey, 0)
 	myError := new(Error)
@@ -33,6 +35,7 @@ func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
 	return cryptokeys, err
 }
 
+// GetCryptokey returns a certain Cryptokey instance of a given Zone
 func (z *Zone) GetCryptokey(id string) (*Cryptokey, error) {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
@@ -48,6 +51,7 @@ func (z *Zone) GetCryptokey(id string) (*Cryptokey, error) {
 	return cryptokey, err
 }
 
+// ToggleCryptokey enables/disables a given Cryptokey
 func (c *Cryptokey) ToggleCryptokey() error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
@@ -62,6 +66,7 @@ func (c *Cryptokey) ToggleCryptokey() error {
 	return nil
 }
 
+// DeleteCryptokey removes a given Cryptokey
 func (c *Cryptokey) DeleteCryptokey() error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)

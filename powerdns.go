@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Error structure with JSON API metadata
 type Error struct {
 	Message string `json:"error"`
 }
@@ -16,6 +17,7 @@ func (e Error) Error() string {
 	return fmt.Sprintf("%v", e.Message)
 }
 
+// PowerDNS configuration structure
 type PowerDNS struct {
 	Scheme   string
 	Hostname string
@@ -24,6 +26,7 @@ type PowerDNS struct {
 	APIKey   string
 }
 
+// NewClient initializes a new PowerDNS client configuration
 func NewClient(baseURL string, vhost string, apikey string) *PowerDNS {
 	if vhost == "" {
 		vhost = "localhost"

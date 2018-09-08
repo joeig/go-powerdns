@@ -4,12 +4,14 @@ import (
 	"strings"
 )
 
+// Statistic structure with JSON API metadata
 type Statistic struct {
 	Name  string `json:"name"`
 	Type  string `json:"type"`
 	Value string `json:"value"`
 }
 
+// GetStatistics retrieves a list of Statistics
 func (p *PowerDNS) GetStatistics() ([]Statistic, error) {
 	statistics := make([]Statistic, 0)
 	myError := new(Error)

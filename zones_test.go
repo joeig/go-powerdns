@@ -23,9 +23,8 @@ func TestGetZones(t *testing.T) {
 					},
 				}
 				return httpmock.NewJsonResponse(200, zonesMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -66,9 +65,8 @@ func TestGetZone(t *testing.T) {
 					NotifiedSerial: 1337,
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -93,18 +91,16 @@ func TestNotify(t *testing.T) {
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("PUT", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/notify",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				return httpmock.NewStringResponse(200, "{\"result\":\"Notification queued\"}"), nil
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -133,9 +129,8 @@ func TestAddRecord(t *testing.T) {
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
@@ -146,9 +141,8 @@ func TestAddRecord(t *testing.T) {
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -173,9 +167,8 @@ func TestChangeRecord(t *testing.T) {
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
@@ -186,9 +179,8 @@ func TestChangeRecord(t *testing.T) {
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -213,9 +205,8 @@ func TestDeleteRecord(t *testing.T) {
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
@@ -226,9 +217,8 @@ func TestDeleteRecord(t *testing.T) {
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -253,18 +243,16 @@ func TestExport(t *testing.T) {
 					URL:  "/api/v1/servers/localhost/zones/example.com.",
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/export",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				return httpmock.NewStringResponse(200, "example.com.	3600	SOA	a.misconfigured.powerdns.server. hostmaster.example.com. 1 10800 3600 604800 3600"), nil
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 

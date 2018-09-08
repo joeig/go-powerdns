@@ -4,6 +4,7 @@ import (
 	"strings"
 )
 
+// Server structure with JSON API metadata
 type Server struct {
 	Type       string `json:"type"`
 	ID         string `json:"id"`
@@ -14,6 +15,7 @@ type Server struct {
 	ZonesURL   string `json:"zones_url"`
 }
 
+// GetServers retrieves a list of Servers
 func (p *PowerDNS) GetServers() ([]Server, error) {
 	servers := make([]Server, 0)
 	myError := new(Error)
@@ -28,6 +30,7 @@ func (p *PowerDNS) GetServers() ([]Server, error) {
 	return servers, err
 }
 
+// GetServer returns a certain Server
 func (p *PowerDNS) GetServer() (*Server, error) {
 	server := &Server{}
 	myError := new(Error)

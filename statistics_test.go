@@ -50,9 +50,8 @@ func TestGetStatistics(t *testing.T) {
 					},
 				}
 				return httpmock.NewJsonResponse(200, statisticsMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 

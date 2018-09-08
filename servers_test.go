@@ -24,9 +24,8 @@ func TestGetServers(t *testing.T) {
 					},
 				}
 				return httpmock.NewJsonResponse(200, serversMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -56,9 +55,8 @@ func TestGetServer(t *testing.T) {
 					ZonesURL:   "/api/v1/servers/localhost/zones{/zone}",
 				}
 				return httpmock.NewJsonResponse(200, serverMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 

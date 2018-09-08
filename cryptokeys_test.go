@@ -33,9 +33,8 @@ func TestGetCryptokeys(t *testing.T) {
 					NotifiedSerial: 1337,
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys",
@@ -67,9 +66,8 @@ func TestGetCryptokeys(t *testing.T) {
 					},
 				}
 				return httpmock.NewJsonResponse(200, cryptokeysMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -111,9 +109,8 @@ func TestGetCryptokey(t *testing.T) {
 					NotifiedSerial: 1337,
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
@@ -130,9 +127,8 @@ func TestGetCryptokey(t *testing.T) {
 					Bits:       1024,
 				}
 				return httpmock.NewJsonResponse(200, cryptokeyMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -174,9 +170,8 @@ func TestToggleCryptokey(t *testing.T) {
 					NotifiedSerial: 1337,
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
@@ -193,18 +188,16 @@ func TestToggleCryptokey(t *testing.T) {
 					Bits:       1024,
 				}
 				return httpmock.NewJsonResponse(200, cryptokeyMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("PUT", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				return httpmock.NewStringResponse(204, ""), nil
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
@@ -243,9 +236,8 @@ func TestDeleteCryptokey(t *testing.T) {
 					NotifiedSerial: 1337,
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
@@ -262,18 +254,16 @@ func TestDeleteCryptokey(t *testing.T) {
 					Bits:       1024,
 				}
 				return httpmock.NewJsonResponse(200, cryptokeyMock)
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 	httpmock.RegisterResponder("DELETE", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				return httpmock.NewStringResponse(204, ""), nil
-			} else {
-				return httpmock.NewStringResponse(401, "Unauthorized"), nil
 			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
