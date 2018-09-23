@@ -40,8 +40,8 @@ export, err := zone.Export()
 ### Add/change/delete resource records
 
 ```go
-err := zone.AddRecord("www.example.com", "AAAA", 60, ["::1"])
-err := zone.ChangeRecord("www.example.com", "AAAA", 3600, ["::1"])
+err := zone.AddRecord("www.example.com", "AAAA", 60, []string{"::1"})
+err := zone.ChangeRecord("www.example.com", "AAAA", 3600, []string{"::1"})
 err := zone.DeleteRecord("www.example.com", "A")
 notifyResult, err := zone.Notify()
 ```
@@ -71,7 +71,7 @@ See [GoDoc](https://godoc.org/github.com/joeig/go-powerdns).
 
 This API client has not been completed yet, so feel free to contribute. The [OpenAPI specification](https://github.com/PowerDNS/pdns/blob/master/docs/http-api/swagger/authoritative-api-swagger.yaml) might be a good reference.
 
-Start a PowerDNS authoritative server including a generic MySQL backend, NSSEC support and some fixtures using Docker compose:
+Start a PowerDNS authoritative server including a generic MySQL backend, DNSSEC support and some fixtures using Docker compose:
 
 ```bash
 docker-compose up
