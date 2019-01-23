@@ -1,9 +1,10 @@
 package powerdns
 
 import (
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestGetStatistics(t *testing.T) {
@@ -55,7 +56,9 @@ func TestGetStatistics(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	statistics, err := p.GetStatistics()
 	if err != nil {
 		t.Errorf("%s", err)

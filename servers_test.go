@@ -1,9 +1,10 @@
 package powerdns
 
 import (
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestGetServers(t *testing.T) {
@@ -29,7 +30,9 @@ func TestGetServers(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	servers, err := p.GetServers()
 	if err != nil {
 		t.Errorf("%s", err)
@@ -60,7 +63,9 @@ func TestGetServer(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	server, err := p.GetServer()
 	if err != nil {
 		t.Errorf("%s", err)
