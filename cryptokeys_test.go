@@ -1,9 +1,10 @@
 package powerdns
 
 import (
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestGetCryptokeys(t *testing.T) {
@@ -71,7 +72,9 @@ func TestGetCryptokeys(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	cryptokeys, err := z.GetCryptokeys()
 	if err != nil {
@@ -132,7 +135,9 @@ func TestGetCryptokey(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	cryptokey, err := z.GetCryptokey("11")
 	if err != nil {
@@ -201,7 +206,9 @@ func TestToggleCryptokey(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	c, err := z.GetCryptokey("11")
 	if c.ToggleCryptokey() != nil {
@@ -267,7 +274,9 @@ func TestDeleteCryptokey(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	c, err := z.GetCryptokey("11")
 	if c.DeleteCryptokey() != nil {

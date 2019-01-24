@@ -1,9 +1,10 @@
 package powerdns
 
 import (
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestGetZones(t *testing.T) {
@@ -28,7 +29,9 @@ func TestGetZones(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	zones, err := p.GetZones()
 	if err != nil {
 		t.Errorf("%s", err)
@@ -70,7 +73,9 @@ func TestGetZone(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	zone, err := p.GetZone("example.com")
 	if err != nil {
 		t.Errorf("%s", err)
@@ -104,7 +109,9 @@ func TestNotify(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	if err != nil {
 		t.Errorf("%s", err)
@@ -146,7 +153,9 @@ func TestAddRecord(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	if err != nil {
 		t.Errorf("%s", err)
@@ -184,7 +193,9 @@ func TestChangeRecord(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	if err != nil {
 		t.Errorf("%s", err)
@@ -222,7 +233,9 @@ func TestDeleteRecord(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	if err != nil {
 		t.Errorf("%s", err)
@@ -256,7 +269,9 @@ func TestExport(t *testing.T) {
 		},
 	)
 
-	p := NewClient("http://localhost:8080/", "localhost", "apipw")
+	headers := make(map[string]string)
+	headers["X-API-Key"] = "apipw"
+	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, err := p.GetZone("example.com")
 	if err != nil {
 		t.Errorf("%s", err)

@@ -27,7 +27,9 @@ go get -u github.com/joeig/go-powerdns
 ```go
 import "github.com/joeig/go-powerdns"
 
-pdns := powerdns.NewClient("http://localhost:80", "localhost", "apipw")
+headers := make(map[string]string)
+headers["X-API-Key"] = "apipw"
+pdns := powerdns.NewClient("http://localhost:80", "localhost", headers, nil)
 ```
 
 Assuming that the server is listening on http://localhost:80 for virtual host `localhost`, the API password is `apipw` and you want to edit the domain `example.com`.

@@ -2,10 +2,12 @@ package powerdns
 
 import (
 	"fmt"
-	"github.com/dghubble/sling"
 	"log"
+	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/dghubble/sling"
 )
 
 // Error structure with JSON API metadata
@@ -19,15 +21,16 @@ func (e Error) Error() string {
 
 // PowerDNS configuration structure
 type PowerDNS struct {
-	Scheme   string
-	Hostname string
-	Port     string
-	VHost    string
-	APIKey   string
+	Scheme     string
+	Hostname   string
+	Port       string
+	VHost      string
+	Headers    map[string]string
+	httpClient *http.Client
 }
 
 // NewClient initializes a new PowerDNS client configuration
-func NewClient(baseURL string, vhost string, apikey string) *PowerDNS {
+func NewClient(baseURL string, vhost string, headers map[string]string, httpClient *http.Client) *PowerDNS {
 	if vhost == "" {
 		vhost = "localhost"
 	}
@@ -50,11 +53,12 @@ func NewClient(baseURL string, vhost string, apikey string) *PowerDNS {
 	}
 
 	return &PowerDNS{
-		Scheme:   u.Scheme,
-		Hostname: hostname,
-		Port:     port,
-		VHost:    vhost,
-		APIKey:   apikey,
+		Scheme:     u.Scheme,
+		Hostname:   hostname,
+		Port:       port,
+		VHost:      vhost,
+		Headers:    headers,
+		httpClient: httpClient,
 	}
 }
 
@@ -66,7 +70,13 @@ func (p *PowerDNS) makeSling() *sling.Sling {
 
 	mySling := sling.New()
 	mySling.Base(u.String())
-	mySling.Set("X-API-Key", p.APIKey)
+	for key, value := range p.Headers {
+		mySling.Set(key, value)
+	}
+
+	if p.httpClient != nil {
+		mySling.Client(p.httpClient)
+	}
 
 	return mySling
 }
