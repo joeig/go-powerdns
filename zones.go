@@ -178,7 +178,7 @@ func (z *Zone) patchRRset(rrset RRset) error {
 func (z *Zone) Export() (Export, error) {
 	myError := new(Error)
 	exportSling := z.PowerDNSHandle.makeSling()
-	req, err := exportSling.New().Get(strings.TrimRight(z.URL, ".") + "/export").Request()
+	req, _ := exportSling.New().Get(strings.TrimRight(z.URL, ".") + "/export").Request()
 	resp, err := http.DefaultClient.Do(req)
 
 	if err == nil && resp.StatusCode >= 400 {
@@ -186,6 +186,6 @@ func (z *Zone) Export() (Export, error) {
 		return "", myError
 	}
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
 	return Export(bodyBytes), nil
 }
