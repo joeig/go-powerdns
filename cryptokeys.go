@@ -13,7 +13,7 @@ type Cryptokey struct {
 	Privatekey string   `json:"privatekey"`
 	Algorithm  string   `json:"algorithm"`
 	Bits       int      `json:"bits"`
-	ZoneHandle *Zone
+	ZoneHandle *Zone    `json:"-"`
 }
 
 // GetCryptokeys retrieves a list of Cryptokeys that belong to a Zone

@@ -8,26 +8,26 @@ import (
 
 // Zone structure with JSON API metadata
 type Zone struct {
-	ID             string   `json:"id"`
-	Name           string   `json:"name"`
-	Type           string   `json:"type"`
-	URL            string   `json:"url"`
-	Kind           string   `json:"kind"`
-	RRsets         []RRset  `json:"rrsets"`
-	Serial         int      `json:"serial"`
-	NotifiedSerial int      `json:"notified_serial"`
-	Masters        []string `json:"masters"`
-	DNSsec         bool     `json:"dnssec"`
-	Nsec3Param     string   `json:"nsec3param"`
-	Nsec3Narrow    bool     `json:"nsec3narrow"`
-	Presigned      bool     `json:"presigned"`
-	SOAEdit        string   `json:"soa_edit"`
-	SOAEditAPI     string   `json:"soa_edit_api"`
-	APIRectify     bool     `json:"api_rectify"`
-	Zone           string   `json:"zone"`
-	Account        string   `json:"account"`
-	Nameservers    []string `json:"nameservers"`
-	PowerDNSHandle *PowerDNS
+	ID             string    `json:"id"`
+	Name           string    `json:"name"`
+	Type           string    `json:"type"`
+	URL            string    `json:"url"`
+	Kind           string    `json:"kind"`
+	RRsets         []RRset   `json:"rrsets"`
+	Serial         int       `json:"serial"`
+	NotifiedSerial int       `json:"notified_serial"`
+	Masters        []string  `json:"masters"`
+	DNSsec         bool      `json:"dnssec"`
+	Nsec3Param     string    `json:"nsec3param"`
+	Nsec3Narrow    bool      `json:"nsec3narrow"`
+	Presigned      bool      `json:"presigned"`
+	SOAEdit        string    `json:"soa_edit"`
+	SOAEditAPI     string    `json:"soa_edit_api"`
+	APIRectify     bool      `json:"api_rectify"`
+	Zone           string    `json:"zone"`
+	Account        string    `json:"account"`
+	Nameservers    []string  `json:"nameservers"`
+	PowerDNSHandle *PowerDNS `json:"-"`
 }
 
 // RRset structure with JSON API metadata
@@ -162,16 +162,19 @@ func (z *Zone) patchRRset(rrset RRset) error {
 	zonesSling := z.PowerDNSHandle.makeSling()
 	resp, err := zonesSling.New().Patch(strings.TrimRight(z.URL, ".")).BodyJSON(payload).Receive(zone, myError)
 
-	if err == nil && resp.StatusCode >= 400 {
+	if err != nil {
+		return err
+	}
+
+	switch code := resp.StatusCode; {
+	case code >= 400:
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
 		return myError
-	}
-
-	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
+	case code >= 200 && code <= 299:
 		return nil
+	default:
+		return err
 	}
-
-	return err
 }
 
 // Export returns a BIND-like Zone file
@@ -181,7 +184,11 @@ func (z *Zone) Export() (Export, error) {
 	req, _ := exportSling.New().Get(strings.TrimRight(z.URL, ".") + "/export").Request()
 	resp, err := http.DefaultClient.Do(req)
 
-	if err == nil && resp.StatusCode >= 400 {
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode >= 400 {
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
 		return "", myError
 	}

@@ -76,9 +76,11 @@ func TestGetCryptokeys(t *testing.T) {
 	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, _ := p.GetZone("example.com")
 	cryptokeys, err := z.GetCryptokeys()
+
 	if err != nil {
 		t.Errorf("%s", err)
 	}
+
 	if len(cryptokeys) == 0 {
 		t.Error("Received amount of statistics is 0")
 	}
@@ -139,9 +141,11 @@ func TestGetCryptokey(t *testing.T) {
 	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, _ := p.GetZone("example.com")
 	cryptokey, err := z.GetCryptokey("11")
+
 	if err != nil {
 		t.Errorf("%s", err)
 	}
+
 	if cryptokey.Algorithm != "RSASHA256" {
 		t.Error("Received cryptokey algorithm is wrong")
 	}
@@ -210,6 +214,11 @@ func TestToggleCryptokey(t *testing.T) {
 	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, _ := p.GetZone("example.com")
 	c, err := z.GetCryptokey("11")
+
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
 	if c.ToggleCryptokey() != nil {
 		t.Errorf("%s", err)
 	}
@@ -278,6 +287,11 @@ func TestDeleteCryptokey(t *testing.T) {
 	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
 	z, _ := p.GetZone("example.com")
 	c, err := z.GetCryptokey("11")
+
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
 	if c.DeleteCryptokey() != nil {
 		t.Errorf("%s", err)
 	}
