@@ -55,11 +55,31 @@ func (z *Zone) GetCryptokey(id int) (*Cryptokey, error) {
 }
 
 // ToggleCryptokey enables/disables a given Cryptokey
-func (c *Cryptokey) ToggleCryptokey() error {
+func (z *Zone) ToggleCryptokey(id int) error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
-	serversSling := c.ZoneHandle.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Put(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+strconv.Itoa(c.ID)).Receive(cryptokey, myError)
+	serversSling := z.PowerDNSHandle.makeSling()
+	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
+
+	if err == nil && resp.StatusCode >= 400 {
+		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
+		return myError
+	}
+
+	return err
+}
+
+// ToggleCryptokey enables/disables a given Cryptokey
+func (c *Cryptokey) ToggleCryptokey() error {
+	return c.ZoneHandle.ToggleCryptokey(c.ID)
+}
+
+// DeleteCryptokey removes a given Cryptokey
+func (z *Zone) DeleteCryptokey(id int) error {
+	cryptokey := new(Cryptokey)
+	myError := new(Error)
+	serversSling := z.PowerDNSHandle.makeSling()
+	resp, err := serversSling.New().Delete(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
@@ -71,15 +91,5 @@ func (c *Cryptokey) ToggleCryptokey() error {
 
 // DeleteCryptokey removes a given Cryptokey
 func (c *Cryptokey) DeleteCryptokey() error {
-	cryptokey := new(Cryptokey)
-	myError := new(Error)
-	serversSling := c.ZoneHandle.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Delete(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+strconv.Itoa(c.ID)).Receive(cryptokey, myError)
-
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return myError
-	}
-
-	return nil
+	return c.ZoneHandle.DeleteCryptokey(c.ID)
 }

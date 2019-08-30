@@ -188,7 +188,7 @@ func (p *PowerDNS) ChangeZone(zone *Zone) error {
 	return nil
 }
 
-// DeleteZone returns a certain Zone for a given domain
+// DeleteZone removes a certain Zone for a given domain
 func (p *PowerDNS) DeleteZone(domain string) error {
 	myError := new(Error)
 	zoneSling := p.makeSling()
@@ -204,6 +204,11 @@ func (p *PowerDNS) DeleteZone(domain string) error {
 	}
 
 	return nil
+}
+
+// DeleteZone removes a certain Zone for a given domain
+func (z *Zone) DeleteZone() error {
+	return z.PowerDNSHandle.DeleteZone(z.Name)
 }
 
 // Notify sends a DNS notify packet to all slaves

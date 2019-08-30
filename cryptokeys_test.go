@@ -67,9 +67,13 @@ func TestGetCryptokeys(t *testing.T) {
 	)
 
 	p := initialisePowerDNSTestClient()
-	z, _ := p.GetZone(testDomain)
-	cryptokeys, err := z.GetCryptokeys()
 
+	z, err := p.GetZone(testDomain)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	cryptokeys, err := z.GetCryptokeys()
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -87,9 +91,13 @@ func TestGetCryptokey(t *testing.T) {
 	registerCryptokeyMockResponder(testDomain)
 
 	p := initialisePowerDNSTestClient()
-	z, _ := p.GetZone(testDomain)
-	cryptokey, err := z.GetCryptokey(0)
 
+	z, err := p.GetZone(testDomain)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	cryptokey, err := z.GetCryptokey(0)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -115,14 +123,13 @@ func TestToggleCryptokey(t *testing.T) {
 	)
 
 	p := initialisePowerDNSTestClient()
-	z, _ := p.GetZone(testDomain)
-	c, err := z.GetCryptokey(0)
 
+	z, err := p.GetZone(testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
 
-	if c.ToggleCryptokey() != nil {
+	if z.ToggleCryptokey(0) != nil {
 		t.Errorf("%s", err)
 	}
 }
@@ -133,7 +140,7 @@ func TestDeleteCryptokey(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 	registerZoneMockResponder(testDomain)
 	registerCryptokeyMockResponder(testDomain)
-	httpmock.RegisterResponder("DELETE", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain+"/cryptokeys/11",
+	httpmock.RegisterResponder("DELETE", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain+"/cryptokeys/0",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				return httpmock.NewStringResponse(204, ""), nil
@@ -143,9 +150,13 @@ func TestDeleteCryptokey(t *testing.T) {
 	)
 
 	p := initialisePowerDNSTestClient()
-	z, _ := p.GetZone(testDomain)
-	c, err := z.GetCryptokey(0)
 
+	z, err := p.GetZone(testDomain)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	c, err := z.GetCryptokey(0)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
