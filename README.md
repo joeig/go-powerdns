@@ -27,9 +27,7 @@ go get -u github.com/joeig/go-powerdns
 ```go
 import "github.com/joeig/go-powerdns"
 
-headers := make(map[string]string)
-headers["X-API-Key"] = "apipw"
-pdns := powerdns.NewClient("http://localhost:80", "localhost", headers, nil)
+pdns := powerdns.NewClient("http://localhost:80", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
 ```
 
 Assuming that the server is listening on http://localhost:80 for virtual host `localhost`, the API password is `apipw` and you want to edit the domain `example.com`.
@@ -42,7 +40,7 @@ zone, err := pdns.GetZone("example.com")
 export, err := zone.Export()
 zone, err := pdns.AddNativeZone("example.com", true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
 err := pdns.ChangeZone(&zone)
-err := pdns.DeleteZone("example.com")
+err := zone.DeleteZone()
 ```
 
 ### Add/change/delete resource records
