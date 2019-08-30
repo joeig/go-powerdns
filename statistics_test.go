@@ -56,9 +56,7 @@ func TestGetStatistics(t *testing.T) {
 		},
 	)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
+	p := initialisePowerDNSTestClient()
 	statistics, err := p.GetStatistics()
 	if err != nil {
 		t.Errorf("%s", err)

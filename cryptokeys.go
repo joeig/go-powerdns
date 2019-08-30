@@ -1,11 +1,14 @@
 package powerdns
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 // Cryptokey structure with JSON API metadata
 type Cryptokey struct {
 	Type       string   `json:"type,omitempty"`
-	ID         string   `json:"id,omitempty"`
+	ID         int      `json:"id,omitempty"`
 	KeyType    string   `json:"keytype,omitempty"`
 	Active     bool     `json:"active,omitempty"`
 	DNSkey     string   `json:"dnskey,omitempty"`
@@ -36,11 +39,11 @@ func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
 }
 
 // GetCryptokey returns a certain Cryptokey instance of a given Zone
-func (z *Zone) GetCryptokey(id string) (*Cryptokey, error) {
+func (z *Zone) GetCryptokey(id int) (*Cryptokey, error) {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
 	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+id).Receive(cryptokey, myError)
+	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
@@ -56,7 +59,7 @@ func (c *Cryptokey) ToggleCryptokey() error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
 	serversSling := c.ZoneHandle.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Put(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+c.ID).Receive(cryptokey, myError)
+	resp, err := serversSling.New().Put(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+strconv.Itoa(c.ID)).Receive(cryptokey, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
@@ -71,7 +74,7 @@ func (c *Cryptokey) DeleteCryptokey() error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
 	serversSling := c.ZoneHandle.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Delete(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+c.ID).Receive(cryptokey, myError)
+	resp, err := serversSling.New().Delete(strings.TrimRight(c.ZoneHandle.URL, ".")+"/cryptokeys/"+strconv.Itoa(c.ID)).Receive(cryptokey, myError)
 
 	if err == nil && resp.StatusCode >= 400 {
 		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")

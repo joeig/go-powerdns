@@ -6,44 +6,39 @@ import (
 	"testing"
 )
 
-func TestGetCryptokeys(t *testing.T) {
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+func registerCryptokeyMockResponder(testDomain string) {
+	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain+"/cryptokeys/0",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					ID:   "example.com.",
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-					Kind: "Native",
-					RRsets: []RRset{
-						{
-							Name: "example.com.",
-							Type: "SOA",
-							TTL:  3600,
-							Records: []Record{
-								{
-									Content: "a.misconfigured.powerdns.server. hostmaster.example.com. 1337 10800 3600 604800 3600",
-								},
-							},
-						},
-					},
-					Serial:         1337,
-					NotifiedSerial: 1337,
+				cryptokeyMock := Cryptokey{
+					Type:       "Cryptokey",
+					ID:         0,
+					KeyType:    "zsk",
+					Active:     true,
+					DNSkey:     "256 3 8 thisIsTheKey",
+					Privatekey: "Private-key-format: v1.2\nAlgorithm: 8 (RSASHA256)\nModulus: foo\nPublicExponent: foo\nPrivateExponent: foo\nPrime1: foo\nPrime2: foo\nExponent1: foo\nExponent2: foo\nCoefficient: foo\n",
+					Algorithm:  "RSASHA256",
+					Bits:       1024,
 				}
-				return httpmock.NewJsonResponse(200, zoneMock)
+				return httpmock.NewJsonResponse(200, cryptokeyMock)
 			}
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys",
+}
+
+func TestGetCryptokeys(t *testing.T) {
+	testDomain := generateTestZone(true)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	registerZoneMockResponder(testDomain)
+	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain+"/cryptokeys",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				cryptokeysMock := []Cryptokey{
 					{
 						Type:      "Cryptokey",
-						ID:        "11",
+						ID:        11,
 						KeyType:   "zsk",
 						Active:    true,
 						DNSkey:    "256 3 8 thisIsTheKey",
@@ -52,7 +47,7 @@ func TestGetCryptokeys(t *testing.T) {
 					},
 					{
 						Type:    "Cryptokey",
-						ID:      "10",
+						ID:      10,
 						KeyType: "lsk",
 						Active:  true,
 						DNSkey:  "257 3 8 thisIsTheKey",
@@ -71,10 +66,8 @@ func TestGetCryptokeys(t *testing.T) {
 		},
 	)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
-	z, _ := p.GetZone("example.com")
+	p := initialisePowerDNSTestClient()
+	z, _ := p.GetZone(testDomain)
 	cryptokeys, err := z.GetCryptokeys()
 
 	if err != nil {
@@ -87,60 +80,15 @@ func TestGetCryptokeys(t *testing.T) {
 }
 
 func TestGetCryptokey(t *testing.T) {
+	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					ID:   "example.com.",
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-					Kind: "Native",
-					RRsets: []RRset{
-						{
-							Name: "example.com.",
-							Type: "SOA",
-							TTL:  3600,
-							Records: []Record{
-								{
-									Content: "a.misconfigured.powerdns.server. hostmaster.example.com. 1337 10800 3600 604800 3600",
-								},
-							},
-						},
-					},
-					Serial:         1337,
-					NotifiedSerial: 1337,
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				cryptokeyMock := Cryptokey{
-					Type:       "Cryptokey",
-					ID:         "11",
-					KeyType:    "zsk",
-					Active:     true,
-					DNSkey:     "256 3 8 thisIsTheKey",
-					Privatekey: "Private-key-format: v1.2\nAlgorithm: 8 (RSASHA256)\nModulus: foo\nPublicExponent: foo\nPrivateExponent: foo\nPrime1: foo\nPrime2: foo\nExponent1: foo\nExponent2: foo\nCoefficient: foo\n",
-					Algorithm:  "RSASHA256",
-					Bits:       1024,
-				}
-				return httpmock.NewJsonResponse(200, cryptokeyMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
+	registerZoneMockResponder(testDomain)
+	registerCryptokeyMockResponder(testDomain)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
-	z, _ := p.GetZone("example.com")
-	cryptokey, err := z.GetCryptokey("11")
+	p := initialisePowerDNSTestClient()
+	z, _ := p.GetZone(testDomain)
+	cryptokey, err := z.GetCryptokey(0)
 
 	if err != nil {
 		t.Errorf("%s", err)
@@ -152,55 +100,12 @@ func TestGetCryptokey(t *testing.T) {
 }
 
 func TestToggleCryptokey(t *testing.T) {
+	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					ID:   "example.com.",
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-					Kind: "Native",
-					RRsets: []RRset{
-						{
-							Name: "example.com.",
-							Type: "SOA",
-							TTL:  3600,
-							Records: []Record{
-								{
-									Content: "a.misconfigured.powerdns.server. hostmaster.example.com. 1337 10800 3600 604800 3600",
-								},
-							},
-						},
-					},
-					Serial:         1337,
-					NotifiedSerial: 1337,
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				cryptokeyMock := Cryptokey{
-					Type:       "Cryptokey",
-					ID:         "11",
-					KeyType:    "zsk",
-					Active:     true,
-					DNSkey:     "256 3 8 thisIsTheKey",
-					Privatekey: "Private-key-format: v1.2\nAlgorithm: 8 (RSASHA256)\nModulus: foo\nPublicExponent: foo\nPrivateExponent: foo\nPrime1: foo\nPrime2: foo\nExponent1: foo\nExponent2: foo\nCoefficient: foo\n",
-					Algorithm:  "RSASHA256",
-					Bits:       1024,
-				}
-				return httpmock.NewJsonResponse(200, cryptokeyMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("PUT", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
+	registerZoneMockResponder(testDomain)
+	registerCryptokeyMockResponder(testDomain)
+	httpmock.RegisterResponder("PUT", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain+"/cryptokeys/0",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				return httpmock.NewStringResponse(204, ""), nil
@@ -209,11 +114,9 @@ func TestToggleCryptokey(t *testing.T) {
 		},
 	)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
-	z, _ := p.GetZone("example.com")
-	c, err := z.GetCryptokey("11")
+	p := initialisePowerDNSTestClient()
+	z, _ := p.GetZone(testDomain)
+	c, err := z.GetCryptokey(0)
 
 	if err != nil {
 		t.Errorf("%s", err)
@@ -225,55 +128,12 @@ func TestToggleCryptokey(t *testing.T) {
 }
 
 func TestDeleteCryptokey(t *testing.T) {
+	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					ID:   "example.com.",
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-					Kind: "Native",
-					RRsets: []RRset{
-						{
-							Name: "example.com.",
-							Type: "SOA",
-							TTL:  3600,
-							Records: []Record{
-								{
-									Content: "a.misconfigured.powerdns.server. hostmaster.example.com. 1337 10800 3600 604800 3600",
-								},
-							},
-						},
-					},
-					Serial:         1337,
-					NotifiedSerial: 1337,
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				cryptokeyMock := Cryptokey{
-					Type:       "Cryptokey",
-					ID:         "11",
-					KeyType:    "zsk",
-					Active:     true,
-					DNSkey:     "256 3 8 thisIsTheKey",
-					Privatekey: "Private-key-format: v1.2\nAlgorithm: 8 (RSASHA256)\nModulus: foo\nPublicExponent: foo\nPrivateExponent: foo\nPrime1: foo\nPrime2: foo\nExponent1: foo\nExponent2: foo\nCoefficient: foo\n",
-					Algorithm:  "RSASHA256",
-					Bits:       1024,
-				}
-				return httpmock.NewJsonResponse(200, cryptokeyMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("DELETE", "http://localhost:8080/api/v1/servers/localhost/zones/example.com/cryptokeys/11",
+	registerZoneMockResponder(testDomain)
+	registerCryptokeyMockResponder(testDomain)
+	httpmock.RegisterResponder("DELETE", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain+"/cryptokeys/11",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				return httpmock.NewStringResponse(204, ""), nil
@@ -282,11 +142,9 @@ func TestDeleteCryptokey(t *testing.T) {
 		},
 	)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
-	z, _ := p.GetZone("example.com")
-	c, err := z.GetCryptokey("11")
+	p := initialisePowerDNSTestClient()
+	z, _ := p.GetZone(testDomain)
+	c, err := z.GetCryptokey(0)
 
 	if err != nil {
 		t.Errorf("%s", err)

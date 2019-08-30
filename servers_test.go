@@ -30,9 +30,7 @@ func TestGetServers(t *testing.T) {
 		},
 	)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
+	p := initialisePowerDNSTestClient()
 	servers, err := p.GetServers()
 	if err != nil {
 		t.Errorf("%s", err)
@@ -63,9 +61,7 @@ func TestGetServer(t *testing.T) {
 		},
 	)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
+	p := initialisePowerDNSTestClient()
 	server, err := p.GetServer()
 	if err != nil {
 		t.Errorf("%s", err)

@@ -1,112 +1,109 @@
 package powerdns
 
 import (
+	"fmt"
 	"gopkg.in/jarcoal/httpmock.v1"
+	"math/rand"
 	"net/http"
 	"testing"
+	"time"
 )
 
+func generateTestRecord(zone *Zone, autoAddRecord bool) string {
+	rand.Seed(time.Now().UnixNano())
+	name := fmt.Sprintf("test-%d.%s", rand.Int(), zone.Name)
+
+	if httpmock.Disabled() && autoAddRecord {
+		if err := zone.AddRecord(name, "TXT", 300, []string{"\"Testing...\""}); err != nil {
+			fmt.Printf("Error creating record: %s\n", name)
+			fmt.Printf("%s\n", err)
+		} else {
+			fmt.Printf("Created record %s\n", name)
+		}
+	}
+
+	return name
+}
+
 func TestAddRecord(t *testing.T) {
+	testDomain := generateTestZone(true)
+
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
+	registerZoneMockResponder(testDomain)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
-	z, err := p.GetZone("example.com")
+	p := initialisePowerDNSTestClient()
+	z, err := p.GetZone(testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if z.AddRecord("foo.example.com", "TXT", 300, []string{"bar"}) != nil {
+
+	testRecordName := generateTestRecord(z, false)
+
+	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") == "apipw" {
+				return httpmock.NewBytesResponse(200, []byte{}), nil
+			}
+			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+		},
+	)
+
+	if z.AddRecord(testRecordName, "TXT", 300, []string{"\"bar\""}) != nil {
 		t.Errorf("%s", err)
 	}
 }
 
 func TestChangeRecord(t *testing.T) {
+	testDomain := generateTestZone(true)
+
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+	registerZoneMockResponder(testDomain)
+
+	p := initialisePowerDNSTestClient()
+	z, err := p.GetZone(testDomain)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	testRecordName := generateTestRecord(z, true)
+
+	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
+				return httpmock.NewBytesResponse(200, []byte{}), nil
 			}
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
-	z, err := p.GetZone("example.com")
-	if err != nil {
-		t.Errorf("%s", err)
-	}
-	if z.ChangeRecord("foo.example.com", "TXT", 300, []string{"bar"}) != nil {
+	if z.ChangeRecord(testRecordName, "TXT", 300, []string{"\"bar\""}) != nil {
 		t.Errorf("%s", err)
 	}
 }
 
 func TestDeleteRecord(t *testing.T) {
+	testDomain := generateTestZone(true)
+
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
+	registerZoneMockResponder(testDomain)
+
+	p := initialisePowerDNSTestClient()
+	z, err := p.GetZone(testDomain)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	testRecordName := generateTestRecord(z, true)
+
+	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == "apipw" {
 				zoneMock := Zone{
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/example.com",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
-				zoneMock := Zone{
-					Name: "example.com.",
-					URL:  "/api/v1/servers/localhost/zones/example.com.",
+					Name: fixDomainSuffix(testDomain),
+					URL:  "/api/v1/servers/localhost/zones/" + fixDomainSuffix(testDomain),
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
 			}
@@ -114,14 +111,7 @@ func TestDeleteRecord(t *testing.T) {
 		},
 	)
 
-	headers := make(map[string]string)
-	headers["X-API-Key"] = "apipw"
-	p := NewClient("http://localhost:8080/", "localhost", headers, nil)
-	z, err := p.GetZone("example.com")
-	if err != nil {
-		t.Errorf("%s", err)
-	}
-	if z.DeleteRecord("foo.example.com", "TXT") != nil {
+	if z.DeleteRecord(testRecordName, "TXT") != nil {
 		t.Errorf("%s", err)
 	}
 }

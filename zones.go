@@ -143,7 +143,7 @@ func (p *PowerDNS) postZone(zone *Zone) (*Zone, error) {
 	createdZone := new(Zone)
 
 	zonesSling := p.makeSling()
-	resp, err := zonesSling.New().Post("servers/"+p.VHost+"/zones/").BodyJSON(zone).Receive(createdZone, myError)
+	resp, err := zonesSling.New().Post("servers/"+p.VHost+"/zones").BodyJSON(zone).Receive(createdZone, myError)
 
 	createdZone.PowerDNSHandle = p
 

@@ -1,6 +1,8 @@
 package powerdns
 
-import "strings"
+import (
+	"strings"
+)
 
 // RRset structure with JSON API metadata
 type RRset struct {
@@ -15,7 +17,7 @@ type RRset struct {
 // Record structure with JSON API metadata
 type Record struct {
 	Content  string `json:"content,omitempty"`
-	Disabled bool   `json:"disabled,omitempty"`
+	Disabled bool   `json:"disabled"`
 	SetPTR   bool   `json:"set-ptr,omitempty"`
 }
 
@@ -69,10 +71,9 @@ func (z *Zone) patchRRset(rrset RRset) error {
 	payload.Sets = append(payload.Sets, rrset)
 
 	myError := new(Error)
-	zone := new(Zone)
 
 	zonesSling := z.PowerDNSHandle.makeSling()
-	resp, err := zonesSling.New().Patch(strings.TrimRight(z.URL, ".")).BodyJSON(payload).Receive(zone, myError)
+	resp, err := zonesSling.New().Patch(strings.TrimRight(z.URL, ".")).BodyJSON(payload).Receive(nil, myError)
 
 	if err != nil {
 		return err
