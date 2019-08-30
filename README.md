@@ -34,12 +34,15 @@ pdns := powerdns.NewClient("http://localhost:80", "localhost", headers, nil)
 
 Assuming that the server is listening on http://localhost:80 for virtual host `localhost`, the API password is `apipw` and you want to edit the domain `example.com`.
 
-### Request zone data
+### Get/add/change/delete zones
 
 ```go
 zones, err := pdns.GetZones()
 zone, err := pdns.GetZone("example.com")
 export, err := zone.Export()
+zone, err := pdns.AddNativeZone("example.com", true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+err := pdns.ChangeZone(&zone)
+err := pdns.DeleteZone("example.com")
 ```
 
 ### Add/change/delete resource records

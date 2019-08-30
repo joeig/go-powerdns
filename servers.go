@@ -6,13 +6,13 @@ import (
 
 // Server structure with JSON API metadata
 type Server struct {
-	Type       string `json:"type"`
-	ID         string `json:"id"`
-	DaemonType string `json:"daemon_type"`
-	Version    string `json:"version"`
-	URL        string `json:"url"`
-	ConfigURL  string `json:"config_url"`
-	ZonesURL   string `json:"zones_url"`
+	Type       string `json:"type,omitempty"`
+	ID         string `json:"id,omitempty"`
+	DaemonType string `json:"daemon_type,omitempty"`
+	Version    string `json:"version,omitempty"`
+	URL        string `json:"url,omitempty"`
+	ConfigURL  string `json:"config_url,omitempty"`
+	ZonesURL   string `json:"zones_url,omitempty"`
 }
 
 // GetServers retrieves a list of Servers

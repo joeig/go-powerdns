@@ -4,15 +4,15 @@ import "strings"
 
 // Cryptokey structure with JSON API metadata
 type Cryptokey struct {
-	Type       string   `json:"type"`
-	ID         string   `json:"id"`
-	KeyType    string   `json:"keytype"`
-	Active     bool     `json:"active"`
-	DNSkey     string   `json:"dnskey"`
-	DS         []string `json:"ds"`
-	Privatekey string   `json:"privatekey"`
-	Algorithm  string   `json:"algorithm"`
-	Bits       int      `json:"bits"`
+	Type       string   `json:"type,omitempty"`
+	ID         string   `json:"id,omitempty"`
+	KeyType    string   `json:"keytype,omitempty"`
+	Active     bool     `json:"active,omitempty"`
+	DNSkey     string   `json:"dnskey,omitempty"`
+	DS         []string `json:"ds,omitempty"`
+	Privatekey string   `json:"privatekey,omitempty"`
+	Algorithm  string   `json:"algorithm,omitempty"`
+	Bits       int      `json:"bits,omitempty"`
 	ZoneHandle *Zone    `json:"-"`
 }
 

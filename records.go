@@ -4,31 +4,31 @@ import "strings"
 
 // RRset structure with JSON API metadata
 type RRset struct {
-	Name       string    `json:"name"`
-	Type       string    `json:"type"`
-	TTL        int       `json:"ttl"`
-	ChangeType string    `json:"changetype"`
-	Records    []Record  `json:"records"`
-	Comments   []Comment `json:"comments"`
+	Name       string    `json:"name,omitempty"`
+	Type       string    `json:"type,omitempty"`
+	TTL        int       `json:"ttl,omitempty"`
+	ChangeType string    `json:"changetype,omitempty"`
+	Records    []Record  `json:"records,omitempty"`
+	Comments   []Comment `json:"comments,omitempty"`
 }
 
 // Record structure with JSON API metadata
 type Record struct {
-	Content  string `json:"content"`
-	Disabled bool   `json:"disabled"`
-	SetPTR   bool   `json:"set-ptr"`
+	Content  string `json:"content,omitempty"`
+	Disabled bool   `json:"disabled,omitempty"`
+	SetPTR   bool   `json:"set-ptr,omitempty"`
 }
 
 // Comment structure with JSON API metadata
 type Comment struct {
-	Content    string `json:"content"`
-	Account    string `json:"account"`
-	ModifiedAt int    `json:"modified_at"`
+	Content    string `json:"content,omitempty"`
+	Account    string `json:"account,omitempty"`
+	ModifiedAt int    `json:"modified_at,omitempty"`
 }
 
 // RRsets structure with JSON API metadata
 type RRsets struct {
-	Sets []RRset `json:"rrsets"`
+	Sets []RRset `json:"rrsets,omitempty"`
 }
 
 // AddRecord creates a new resource record
@@ -63,9 +63,7 @@ func (z *Zone) DeleteRecord(name string, recordType string) error {
 }
 
 func (z *Zone) patchRRset(rrset RRset) error {
-	if !strings.HasSuffix(rrset.Name, ".") {
-		rrset.Name += "."
-	}
+	rrset.Name = fixDomainSuffix(rrset.Name)
 
 	payload := RRsets{}
 	payload.Sets = append(payload.Sets, rrset)
