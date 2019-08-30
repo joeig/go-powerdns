@@ -11,10 +11,9 @@ GOFILES=$(shell find . -type f -name '*.go' -not -path "./vendor/*")
 all: check-fmt test coverage
 
 test:
-	$(GOTEST) -v ./...
+	$(GOTEST) -v ./... -coverprofile=c.out
 
 coverage:
-	$(GOTEST) -v ./... -coverprofile=c.out
 	$(GOCOVER) -func=c.out
 
 check-fmt:
