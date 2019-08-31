@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 )
@@ -10,17 +11,16 @@ func initialisePowerDNSTestClient() *PowerDNS {
 	return NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
 }
 
-func TestNewClientHTTP(t *testing.T) {
-	tmpl := &PowerDNS{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil}
-	p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
-	if !reflect.DeepEqual(tmpl, p) {
-		t.Error("NewClient returns invalid PowerDNS object")
+func TestError(t *testing.T) {
+	myError := &Error{Message: "foo"}
+	if myError.Error() != "foo" {
+		t.Error("Error method returns invalid format")
 	}
 }
 
-func TestNewClientHTTPS(t *testing.T) {
-	tmpl := &PowerDNS{"https", "localhost", "443", "localhost", map[string]string{"X-API-Key": "apipw"}, nil}
-	p := NewClient("https://localhost", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+func TestNewClient(t *testing.T) {
+	tmpl := &PowerDNS{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient}
+	p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient)
 	if !reflect.DeepEqual(tmpl, p) {
 		t.Error("NewClient returns invalid PowerDNS object")
 	}
