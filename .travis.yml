@@ -9,6 +9,10 @@ before_install:
   - dep status
   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.17.1
   - golangci-lint --version
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
 script:
   - golangci-lint run
   - make
+after_success:
+  - ${HOME}/gopath/bin/goveralls -coverprofile=c.out -service=travis-ci -repotoken ${COVERALLS_TOKEN}
