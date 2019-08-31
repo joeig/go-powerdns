@@ -1,9 +1,5 @@
 package powerdns
 
-import (
-	"strings"
-)
-
 // Server structure with JSON API metadata
 type Server struct {
 	Type       string `json:"type,omitempty"`
@@ -19,12 +15,12 @@ type Server struct {
 func (p *PowerDNS) GetServers() ([]Server, error) {
 	servers := make([]Server, 0)
 	myError := new(Error)
+
 	serversSling := p.makeSling()
 	resp, err := serversSling.New().Get("servers").Receive(&servers, myError)
 
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return nil, myError
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
+		return nil, err
 	}
 
 	return servers, err
@@ -34,12 +30,12 @@ func (p *PowerDNS) GetServers() ([]Server, error) {
 func (p *PowerDNS) GetServer() (*Server, error) {
 	server := &Server{}
 	myError := new(Error)
+
 	serversSling := p.makeSling()
 	resp, err := serversSling.New().Get("servers/"+p.VHost).Receive(&server, myError)
 
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return &Server{}, myError
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
+		return nil, err
 	}
 
 	return server, err

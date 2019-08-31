@@ -86,4 +86,10 @@ docker-compose up
 docker-compose exec powerdns sh init_docker_fixtures.sh
 ```
 
+It's also possible to target mocks against this server:
+
+```bash
+make test-without-mocks
+```
+
 Based on the work of [jgreat](https://github.com/jgreat/powerdns) and [waynz0r](https://github.com/waynz0r/go-powerdns).

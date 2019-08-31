@@ -23,12 +23,11 @@ type Cryptokey struct {
 func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
 	cryptokeys := make([]Cryptokey, 0)
 	myError := new(Error)
+
 	serversSling := z.PowerDNSHandle.makeSling()
 	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys").Receive(&cryptokeys, myError)
-
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return nil, myError
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
+		return nil, err
 	}
 
 	for i := range cryptokeys {
@@ -42,12 +41,11 @@ func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
 func (z *Zone) GetCryptokey(id int) (*Cryptokey, error) {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
+
 	serversSling := z.PowerDNSHandle.makeSling()
 	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
-
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return nil, myError
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
+		return nil, err
 	}
 
 	cryptokey.ZoneHandle = z
@@ -58,15 +56,11 @@ func (z *Zone) GetCryptokey(id int) (*Cryptokey, error) {
 func (z *Zone) ToggleCryptokey(id int) error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
+
 	serversSling := z.PowerDNSHandle.makeSling()
 	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
 
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return myError
-	}
-
-	return err
+	return handleAPIClientError(resp, &err, myError)
 }
 
 // ToggleCryptokey enables/disables a given Cryptokey
@@ -78,15 +72,11 @@ func (c *Cryptokey) ToggleCryptokey() error {
 func (z *Zone) DeleteCryptokey(id int) error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
+
 	serversSling := z.PowerDNSHandle.makeSling()
 	resp, err := serversSling.New().Delete(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
 
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return myError
-	}
-
-	return nil
+	return handleAPIClientError(resp, &err, myError)
 }
 
 // DeleteCryptokey removes a given Cryptokey

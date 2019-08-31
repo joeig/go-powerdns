@@ -74,18 +74,17 @@ func (z *Zone) patchRRset(rrset RRset) error {
 
 	zonesSling := z.PowerDNSHandle.makeSling()
 	resp, err := zonesSling.New().Patch(strings.TrimRight(z.URL, ".")).BodyJSON(payload).Receive(nil, myError)
-
 	if err != nil {
 		return err
 	}
 
-	switch code := resp.StatusCode; {
-	case code >= 400:
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return myError
-	case code >= 200 && code <= 299:
-		return nil
-	default:
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
 		return err
 	}
+
+	if resp.StatusCode >= 300 {
+		return myError
+	}
+
+	return nil
 }

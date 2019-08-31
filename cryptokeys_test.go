@@ -129,7 +129,12 @@ func TestToggleCryptokey(t *testing.T) {
 		t.Errorf("%s", err)
 	}
 
-	if z.ToggleCryptokey(0) != nil {
+	c, err := z.GetCryptokey(0)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if c.ToggleCryptokey() != nil {
 		t.Errorf("%s", err)
 	}
 }

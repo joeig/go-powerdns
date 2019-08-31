@@ -314,9 +314,17 @@ func TestChangeZone(t *testing.T) {
 	)
 
 	p := initialisePowerDNSTestClient()
-	if err := p.ChangeZone(&Zone{Name: testDomain, Nameservers: []string{"ns23.foo.tld."}}); err != nil {
-		t.Errorf("%s", err)
-	}
+
+	t.Run("ChangeValidZone", func(t *testing.T) {
+		if err := p.ChangeZone(&Zone{Name: testDomain, Nameservers: []string{"ns23.foo.tld."}}); err != nil {
+			t.Errorf("%s", err)
+		}
+	})
+	t.Run("ChangeInvalidZone", func(t *testing.T) {
+		if err := p.ChangeZone(&Zone{Name: "", Nameservers: []string{"ns23.foo.tld."}}); err == nil {
+			t.Errorf("%s", err)
+		}
+	})
 }
 
 func TestDeleteZone(t *testing.T) {

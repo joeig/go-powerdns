@@ -12,11 +12,22 @@ import (
 
 // Error structure with JSON API metadata
 type Error struct {
+	Status  string
 	Message string `json:"error"`
 }
 
 func (e Error) Error() string {
 	return fmt.Sprintf("%v", e.Message)
+}
+
+func handleAPIClientError(slingResponse *http.Response, slingError *error, failureV *Error) error {
+	if slingError == nil && slingResponse.StatusCode >= 400 {
+		return &Error{
+			Status:  slingResponse.Status,
+			Message: failureV.Message,
+		}
+	}
+	return nil
 }
 
 // PowerDNS configuration structure

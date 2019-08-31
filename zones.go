@@ -62,12 +62,12 @@ const (
 func (p *PowerDNS) GetZones() ([]Zone, error) {
 	zones := make([]Zone, 0)
 	myError := new(Error)
+
 	zonesSling := p.makeSling()
 	resp, err := zonesSling.New().Get("servers/"+p.VHost+"/zones").Receive(&zones, myError)
 
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return nil, myError
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
+		return nil, err
 	}
 
 	for i := range zones {
@@ -81,12 +81,12 @@ func (p *PowerDNS) GetZones() ([]Zone, error) {
 func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
 	zone := &Zone{}
 	myError := new(Error)
+
 	zoneSling := p.makeSling()
 	resp, err := zoneSling.New().Get("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(zone, myError)
 
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return &Zone{}, myError
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
+		return nil, err
 	}
 
 	zone.PowerDNSHandle = p
@@ -162,7 +162,7 @@ func (p *PowerDNS) postZone(zone *Zone) (*Zone, error) {
 // ChangeZone modifies an existing zone
 func (p *PowerDNS) ChangeZone(zone *Zone) error {
 	if zone.Name == "" {
-		return &Error{"Name attribute missing"}
+		return &Error{Message: "Name attribute missing"}
 	}
 
 	adjustedZone := *zone
@@ -181,7 +181,6 @@ func (p *PowerDNS) ChangeZone(zone *Zone) error {
 	}
 
 	if resp.StatusCode != 204 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
 		return myError
 	}
 
@@ -192,14 +191,13 @@ func (p *PowerDNS) ChangeZone(zone *Zone) error {
 func (p *PowerDNS) DeleteZone(domain string) error {
 	myError := new(Error)
 	zoneSling := p.makeSling()
-	resp, err := zoneSling.New().Delete("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(nil, myError)
 
+	resp, err := zoneSling.New().Delete("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(nil, myError)
 	if err != nil {
 		return err
 	}
 
 	if resp.StatusCode != 204 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
 		return myError
 	}
 
@@ -215,12 +213,12 @@ func (z *Zone) DeleteZone() error {
 func (z *Zone) Notify() (*NotifyResult, error) {
 	notifyResult := &NotifyResult{}
 	myError := new(Error)
+
 	notifySling := z.PowerDNSHandle.makeSling()
 	resp, err := notifySling.New().Put(strings.TrimRight(z.URL, ".")+"/notify").Receive(notifyResult, myError)
 
-	if err == nil && resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return &NotifyResult{}, myError
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
+		return nil, err
 	}
 
 	return notifyResult, err
@@ -230,6 +228,7 @@ func (z *Zone) Notify() (*NotifyResult, error) {
 func (z *Zone) Export() (Export, error) {
 	myError := new(Error)
 	exportSling := z.PowerDNSHandle.makeSling()
+
 	req, _ := exportSling.New().Get(strings.TrimRight(z.URL, ".") + "/export").Request()
 	resp, err := http.DefaultClient.Do(req)
 
@@ -237,9 +236,8 @@ func (z *Zone) Export() (Export, error) {
 		return "", err
 	}
 
-	if resp.StatusCode >= 400 {
-		myError.Message = strings.Join([]string{resp.Status, myError.Message}, " ")
-		return "", myError
+	if err := handleAPIClientError(resp, &err, myError); err != nil {
+		return "", err
 	}
 
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)

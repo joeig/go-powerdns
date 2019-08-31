@@ -18,6 +18,14 @@ func TestError(t *testing.T) {
 	}
 }
 
+func TestHandleAPIClientError(t *testing.T) {
+	tmpl := &Error{Status: "400 Bad Request", Message: "foo"}
+	e := handleAPIClientError(&http.Response{Status: "400 Bad Request", StatusCode: 400}, nil, &Error{Message: "foo"})
+	if !reflect.DeepEqual(tmpl, e) {
+		t.Error("API client error was not handled properly")
+	}
+}
+
 func TestNewClient(t *testing.T) {
 	tmpl := &PowerDNS{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient}
 	p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient)
