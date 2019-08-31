@@ -31,13 +31,25 @@ type PowerDNS struct {
 
 // NewClient initializes a new PowerDNS client configuration
 func NewClient(baseURL string, vhost string, headers map[string]string, httpClient *http.Client) *PowerDNS {
-	if vhost == "" {
-		vhost = "localhost"
-	}
-
-	u, err := url.Parse(baseURL)
+	scheme, hostname, port, err := parseBaseURL(baseURL)
 	if err != nil {
 		log.Fatalf("%s is not a valid url: %v", baseURL, err)
+	}
+
+	return &PowerDNS{
+		Scheme:     scheme,
+		Hostname:   hostname,
+		Port:       port,
+		VHost:      parseVhost(vhost),
+		Headers:    headers,
+		httpClient: httpClient,
+	}
+}
+
+func parseBaseURL(baseURL string) (string, string, string, error) {
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return "", "", "", err
 	}
 	hp := strings.Split(u.Host, ":")
 	hostname := hp[0]
@@ -52,14 +64,15 @@ func NewClient(baseURL string, vhost string, headers map[string]string, httpClie
 		}
 	}
 
-	return &PowerDNS{
-		Scheme:     u.Scheme,
-		Hostname:   hostname,
-		Port:       port,
-		VHost:      vhost,
-		Headers:    headers,
-		httpClient: httpClient,
+	return u.Scheme, hostname, port, nil
+}
+
+func parseVhost(vhost string) string {
+	if vhost == "" {
+		vhost = "localhost"
 	}
+
+	return vhost
 }
 
 func (p *PowerDNS) makeSling() *sling.Sling {
@@ -70,6 +83,7 @@ func (p *PowerDNS) makeSling() *sling.Sling {
 
 	mySling := sling.New()
 	mySling.Base(u.String())
+
 	for key, value := range p.Headers {
 		mySling.Set(key, value)
 	}
