@@ -10,9 +10,9 @@ import (
 func TestGetStatistics(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/statistics",
+	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/statistics",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				statisticsMock := []Statistic{
 					{
 						Name:  "corrupt-packets",

@@ -10,18 +10,18 @@ import (
 func TestGetServers(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers",
+	httpmock.RegisterResponder("GET", generateTestAPIURL()+"/servers",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				serversMock := []Server{
 					{
 						Type:       "Server",
-						ID:         "localhost",
+						ID:         testVhost,
 						DaemonType: "authoritative",
 						Version:    "4.1.2",
-						URL:        "/api/v1/servers/localhost",
-						ConfigURL:  "/api/v1/servers/localhost/config{/config_setting}",
-						ZonesURL:   "/api/v1/servers/localhost/zones{/zone}",
+						URL:        "/api/v1/servers/" + testVhost,
+						ConfigURL:  "/api/v1/servers/" + testVhost + "/config{/config_setting}",
+						ZonesURL:   "/api/v1/servers/" + testVhost + "/zones{/zone}",
 					},
 				}
 				return httpmock.NewJsonResponse(200, serversMock)
@@ -43,17 +43,17 @@ func TestGetServers(t *testing.T) {
 func TestGetServer(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost",
+	httpmock.RegisterResponder("GET", generateTestAPIVhostURL(),
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				serverMock := Server{
 					Type:       "Server",
-					ID:         "localhost",
+					ID:         testVhost,
 					DaemonType: "authoritative",
 					Version:    "4.1.2",
-					URL:        "/api/v1/servers/localhost",
-					ConfigURL:  "/api/v1/servers/localhost/config{/config_setting}",
-					ZonesURL:   "/api/v1/servers/localhost/zones{/zone}",
+					URL:        "/api/v1/servers/" + testVhost,
+					ConfigURL:  "/api/v1/servers/" + testVhost + "/config{/config_setting}",
+					ZonesURL:   "/api/v1/servers/" + testVhost + "/zones{/zone}",
 				}
 				return httpmock.NewJsonResponse(200, serverMock)
 			}
@@ -66,7 +66,7 @@ func TestGetServer(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if server.ID != "localhost" {
+	if server.ID != testVhost {
 		t.Error("Received no server")
 	}
 }

@@ -14,7 +14,7 @@ func generateTestZone(autoAddZone bool) string {
 	domain := fmt.Sprintf("test-%d.com", rand.Int())
 
 	if httpmock.Disabled() && autoAddZone {
-		pdns := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+		pdns := initialisePowerDNSTestClient()
 		zone, err := pdns.AddNativeZone(domain, true, "", false, "", "", true, []string{"ns.foo.tld."})
 		if err != nil {
 			fmt.Printf("Error creating %s\n", domain)
@@ -29,13 +29,13 @@ func generateTestZone(autoAddZone bool) string {
 }
 
 func registerZoneMockResponder(testDomain string) {
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
+	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
 					ID:   fixDomainSuffix(testDomain),
 					Name: fixDomainSuffix(testDomain),
-					URL:  "/api/v1/servers/localhost/zones/" + fixDomainSuffix(testDomain),
+					URL:  "/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
 					Kind: "Native",
 					RRsets: []RRset{
 						{
@@ -63,14 +63,14 @@ func TestGetZones(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones",
+	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zonesMock := []Zone{
 					{
 						ID:             fixDomainSuffix(testDomain),
 						Name:           fixDomainSuffix(testDomain),
-						URL:            "/api/v1/servers/localhost/zones/" + fixDomainSuffix(testDomain),
+						URL:            "/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
 						Kind:           NativeZoneKind,
 						Serial:         1337,
 						NotifiedSerial: 1337,
@@ -96,13 +96,13 @@ func TestGetZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
+	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
 					ID:   fixDomainSuffix(testDomain),
 					Name: fixDomainSuffix(testDomain),
-					URL:  "/api/v1/servers/localhost/zones/" + fixDomainSuffix(testDomain),
+					URL:  "/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
 					Kind: NativeZoneKind,
 					RRsets: []RRset{
 						{
@@ -139,14 +139,14 @@ func TestAddNativeZone(t *testing.T) {
 	testDomain := generateTestZone(false)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("POST", "http://localhost:8080/api/v1/servers/localhost/zones",
+	httpmock.RegisterResponder("POST", generateTestAPIVhostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
 					ID:   fixDomainSuffix(testDomain),
 					Name: fixDomainSuffix(testDomain),
 					Type: ZoneZoneType,
-					URL:  "api/v1/servers/localhost/zones/" + fixDomainSuffix(testDomain),
+					URL:  "api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
 					Kind: NativeZoneKind,
 					RRsets: []RRset{
 						{
@@ -202,14 +202,14 @@ func TestAddMasterZone(t *testing.T) {
 	testDomain := generateTestZone(false)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("POST", "http://localhost:8080/api/v1/servers/localhost/zones",
+	httpmock.RegisterResponder("POST", generateTestAPIVhostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
 					ID:   fixDomainSuffix(testDomain),
 					Name: fixDomainSuffix(testDomain),
 					Type: ZoneZoneType,
-					URL:  "api/v1/servers/localhost/zones/" + fixDomainSuffix(testDomain),
+					URL:  "api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
 					Kind: MasterZoneKind,
 					RRsets: []RRset{
 						{
@@ -265,14 +265,14 @@ func TestAddSlaveZone(t *testing.T) {
 	testDomain := generateTestZone(false)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("POST", "http://localhost:8080/api/v1/servers/localhost/zones",
+	httpmock.RegisterResponder("POST", generateTestAPIVhostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
 					ID:          fixDomainSuffix(testDomain),
 					Name:        fixDomainSuffix(testDomain),
 					Type:        ZoneZoneType,
-					URL:         "api/v1/servers/localhost/zones/" + fixDomainSuffix(testDomain),
+					URL:         "api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
 					Kind:        SlaveZoneKind,
 					Serial:      0,
 					Masters:     []string{"ns5.foo.tld."},
@@ -304,9 +304,9 @@ func TestChangeZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("PUT", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
+	httpmock.RegisterResponder("PUT", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewBytesResponse(204, []byte{}), nil
 			}
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil
@@ -331,9 +331,9 @@ func TestDeleteZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("DELETE", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
+	httpmock.RegisterResponder("DELETE", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewBytesResponse(204, []byte{}), nil
 			}
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil
@@ -351,9 +351,9 @@ func TestNotify(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerZoneMockResponder(testDomain)
-	httpmock.RegisterResponder("PUT", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain+"/notify",
+	httpmock.RegisterResponder("PUT", generateTestAPIVhostURL()+"/zones/"+testDomain+"/notify",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewStringResponse(200, "{\"result\":\"Notification queued\"}"), nil
 			}
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil
@@ -379,9 +379,9 @@ func TestExport(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerZoneMockResponder(testDomain)
-	httpmock.RegisterResponder("GET", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain+"/export",
+	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/export",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewStringResponse(200, fixDomainSuffix(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+fixDomainSuffix(testDomain)+" 1 10800 3600 604800 3600"), nil
 			}
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil

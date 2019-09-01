@@ -40,9 +40,9 @@ func TestAddRecord(t *testing.T) {
 
 	testRecordName := generateTestRecord(z, false)
 
-	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
+	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewBytesResponse(200, []byte{}), nil
 			}
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil
@@ -69,9 +69,9 @@ func TestChangeRecord(t *testing.T) {
 
 	testRecordName := generateTestRecord(z, true)
 
-	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
+	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewBytesResponse(200, []byte{}), nil
 			}
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil
@@ -98,12 +98,12 @@ func TestDeleteRecord(t *testing.T) {
 
 	testRecordName := generateTestRecord(z, true)
 
-	httpmock.RegisterResponder("PATCH", "http://localhost:8080/api/v1/servers/localhost/zones/"+testDomain,
+	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == "apipw" {
+			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
 					Name: fixDomainSuffix(testDomain),
-					URL:  "/api/v1/servers/localhost/zones/" + fixDomainSuffix(testDomain),
+					URL:  "/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
 			}
