@@ -8,7 +8,7 @@ import (
 type RRset struct {
 	Name       string    `json:"name,omitempty"`
 	Type       string    `json:"type,omitempty"`
-	TTL        int       `json:"ttl,omitempty"`
+	TTL        uint      `json:"ttl,omitempty"`
 	ChangeType string    `json:"changetype,omitempty"`
 	Records    []Record  `json:"records,omitempty"`
 	Comments   []Comment `json:"comments,omitempty"`
@@ -25,7 +25,7 @@ type Record struct {
 type Comment struct {
 	Content    string `json:"content,omitempty"`
 	Account    string `json:"account,omitempty"`
-	ModifiedAt int    `json:"modified_at,omitempty"`
+	ModifiedAt uint   `json:"modified_at,omitempty"`
 }
 
 // RRsets structure with JSON API metadata
@@ -34,12 +34,12 @@ type RRsets struct {
 }
 
 // AddRecord creates a new resource record
-func (z *Zone) AddRecord(name string, recordType string, ttl int, content []string) error {
+func (z *Zone) AddRecord(name string, recordType string, ttl uint, content []string) error {
 	return z.ChangeRecord(name, recordType, ttl, content)
 }
 
 // ChangeRecord replaces an existing resource record
-func (z *Zone) ChangeRecord(name string, recordType string, ttl int, content []string) error {
+func (z *Zone) ChangeRecord(name string, recordType string, ttl uint, content []string) error {
 	rrset := new(RRset)
 	rrset.Name = name
 	rrset.Type = recordType
