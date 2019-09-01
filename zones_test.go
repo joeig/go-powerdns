@@ -5,6 +5,7 @@ import (
 	"gopkg.in/jarcoal/httpmock.v1"
 	"math/rand"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 )
@@ -393,7 +394,11 @@ func TestExport(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if _, err := z.Export(); err != nil {
+	export, err := z.Export()
+	if err != nil {
 		t.Errorf("%s", err)
+	}
+	if !strings.HasPrefix(string(export), testDomain) {
+		t.Errorf("Export payload wrong")
 	}
 }
