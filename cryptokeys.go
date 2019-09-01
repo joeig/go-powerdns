@@ -8,15 +8,19 @@ import (
 // Cryptokey structure with JSON API metadata
 type Cryptokey struct {
 	Type       string   `json:"type,omitempty"`
-	ID         int      `json:"id,omitempty"`
+	ID         uint     `json:"id,omitempty"`
 	KeyType    string   `json:"keytype,omitempty"`
 	Active     bool     `json:"active,omitempty"`
 	DNSkey     string   `json:"dnskey,omitempty"`
 	DS         []string `json:"ds,omitempty"`
 	Privatekey string   `json:"privatekey,omitempty"`
 	Algorithm  string   `json:"algorithm,omitempty"`
-	Bits       int      `json:"bits,omitempty"`
+	Bits       uint     `json:"bits,omitempty"`
 	ZoneHandle *Zone    `json:"-"`
+}
+
+func cryptokeyIDToString(id uint) string {
+	return strconv.FormatUint(uint64(id), 10)
 }
 
 // GetCryptokeys retrieves a list of Cryptokeys that belong to a Zone
@@ -38,12 +42,12 @@ func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
 }
 
 // GetCryptokey returns a certain Cryptokey instance of a given Zone
-func (z *Zone) GetCryptokey(id int) (*Cryptokey, error) {
+func (z *Zone) GetCryptokey(id uint) (*Cryptokey, error) {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
 
 	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
+	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+cryptokeyIDToString(id)).Receive(cryptokey, myError)
 	if err := handleAPIClientError(resp, &err, myError); err != nil {
 		return nil, err
 	}
@@ -53,12 +57,12 @@ func (z *Zone) GetCryptokey(id int) (*Cryptokey, error) {
 }
 
 // ToggleCryptokey enables/disables a given Cryptokey
-func (z *Zone) ToggleCryptokey(id int) error {
+func (z *Zone) ToggleCryptokey(id uint) error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
 
 	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
+	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+cryptokeyIDToString(id)).Receive(cryptokey, myError)
 
 	return handleAPIClientError(resp, &err, myError)
 }
@@ -69,12 +73,12 @@ func (c *Cryptokey) ToggleCryptokey() error {
 }
 
 // DeleteCryptokey removes a given Cryptokey
-func (z *Zone) DeleteCryptokey(id int) error {
+func (z *Zone) DeleteCryptokey(id uint) error {
 	cryptokey := new(Cryptokey)
 	myError := new(Error)
 
 	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Delete(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+strconv.Itoa(id)).Receive(cryptokey, myError)
+	resp, err := serversSling.New().Delete(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+cryptokeyIDToString(id)).Receive(cryptokey, myError)
 
 	return handleAPIClientError(resp, &err, myError)
 }

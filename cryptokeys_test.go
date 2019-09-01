@@ -3,7 +3,6 @@ package powerdns
 import (
 	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
-	"strconv"
 	"testing"
 )
 
@@ -43,8 +42,8 @@ func registerCryptokeysMockResponder(testDomain string) {
 	)
 }
 
-func registerCryptokeyMockResponder(testDomain string, id int) {
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+strconv.Itoa(id),
+func registerCryptokeyMockResponder(testDomain string, id uint) {
+	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				cryptokeyMock := Cryptokey{
@@ -62,6 +61,12 @@ func registerCryptokeyMockResponder(testDomain string, id int) {
 			return httpmock.NewStringResponse(401, "Unauthorized"), nil
 		},
 	)
+}
+
+func TestConvertCryptokeyIDToString(t *testing.T) {
+	if cryptokeyIDToString(1337) != "1337" {
+		t.Error("Cryptokey ID to string conversion failed")
+	}
 }
 
 func TestGetCryptokeys(t *testing.T) {
@@ -142,7 +147,7 @@ func TestToggleCryptokey(t *testing.T) {
 	id := cryptokeys[0].ID
 
 	registerCryptokeyMockResponder(testDomain, id)
-	httpmock.RegisterResponder("PUT", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+strconv.Itoa(id),
+	httpmock.RegisterResponder("PUT", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewStringResponse(204, ""), nil
@@ -184,7 +189,7 @@ func TestDeleteCryptokey(t *testing.T) {
 	id := cryptokeys[0].ID
 
 	registerCryptokeyMockResponder(testDomain, id)
-	httpmock.RegisterResponder("DELETE", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+strconv.Itoa(id),
+	httpmock.RegisterResponder("DELETE", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewStringResponse(204, ""), nil
