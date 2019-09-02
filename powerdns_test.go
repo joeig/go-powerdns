@@ -7,24 +7,6 @@ import (
 	"testing"
 )
 
-const (
-	testBaseURL string = "http://localhost:8080"
-	testVhost   string = "localhost"
-	testAPIKey  string = "apipw"
-)
-
-func generateTestAPIURL() string {
-	return fmt.Sprintf("%s/api/v1", testBaseURL)
-}
-
-func generateTestAPIVhostURL() string {
-	return fmt.Sprintf("%s/servers/%s", generateTestAPIURL(), testVhost)
-}
-
-func initialisePowerDNSTestClient() *PowerDNS {
-	return NewClient(testBaseURL, testVhost, map[string]string{"X-API-Key": testAPIKey}, nil)
-}
-
 func TestError(t *testing.T) {
 	myError := &Error{Message: "foo"}
 	if myError.Error() != "foo" {

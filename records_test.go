@@ -1,29 +1,10 @@
 package powerdns
 
 import (
-	"fmt"
 	"gopkg.in/jarcoal/httpmock.v1"
-	"math/rand"
 	"net/http"
 	"testing"
-	"time"
 )
-
-func generateTestRecord(zone *Zone, autoAddRecord bool) string {
-	rand.Seed(time.Now().UnixNano())
-	name := fmt.Sprintf("test-%d.%s", rand.Int(), zone.Name)
-
-	if httpmock.Disabled() && autoAddRecord {
-		if err := zone.AddRecord(name, "TXT", 300, []string{"\"Testing...\""}); err != nil {
-			fmt.Printf("Error creating record: %s\n", name)
-			fmt.Printf("%s\n", err)
-		} else {
-			fmt.Printf("Created record %s\n", name)
-		}
-	}
-
-	return name
-}
 
 func TestAddRecord(t *testing.T) {
 	testDomain := generateTestZone(true)

@@ -1,64 +1,11 @@
 package powerdns
 
 import (
-	"fmt"
 	"gopkg.in/jarcoal/httpmock.v1"
-	"math/rand"
 	"net/http"
 	"strings"
 	"testing"
-	"time"
 )
-
-func generateTestZone(autoAddZone bool) string {
-	rand.Seed(time.Now().UnixNano())
-	domain := fmt.Sprintf("test-%d.com", rand.Int())
-
-	if httpmock.Disabled() && autoAddZone {
-		pdns := initialisePowerDNSTestClient()
-		zone, err := pdns.AddNativeZone(domain, true, "", false, "", "", true, []string{"ns.foo.tld."})
-		if err != nil {
-			fmt.Printf("Error creating %s\n", domain)
-			fmt.Printf("%v\n", err)
-			fmt.Printf("%v\n", zone)
-		} else {
-			fmt.Printf("Created domain %s\n", domain)
-		}
-	}
-
-	return domain
-}
-
-func registerZoneMockResponder(testDomain string) {
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain,
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == testAPIKey {
-				zoneMock := Zone{
-					ID:   fixDomainSuffix(testDomain),
-					Name: fixDomainSuffix(testDomain),
-					URL:  "/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
-					Kind: "Native",
-					RRsets: []RRset{
-						{
-							Name: fixDomainSuffix(testDomain),
-							Type: "SOA",
-							TTL:  3600,
-							Records: []Record{
-								{
-									Content: "a.misconfigured.powerdns.server. hostmaster." + fixDomainSuffix(testDomain) + " 1337 10800 3600 604800 3600",
-								},
-							},
-						},
-					},
-					Serial:         1337,
-					NotifiedSerial: 1337,
-				}
-				return httpmock.NewJsonResponse(200, zoneMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-}
 
 func TestGetZones(t *testing.T) {
 	testDomain := generateTestZone(true)

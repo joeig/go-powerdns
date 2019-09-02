@@ -6,63 +6,6 @@ import (
 	"testing"
 )
 
-func registerCryptokeysMockResponder(testDomain string) {
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == testAPIKey {
-				cryptokeysMock := []Cryptokey{
-					{
-						Type:      "Cryptokey",
-						ID:        11,
-						KeyType:   "zsk",
-						Active:    true,
-						DNSkey:    "256 3 8 thisIsTheKey",
-						Algorithm: "ECDSAP256SHA256",
-						Bits:      1024,
-					},
-					{
-						Type:    "Cryptokey",
-						ID:      10,
-						KeyType: "lsk",
-						Active:  true,
-						DNSkey:  "257 3 8 thisIsTheKey",
-						DS: []string{
-							"997 8 1 foo",
-							"997 8 2 foo",
-							"997 8 4 foo",
-						},
-						Algorithm: "ECDSAP256SHA256",
-						Bits:      2048,
-					},
-				}
-				return httpmock.NewJsonResponse(200, cryptokeysMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-}
-
-func registerCryptokeyMockResponder(testDomain string, id uint) {
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == testAPIKey {
-				cryptokeyMock := Cryptokey{
-					Type:       "Cryptokey",
-					ID:         0,
-					KeyType:    "zsk",
-					Active:     true,
-					DNSkey:     "256 3 8 thisIsTheKey",
-					Privatekey: "Private-key-format: v1.2\nAlgorithm: 8 (ECDSAP256SHA256)\nModulus: foo\nPublicExponent: foo\nPrivateExponent: foo\nPrime1: foo\nPrime2: foo\nExponent1: foo\nExponent2: foo\nCoefficient: foo\n",
-					Algorithm:  "ECDSAP256SHA256",
-					Bits:       1024,
-				}
-				return httpmock.NewJsonResponse(200, cryptokeyMock)
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
-}
-
 func TestConvertCryptokeyIDToString(t *testing.T) {
 	if cryptokeyIDToString(1337) != "1337" {
 		t.Error("Cryptokey ID to string conversion failed")
