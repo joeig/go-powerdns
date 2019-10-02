@@ -128,7 +128,7 @@ func registerCryptokeysMockResponder(testDomain string) {
 	)
 }
 
-func registerCryptokeyMockResponder(testDomain string, id uint) {
+func registerCryptokeyMockResponder(testDomain string, id uint64) {
 	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {

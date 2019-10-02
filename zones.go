@@ -14,8 +14,8 @@ type Zone struct {
 	URL              string    `json:"url,omitempty"`
 	Kind             ZoneKind  `json:"kind,omitempty"`
 	RRsets           []RRset   `json:"rrsets,omitempty"`
-	Serial           uint      `json:"serial,omitempty"`
-	NotifiedSerial   uint      `json:"notified_serial,omitempty"`
+	Serial           uint32    `json:"serial,omitempty"`
+	NotifiedSerial   uint32    `json:"notified_serial,omitempty"`
 	Masters          []string  `json:"masters,omitempty"`
 	DNSsec           bool      `json:"dnssec,omitempty"`
 	Nsec3Param       string    `json:"nsec3param,omitempty"`
