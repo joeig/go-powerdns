@@ -1,23 +1,26 @@
 package powerdns
 
+import "fmt"
+
+// StatisticsService handles communication with the statistics related methods of the Client API
+type StatisticsService service
+
 // Statistic structure with JSON API metadata
 type Statistic struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Value string `json:"value"`
+	Name  *string `json:"name,omitempty"`
+	Type  *string `json:"type,omitempty"`
+	Value *string `json:"value,omitempty"`
 }
 
 // GetStatistics retrieves a list of Statistics
-func (p *PowerDNS) GetStatistics() ([]Statistic, error) {
-	statistics := make([]Statistic, 0)
-	myError := new(Error)
-
-	serversSling := p.makeSling()
-	resp, err := serversSling.New().Get("servers/"+p.VHost+"/statistics").Receive(&statistics, myError)
-
-	if err := handleAPIClientError(resp, &err, myError); err != nil {
+func (s *StatisticsService) List() ([]Statistic, error) {
+	req, err := s.client.newRequest("GET", fmt.Sprintf("servers/%s/statistics", s.client.VHost), nil)
+	if err != nil {
 		return nil, err
 	}
+
+	statistics := make([]Statistic, 0)
+	_, err = s.client.do(req, &statistics)
 
 	return statistics, err
 }

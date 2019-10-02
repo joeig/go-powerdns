@@ -7,7 +7,7 @@ import (
 	"gopkg.in/jarcoal/httpmock.v1"
 )
 
-func TestGetStatistics(t *testing.T) {
+func TestListStatistics(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/statistics",
@@ -15,39 +15,39 @@ func TestGetStatistics(t *testing.T) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				statisticsMock := []Statistic{
 					{
-						Name:  "corrupt-packets",
-						Type:  "StatisticItem",
-						Value: "1337",
+						Name:  String("corrupt-packets"),
+						Type:  String("StatisticItem"),
+						Value: String("1337"),
 					},
 					{
-						Name:  "deferred-cache-inserts",
-						Type:  "StatisticItem",
-						Value: "42",
+						Name:  String("deferred-cache-inserts"),
+						Type:  String("StatisticItem"),
+						Value: String("42"),
 					},
 					{
-						Name:  "deferred-cache-lookup",
-						Type:  "StatisticItem",
-						Value: "123",
+						Name:  String("deferred-cache-lookup"),
+						Type:  String("StatisticItem"),
+						Value: String("123"),
 					},
 					{
-						Name:  "deferred-packetcache-inserts",
-						Type:  "StatisticItem",
-						Value: "234",
+						Name:  String("deferred-packetcache-inserts"),
+						Type:  String("StatisticItem"),
+						Value: String("234"),
 					},
 					{
-						Name:  "deferred-packetcache-lookup",
-						Type:  "StatisticItem",
-						Value: "345",
+						Name:  String("deferred-packetcache-lookup"),
+						Type:  String("StatisticItem"),
+						Value: String("345"),
 					},
 					{
-						Name:  "dnsupdate-answers",
-						Type:  "StatisticItem",
-						Value: "456",
+						Name:  String("dnsupdate-answers"),
+						Type:  String("StatisticItem"),
+						Value: String("456"),
 					},
 					{
-						Name:  "dnsupdate-changes",
-						Type:  "StatisticItem",
-						Value: "567",
+						Name:  String("dnsupdate-changes"),
+						Type:  String("StatisticItem"),
+						Value: String("567"),
 					},
 				}
 				return httpmock.NewJsonResponse(200, statisticsMock)
@@ -57,7 +57,7 @@ func TestGetStatistics(t *testing.T) {
 	)
 
 	p := initialisePowerDNSTestClient()
-	statistics, err := p.GetStatistics()
+	statistics, err := p.Statistics.List()
 	if err != nil {
 		t.Errorf("%s", err)
 	}

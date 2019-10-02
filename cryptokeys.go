@@ -1,89 +1,62 @@
 package powerdns
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
 
+// CryptokeysService handles communication with the cryptokeys related methods of the Client API
+type CryptokeysService service
+
 // Cryptokey structure with JSON API metadata
 type Cryptokey struct {
-	Type       string   `json:"type,omitempty"`
-	ID         uint64   `json:"id,omitempty"`
-	KeyType    string   `json:"keytype,omitempty"`
-	Active     bool     `json:"active,omitempty"`
-	DNSkey     string   `json:"dnskey,omitempty"`
+	Type       *string  `json:"type,omitempty"`
+	ID         *uint64  `json:"id,omitempty"`
+	KeyType    *string  `json:"keytype,omitempty"`
+	Active     *bool    `json:"active,omitempty"`
+	DNSkey     *string  `json:"dnskey,omitempty"`
 	DS         []string `json:"ds,omitempty"`
-	Privatekey string   `json:"privatekey,omitempty"`
-	Algorithm  string   `json:"algorithm,omitempty"`
-	Bits       uint64   `json:"bits,omitempty"`
-	ZoneHandle *Zone    `json:"-"`
+	Privatekey *string  `json:"privatekey,omitempty"`
+	Algorithm  *string  `json:"algorithm,omitempty"`
+	Bits       *uint64  `json:"bits,omitempty"`
 }
 
 func cryptokeyIDToString(id uint64) string {
 	return strconv.FormatUint(id, 10)
 }
 
-// GetCryptokeys retrieves a list of Cryptokeys that belong to a Zone
-func (z *Zone) GetCryptokeys() ([]Cryptokey, error) {
-	cryptokeys := make([]Cryptokey, 0)
-	myError := new(Error)
-
-	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys").Receive(&cryptokeys, myError)
-	if err := handleAPIClientError(resp, &err, myError); err != nil {
+// List retrieves a list of Cryptokeys that belong to a Zone
+func (c *CryptokeysService) List(domain string) ([]Cryptokey, error) {
+	req, err := c.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s/cryptokeys", c.client.VHost, strings.TrimRight(domain, ".")), nil)
+	if err != nil {
 		return nil, err
 	}
 
-	for i := range cryptokeys {
-		cryptokeys[i].ZoneHandle = z
-	}
-
+	cryptokeys := make([]Cryptokey, 0)
+	_, err = c.client.do(req, &cryptokeys)
 	return cryptokeys, err
 }
 
-// GetCryptokey returns a certain Cryptokey instance of a given Zone
-func (z *Zone) GetCryptokey(id uint64) (*Cryptokey, error) {
-	cryptokey := new(Cryptokey)
-	myError := new(Error)
-
-	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+cryptokeyIDToString(id)).Receive(cryptokey, myError)
-	if err := handleAPIClientError(resp, &err, myError); err != nil {
+// Get returns a certain Cryptokey instance of a given Zone
+func (c *CryptokeysService) Get(domain string, id uint64) (*Cryptokey, error) {
+	req, err := c.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s/cryptokeys/%s", c.client.VHost, strings.TrimRight(domain, "."), cryptokeyIDToString(id)), nil)
+	if err != nil {
 		return nil, err
 	}
 
-	cryptokey.ZoneHandle = z
+	cryptokey := new(Cryptokey)
+	_, err = c.client.do(req, &cryptokey)
 	return cryptokey, err
 }
 
-// ToggleCryptokey enables/disables a given Cryptokey
-func (z *Zone) ToggleCryptokey(id uint64) error {
-	cryptokey := new(Cryptokey)
-	myError := new(Error)
+// Delete removes a given Cryptokey
+func (c *CryptokeysService) Delete(domain string, id uint64) error {
+	req, err := c.client.newRequest("DELETE", fmt.Sprintf("servers/%s/zones/%s/cryptokeys/%s", c.client.VHost, strings.TrimRight(domain, "."), cryptokeyIDToString(id)), nil)
+	if err != nil {
+		return err
+	}
 
-	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Get(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+cryptokeyIDToString(id)).Receive(cryptokey, myError)
-
-	return handleAPIClientError(resp, &err, myError)
-}
-
-// ToggleCryptokey enables/disables a given Cryptokey
-func (c *Cryptokey) ToggleCryptokey() error {
-	return c.ZoneHandle.ToggleCryptokey(c.ID)
-}
-
-// DeleteCryptokey removes a given Cryptokey
-func (z *Zone) DeleteCryptokey(id uint64) error {
-	cryptokey := new(Cryptokey)
-	myError := new(Error)
-
-	serversSling := z.PowerDNSHandle.makeSling()
-	resp, err := serversSling.New().Delete(strings.TrimRight(z.URL, ".")+"/cryptokeys/"+cryptokeyIDToString(id)).Receive(cryptokey, myError)
-
-	return handleAPIClientError(resp, &err, myError)
-}
-
-// DeleteCryptokey removes a given Cryptokey
-func (c *Cryptokey) DeleteCryptokey() error {
-	return c.ZoneHandle.DeleteCryptokey(c.ID)
+	_, err = c.client.do(req, nil)
+	return err
 }

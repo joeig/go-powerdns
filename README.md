@@ -37,38 +37,37 @@ Assuming that the server is listening on http://localhost:80 for virtual host `l
 ### Get/add/change/delete zones
 
 ```go
-zones, err := pdns.GetZones()
-zone, err := pdns.GetZone("example.com")
-export, err := zone.Export()
-zone, err := pdns.AddNativeZone("example.com", true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
-err := pdns.ChangeZone(&zone)
-err := zone.DeleteZone()
+zones, err := pdns.Zones.List()
+zone, err := pdns.Zones.Get("example.com")
+export, err := pdns.Zones.Export("example.com")
+zone, err := pdns.Zones.AddNative("example.com", true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+err := pdns.Zones.Change("example.com", &zone)
+err := pdns.Zones.Delete("example.com")
 ```
 
 ### Add/change/delete resource records
 
 ```go
-err := zone.AddRecord("www.example.com", "AAAA", 60, []string{"::1"})
-err := zone.ChangeRecord("www.example.com", "AAAA", 3600, []string{"::1"})
-err := zone.DeleteRecord("www.example.com", "A")
-notifyResult, err := zone.Notify()
+err := pdns.Records.Add("example.com", "www.example.com", "AAAA", 60, []string{"::1"})
+err := pdns.Records.Change("example.com", "www.example.com", "AAAA", 3600, []string{"::1"})
+err := pdns.Records.Delete("example.com", "www.example.com", "A")
+notifyResult, err := pdns.Records.Notify("example.com")
 ```
 
 ### Request server information and statistics
 
 ```go
-statistics, err := pdns.GetStatistics()
-servers, err := pdns.GetServers()
-server, err := pdns.GetServer()
+statistics, err := pdns.Statistics.List()
+servers, err := pdns.Servers.List()
+server, err := pdns.Servers.Get("localhost")
 ```
 
 ### Handle DNSSEC cryptographic material
 
 ```go
-cryptokeys, err := zone.GetCryptokeys()
-cryptokey, err := zone.GetCryptokey("1337")
-err := cryptokey.ToggleCryptokey()
-err := cryptokey.DeleteCryptokey()
+cryptokeys, err := pdns.Cryptokeys.List()
+cryptokey, err := pdns.Cryptokeys.Get("example.com", "1337")
+err := pdns.Cryptokeys.Delete("example.com", "1337")
 ```
 
 ## Documentation

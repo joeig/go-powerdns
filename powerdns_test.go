@@ -2,32 +2,91 @@ package powerdns
 
 import (
 	"fmt"
+	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
-	"reflect"
 	"testing"
 )
 
-func TestError(t *testing.T) {
-	myError := &Error{Message: "foo"}
-	if myError.Error() != "foo" {
-		t.Error("Error method returns invalid format")
-	}
-}
-
-func TestHandleAPIClientError(t *testing.T) {
-	tmpl := &Error{Status: "400 Bad Request", Message: "foo"}
-	e := handleAPIClientError(&http.Response{Status: "400 Bad Request", StatusCode: 400}, nil, &Error{Message: "foo"})
-	if !reflect.DeepEqual(tmpl, e) {
-		t.Error("API client error was not handled properly")
-	}
-}
-
 func TestNewClient(t *testing.T) {
-	tmpl := &PowerDNS{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient}
-	p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient)
-	if !reflect.DeepEqual(tmpl, p) {
-		t.Error("NewClient returns invalid PowerDNS object")
+	t.Run("TestValidURL", func(t *testing.T) {
+		tmpl := &Client{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient, service{}, nil, nil, nil, nil, nil}
+		p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient)
+		if p.Hostname != tmpl.Hostname {
+			t.Error("NewClient returns invalid Client object")
+		}
+	})
+
+	t.Run("TestInvalidURL", func(t *testing.T) {
+		originalLogFatalf := logFatalf
+		defer func() {
+			logFatalf = originalLogFatalf
+		}()
+		errors := []string{}
+		logFatalf = func(format string, args ...interface{}) {
+			if len(args) > 0 {
+				errors = append(errors, fmt.Sprintf(format, args))
+			} else {
+				errors = append(errors, format)
+			}
+		}
+
+		_ = NewClient("http://1.2:foo", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient)
+
+		if len(errors) < 1 {
+			t.Error("NewClient does not exit with fatal error")
+		}
+	})
+}
+
+func TestNewRequest(t *testing.T) {
+	p := initialisePowerDNSTestClient()
+	if _, err := p.newRequest("GET", "servers", nil); err != nil {
+		t.Error("NewRequest returns an error")
 	}
+}
+
+func TestDo(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/return-401", generateTestAPIURL()),
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
+		},
+	)
+	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/return-404", generateTestAPIURL()),
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(http.StatusNotFound, "Not Found"), nil
+		},
+	)
+	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/server", generateTestAPIURL()),
+		func(req *http.Request) (*http.Response, error) {
+			mock := Error{
+				Status:  "Not Found",
+				Message: "Not Found",
+			}
+			return httpmock.NewJsonResponse(http.StatusNotImplemented, mock)
+		},
+	)
+	p := initialisePowerDNSTestClient()
+
+	t.Run("Test401Handling", func(t *testing.T) {
+		req, _ := p.newRequest("GET", "return-401", nil)
+		if _, err := p.do(req, nil); err == nil {
+			t.Error("401 response does not result into an error")
+		}
+	})
+	t.Run("Test404Handling", func(t *testing.T) {
+		req, _ := p.newRequest("GET", "return-404", nil)
+		if _, err := p.do(req, nil); err == nil {
+			t.Error("404 response does not result into an error")
+		}
+	})
+	t.Run("TestJSONResponseHandling", func(t *testing.T) {
+		req, _ := p.newRequest("GET", "server", &Server{})
+		if _, err := p.do(req, nil); err.(*Error).Message != "Not Found" {
+			t.Error("501 JSON response does not result into Error structure")
+		}
+	})
 }
 
 func TestParseBaseURL(t *testing.T) {
@@ -79,4 +138,12 @@ func TestParseVhost(t *testing.T) {
 			t.Error("Missing vhost did not return localhost")
 		}
 	})
+}
+
+func TestGenerateAPIURL(t *testing.T) {
+	tmpl := "https://localhost:8080/api/v1/foo"
+	g := generateAPIURL("https", "localhost", "8080", "foo")
+	if tmpl != g.String() {
+		t.Errorf("Template does not match generated API URL: %s", g.String())
+	}
 }

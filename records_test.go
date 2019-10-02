@@ -11,15 +11,9 @@ func TestAddRecord(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	registerZoneMockResponder(testDomain)
 
 	p := initialisePowerDNSTestClient()
-	z, err := p.GetZone(testDomain)
-	if err != nil {
-		t.Errorf("%s", err)
-	}
-
-	testRecordName := generateTestRecord(z, false)
+	testRecordName := generateTestRecord(p, testDomain, false)
 
 	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
@@ -30,7 +24,7 @@ func TestAddRecord(t *testing.T) {
 		},
 	)
 
-	if z.AddRecord(testRecordName, "TXT", 300, []string{"\"bar\""}) != nil {
+	if err := p.Records.Add(testDomain, testRecordName, "TXT", 300, []string{"\"bar\""}); err != nil {
 		t.Errorf("%s", err)
 	}
 }
@@ -40,15 +34,9 @@ func TestChangeRecord(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	registerZoneMockResponder(testDomain)
 
 	p := initialisePowerDNSTestClient()
-	z, err := p.GetZone(testDomain)
-	if err != nil {
-		t.Errorf("%s", err)
-	}
-
-	testRecordName := generateTestRecord(z, true)
+	testRecordName := generateTestRecord(p, testDomain, true)
 
 	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
@@ -59,7 +47,7 @@ func TestChangeRecord(t *testing.T) {
 		},
 	)
 
-	if z.ChangeRecord(testRecordName, "TXT", 300, []string{"\"bar\""}) != nil {
+	if err := p.Records.Change(testDomain, testRecordName, "TXT", 300, []string{"\"bar\""}); err != nil {
 		t.Errorf("%s", err)
 	}
 }
@@ -69,22 +57,16 @@ func TestDeleteRecord(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	registerZoneMockResponder(testDomain)
 
 	p := initialisePowerDNSTestClient()
-	z, err := p.GetZone(testDomain)
-	if err != nil {
-		t.Errorf("%s", err)
-	}
-
-	testRecordName := generateTestRecord(z, true)
+	testRecordName := generateTestRecord(p, testDomain, true)
 
 	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
-					Name: fixDomainSuffix(testDomain),
-					URL:  "/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain),
+					Name: String(fixDomainSuffix(testDomain)),
+					URL:  String("/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
 				}
 				return httpmock.NewJsonResponse(200, zoneMock)
 			}
@@ -92,7 +74,7 @@ func TestDeleteRecord(t *testing.T) {
 		},
 	)
 
-	if z.DeleteRecord(testRecordName, "TXT") != nil {
+	if err := p.Records.Delete(testDomain, testRecordName, "TXT"); err != nil {
 		t.Errorf("%s", err)
 	}
 }

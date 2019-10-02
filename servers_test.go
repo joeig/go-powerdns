@@ -7,7 +7,7 @@ import (
 	"gopkg.in/jarcoal/httpmock.v1"
 )
 
-func TestGetServers(t *testing.T) {
+func TestListServers(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	httpmock.RegisterResponder("GET", generateTestAPIURL()+"/servers",
@@ -15,13 +15,13 @@ func TestGetServers(t *testing.T) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				serversMock := []Server{
 					{
-						Type:       "Server",
-						ID:         testVhost,
-						DaemonType: "authoritative",
-						Version:    "4.1.2",
-						URL:        "/api/v1/servers/" + testVhost,
-						ConfigURL:  "/api/v1/servers/" + testVhost + "/config{/config_setting}",
-						ZonesURL:   "/api/v1/servers/" + testVhost + "/zones{/zone}",
+						Type:       String("Server"),
+						ID:         String(testVhost),
+						DaemonType: String("authoritative"),
+						Version:    String("4.1.2"),
+						URL:        String("/api/v1/servers/" + testVhost),
+						ConfigURL:  String("/api/v1/servers/" + testVhost + "/config{/config_setting}"),
+						ZonesURL:   String("/api/v1/servers/" + testVhost + "/zones{/zone}"),
 					},
 				}
 				return httpmock.NewJsonResponse(200, serversMock)
@@ -31,7 +31,7 @@ func TestGetServers(t *testing.T) {
 	)
 
 	p := initialisePowerDNSTestClient()
-	servers, err := p.GetServers()
+	servers, err := p.Servers.List()
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -47,13 +47,13 @@ func TestGetServer(t *testing.T) {
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				serverMock := Server{
-					Type:       "Server",
-					ID:         testVhost,
-					DaemonType: "authoritative",
-					Version:    "4.1.2",
-					URL:        "/api/v1/servers/" + testVhost,
-					ConfigURL:  "/api/v1/servers/" + testVhost + "/config{/config_setting}",
-					ZonesURL:   "/api/v1/servers/" + testVhost + "/zones{/zone}",
+					Type:       String("Server"),
+					ID:         String(testVhost),
+					DaemonType: String("authoritative"),
+					Version:    String("4.1.2"),
+					URL:        String("/api/v1/servers/" + testVhost),
+					ConfigURL:  String("/api/v1/servers/" + testVhost + "/config{/config_setting}"),
+					ZonesURL:   String("/api/v1/servers/" + testVhost + "/zones{/zone}"),
 				}
 				return httpmock.NewJsonResponse(200, serverMock)
 			}
@@ -62,11 +62,11 @@ func TestGetServer(t *testing.T) {
 	)
 
 	p := initialisePowerDNSTestClient()
-	server, err := p.GetServer()
+	server, err := p.Servers.Get(testVhost)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if server.ID != testVhost {
+	if *server.ID != testVhost {
 		t.Error("Received no server")
 	}
 }

@@ -1,31 +1,35 @@
 package powerdns
 
 import (
+	"fmt"
 	"strings"
 )
 
+// RecordsService handles communication with the records related methods of the Client API
+type RecordsService service
+
 // RRset structure with JSON API metadata
 type RRset struct {
-	Name       string    `json:"name,omitempty"`
-	Type       string    `json:"type,omitempty"`
-	TTL        uint32    `json:"ttl,omitempty"`
-	ChangeType string    `json:"changetype,omitempty"`
+	Name       *string   `json:"name,omitempty"`
+	Type       *string   `json:"type,omitempty"`
+	TTL        *uint32   `json:"ttl,omitempty"`
+	ChangeType *string   `json:"changetype,omitempty"`
 	Records    []Record  `json:"records,omitempty"`
 	Comments   []Comment `json:"comments,omitempty"`
 }
 
 // Record structure with JSON API metadata
 type Record struct {
-	Content  string `json:"content,omitempty"`
-	Disabled bool   `json:"disabled"`
-	SetPTR   bool   `json:"set-ptr,omitempty"`
+	Content  *string `json:"content,omitempty"`
+	Disabled *bool   `json:"disabled,omitempty"`
+	SetPTR   *bool   `json:"set-ptr,omitempty"`
 }
 
 // Comment structure with JSON API metadata
 type Comment struct {
-	Content    string `json:"content,omitempty"`
-	Account    string `json:"account,omitempty"`
-	ModifiedAt uint64 `json:"modified_at,omitempty"`
+	Content    *string `json:"content,omitempty"`
+	Account    *string `json:"account,omitempty"`
+	ModifiedAt *uint64 `json:"modified_at,omitempty"`
 }
 
 // RRsets structure with JSON API metadata
@@ -33,58 +37,48 @@ type RRsets struct {
 	Sets []RRset `json:"rrsets,omitempty"`
 }
 
-// AddRecord creates a new resource record
-func (z *Zone) AddRecord(name string, recordType string, ttl uint32, content []string) error {
-	return z.ChangeRecord(name, recordType, ttl, content)
+// Add creates a new resource record
+func (r *RecordsService) Add(domain string, name string, recordType string, ttl uint32, content []string) error {
+	return r.Change(domain, name, recordType, ttl, content)
 }
 
-// ChangeRecord replaces an existing resource record
-func (z *Zone) ChangeRecord(name string, recordType string, ttl uint32, content []string) error {
+// Change replaces an existing resource record
+func (r *RecordsService) Change(domain string, name string, recordType string, ttl uint32, content []string) error {
 	rrset := new(RRset)
-	rrset.Name = name
-	rrset.Type = recordType
-	rrset.TTL = ttl
-	rrset.ChangeType = "REPLACE"
+	rrset.Name = &name
+	rrset.Type = &recordType
+	rrset.TTL = &ttl
+	rrset.ChangeType = String("REPLACE")
 
 	for _, c := range content {
-		r := Record{Content: c, Disabled: false, SetPTR: false}
+		r := Record{Content: String(c), Disabled: Bool(false), SetPTR: Bool(false)}
 		rrset.Records = append(rrset.Records, r)
 	}
 
-	return z.patchRRset(*rrset)
+	return r.patchRRset(domain, *rrset)
 }
 
-// DeleteRecord removes an existing resource record
-func (z *Zone) DeleteRecord(name string, recordType string) error {
+// Delete removes an existing resource record
+func (r *RecordsService) Delete(domain string, name string, recordType string) error {
 	rrset := new(RRset)
-	rrset.Name = name
-	rrset.Type = recordType
-	rrset.ChangeType = "DELETE"
+	rrset.Name = &name
+	rrset.Type = &recordType
+	rrset.ChangeType = String("DELETE")
 
-	return z.patchRRset(*rrset)
+	return r.patchRRset(domain, *rrset)
 }
 
-func (z *Zone) patchRRset(rrset RRset) error {
-	rrset.Name = fixDomainSuffix(rrset.Name)
+func (r *RecordsService) patchRRset(domain string, rrset RRset) error {
+	rrset.Name = String(fixDomainSuffix(*rrset.Name))
 
 	payload := RRsets{}
 	payload.Sets = append(payload.Sets, rrset)
 
-	myError := new(Error)
-
-	zonesSling := z.PowerDNSHandle.makeSling()
-	resp, err := zonesSling.New().Patch(strings.TrimRight(z.URL, ".")).BodyJSON(payload).Receive(nil, myError)
+	req, err := r.client.newRequest("PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, strings.TrimRight(domain, ".")), payload)
 	if err != nil {
 		return err
 	}
 
-	if err := handleAPIClientError(resp, &err, myError); err != nil {
-		return err
-	}
-
-	if resp.StatusCode >= 300 {
-		return myError
-	}
-
-	return nil
+	_, err = r.client.do(req, nil)
+	return err
 }

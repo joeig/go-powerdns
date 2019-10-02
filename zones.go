@@ -1,40 +1,42 @@
 package powerdns
 
 import (
+	"fmt"
 	"io/ioutil"
-	"net/http"
 	"strings"
 )
 
+// ZonesService handles communication with the zones related methods of the Client API
+type ZonesService service
+
 // Zone structure with JSON API metadata
 type Zone struct {
-	ID               string    `json:"id,omitempty"`
-	Name             string    `json:"name,omitempty"`
-	Type             ZoneType  `json:"type,omitempty"`
-	URL              string    `json:"url,omitempty"`
-	Kind             ZoneKind  `json:"kind,omitempty"`
+	ID               *string   `json:"id,omitempty"`
+	Name             *string   `json:"name,omitempty"`
+	Type             *ZoneType `json:"type,omitempty"`
+	URL              *string   `json:"url,omitempty"`
+	Kind             *ZoneKind `json:"kind,omitempty"`
 	RRsets           []RRset   `json:"rrsets,omitempty"`
-	Serial           uint32    `json:"serial,omitempty"`
-	NotifiedSerial   uint32    `json:"notified_serial,omitempty"`
+	Serial           *uint32   `json:"serial,omitempty"`
+	NotifiedSerial   *uint32   `json:"notified_serial,omitempty"`
 	Masters          []string  `json:"masters,omitempty"`
-	DNSsec           bool      `json:"dnssec,omitempty"`
-	Nsec3Param       string    `json:"nsec3param,omitempty"`
-	Nsec3Narrow      bool      `json:"nsec3narrow,omitempty"`
-	Presigned        bool      `json:"presigned,omitempty"`
-	SOAEdit          string    `json:"soa_edit,omitempty"`
-	SOAEditAPI       string    `json:"soa_edit_api,omitempty"`
-	APIRectify       bool      `json:"api_rectify,omitempty"`
-	Zone             string    `json:"zone,omitempty"`
-	Account          string    `json:"account,omitempty"`
+	DNSsec           *bool     `json:"dnssec,omitempty"`
+	Nsec3Param       *string   `json:"nsec3param,omitempty"`
+	Nsec3Narrow      *bool     `json:"nsec3narrow,omitempty"`
+	Presigned        *bool     `json:"presigned,omitempty"`
+	SOAEdit          *string   `json:"soa_edit,omitempty"`
+	SOAEditAPI       *string   `json:"soa_edit_api,omitempty"`
+	APIRectify       *bool     `json:"api_rectify,omitempty"`
+	Zone             *string   `json:"zone,omitempty"`
+	Account          *string   `json:"account,omitempty"`
 	Nameservers      []string  `json:"nameservers,omitempty"`
 	MasterTSIGKeyIDs []string  `json:"master_tsig_key_ids,omitempty"`
 	SlaveTSIGKeyIDs  []string  `json:"slave_tsig_key_ids,omitempty"`
-	PowerDNSHandle   *PowerDNS `json:"-"`
 }
 
 // NotifyResult structure with JSON API metadata
 type NotifyResult struct {
-	Result string `json:"result,omitempty"`
+	Result *string `json:"result,omitempty"`
 }
 
 // Export string type
@@ -46,8 +48,18 @@ type ZoneType string
 // ZoneZoneType sets the zone's type to zone
 const ZoneZoneType ZoneType = "Zone"
 
+// ZoneTypePtr is a helper function that allocates a new ZoneType value to store v and returns a pointer to it.
+func ZoneTypePtr(v ZoneType) *ZoneType {
+	return &v
+}
+
 // ZoneKind string type
 type ZoneKind string
+
+// ZoneKindPtr is a helper function that allocates a new ZoneKind value to store v and returns a pointer to it.
+func ZoneKindPtr(v ZoneKind) *ZoneKind {
+	return &v
+}
 
 const (
 	// NativeZoneKind sets the zone's kind to native
@@ -58,185 +70,134 @@ const (
 	SlaveZoneKind ZoneKind = "Slave"
 )
 
-// GetZones retrieves a list of Zones
-func (p *PowerDNS) GetZones() ([]Zone, error) {
-	zones := make([]Zone, 0)
-	myError := new(Error)
-
-	zonesSling := p.makeSling()
-	resp, err := zonesSling.New().Get("servers/"+p.VHost+"/zones").Receive(&zones, myError)
-
-	if err := handleAPIClientError(resp, &err, myError); err != nil {
+// List retrieves a list of Zones
+func (z *ZonesService) List() ([]Zone, error) {
+	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil)
+	if err != nil {
 		return nil, err
 	}
 
-	for i := range zones {
-		zones[i].PowerDNSHandle = p
-	}
-
+	zones := make([]Zone, 0)
+	_, err = z.client.do(req, &zones)
 	return zones, err
 }
 
-// GetZone returns a certain Zone for a given domain
-func (p *PowerDNS) GetZone(domain string) (*Zone, error) {
-	zone := &Zone{}
-	myError := new(Error)
-
-	zoneSling := p.makeSling()
-	resp, err := zoneSling.New().Get("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(zone, myError)
-
-	if err := handleAPIClientError(resp, &err, myError); err != nil {
+// Get returns a certain Zone for a given domain
+func (z *ZonesService) Get(domain string) (*Zone, error) {
+	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, strings.TrimRight(domain, ".")), nil)
+	if err != nil {
 		return nil, err
 	}
 
-	zone.PowerDNSHandle = p
+	zone := &Zone{}
+	_, err = z.client.do(req, &zone)
 	return zone, err
 }
 
-// AddNativeZone creates a new native zone
-func (p *PowerDNS) AddNativeZone(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit string, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
+// AddNative creates a new native zone
+func (z *ZonesService) AddNative(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit string, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
 	zone := Zone{
-		Name:        domain,
-		Kind:        NativeZoneKind,
-		DNSsec:      dnssec,
-		Nsec3Param:  nsec3Param,
-		Nsec3Narrow: nsec3Narrow,
-		SOAEdit:     soaEdit,
-		SOAEditAPI:  soaEditApi,
-		APIRectify:  apiRectify,
+		Name:        String(domain),
+		Kind:        ZoneKindPtr(NativeZoneKind),
+		DNSsec:      Bool(dnssec),
+		Nsec3Param:  String(nsec3Param),
+		Nsec3Narrow: Bool(nsec3Narrow),
+		SOAEdit:     String(soaEdit),
+		SOAEditAPI:  String(soaEditApi),
+		APIRectify:  Bool(apiRectify),
 		Nameservers: nameservers,
 	}
-	return p.postZone(&zone)
+	return z.postZone(&zone)
 }
 
-// AddMasterZone creates a new master zone
-func (p *PowerDNS) AddMasterZone(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit string, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
+// AddMaster creates a new master zone
+func (z *ZonesService) AddMaster(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit string, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
 	zone := Zone{
-		Name:        domain,
-		Kind:        MasterZoneKind,
-		DNSsec:      dnssec,
-		Nsec3Param:  nsec3Param,
-		Nsec3Narrow: nsec3Narrow,
-		SOAEdit:     soaEdit,
-		SOAEditAPI:  soaEditApi,
-		APIRectify:  apiRectify,
+		Name:        String(domain),
+		Kind:        ZoneKindPtr(MasterZoneKind),
+		DNSsec:      Bool(dnssec),
+		Nsec3Param:  String(nsec3Param),
+		Nsec3Narrow: Bool(nsec3Narrow),
+		SOAEdit:     String(soaEdit),
+		SOAEditAPI:  String(soaEditApi),
+		APIRectify:  Bool(apiRectify),
 		Nameservers: nameservers,
 	}
-	return p.postZone(&zone)
+	return z.postZone(&zone)
 }
 
-// AddSlaveZone creates a new slave zone
-func (p *PowerDNS) AddSlaveZone(domain string, masters []string) (*Zone, error) {
+// AddSlave creates a new slave zone
+func (z *ZonesService) AddSlave(domain string, masters []string) (*Zone, error) {
 	zone := Zone{
-		Name:    domain,
-		Kind:    SlaveZoneKind,
+		Name:    String(domain),
+		Kind:    ZoneKindPtr(SlaveZoneKind),
 		Masters: masters,
 	}
-	return p.postZone(&zone)
+	return z.postZone(&zone)
 }
 
-func (p *PowerDNS) postZone(zone *Zone) (*Zone, error) {
-	zone.Name = fixDomainSuffix(zone.Name)
-	zone.Type = fixZoneType(zone.Type)
+func (z *ZonesService) postZone(zone *Zone) (*Zone, error) {
+	zone.Name = String(fixDomainSuffix(*zone.Name))
+	zone.Type = ZoneTypePtr(ZoneZoneType)
 
-	myError := new(Error)
-	createdZone := new(Zone)
-
-	zonesSling := p.makeSling()
-	resp, err := zonesSling.New().Post("servers/"+p.VHost+"/zones").BodyJSON(zone).Receive(createdZone, myError)
-
-	createdZone.PowerDNSHandle = p
-
+	req, err := z.client.newRequest("POST", fmt.Sprintf("servers/%s/zones", z.client.VHost), zone)
 	if err != nil {
-		return createdZone, err
-	}
-
-	switch code := resp.StatusCode; {
-	case code == 201:
-		return createdZone, nil
-	default:
-		return createdZone, err
-	}
-}
-
-// ChangeZone modifies an existing zone
-func (p *PowerDNS) ChangeZone(zone *Zone) error {
-	if zone.Name == "" {
-		return &Error{Message: "Name attribute missing"}
-	}
-
-	adjustedZone := *zone
-	adjustedZone.ID = ""
-	adjustedZone.Name = ""
-	adjustedZone.Type = fixZoneType(zone.Type)
-	adjustedZone.URL = ""
-
-	myError := new(Error)
-
-	zoneSling := p.makeSling()
-	resp, err := zoneSling.New().Put("servers/"+p.VHost+"/zones/"+strings.TrimRight(zone.Name, ".")).BodyJSON(adjustedZone).Receive(nil, myError)
-
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 204 {
-		return myError
-	}
-
-	return nil
-}
-
-// DeleteZone removes a certain Zone for a given domain
-func (p *PowerDNS) DeleteZone(domain string) error {
-	myError := new(Error)
-	zoneSling := p.makeSling()
-
-	resp, err := zoneSling.New().Delete("servers/"+p.VHost+"/zones/"+strings.TrimRight(domain, ".")).Receive(nil, myError)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 204 {
-		return myError
-	}
-
-	return nil
-}
-
-// DeleteZone removes a certain Zone for a given domain
-func (z *Zone) DeleteZone() error {
-	return z.PowerDNSHandle.DeleteZone(z.Name)
-}
-
-// Notify sends a DNS notify packet to all slaves
-func (z *Zone) Notify() (*NotifyResult, error) {
-	notifyResult := &NotifyResult{}
-	myError := new(Error)
-
-	notifySling := z.PowerDNSHandle.makeSling()
-	resp, err := notifySling.New().Put(strings.TrimRight(z.URL, ".")+"/notify").Receive(notifyResult, myError)
-
-	if err := handleAPIClientError(resp, &err, myError); err != nil {
 		return nil, err
 	}
 
+	createdZone := new(Zone)
+	_, err = z.client.do(req, &createdZone)
+	return createdZone, err
+}
+
+// Change modifies an existing zone
+func (z *ZonesService) Change(domain string, zone *Zone) error {
+	zone.ID = String("")
+	zone.Name = String("")
+	zone.Type = ZoneTypePtr(ZoneZoneType)
+	zone.URL = String("")
+
+	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, strings.TrimRight(domain, ".")), zone)
+	if err != nil {
+		return err
+	}
+
+	_, err = z.client.do(req, nil)
+	return err
+}
+
+// Delete removes a certain Zone for a given domain
+func (z *ZonesService) Delete(domain string) error {
+	req, err := z.client.newRequest("DELETE", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, strings.TrimRight(domain, ".")), nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = z.client.do(req, nil)
+	return err
+}
+
+// Notify sends a DNS notify packet to all slaves
+func (z *ZonesService) Notify(domain string) (*NotifyResult, error) {
+	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s/notify", z.client.VHost, strings.TrimRight(domain, ".")), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	notifyResult := &NotifyResult{}
+	_, err = z.client.do(req, notifyResult)
 	return notifyResult, err
 }
 
 // Export returns a BIND-like Zone file
-func (z *Zone) Export() (Export, error) {
-	myError := new(Error)
-	exportSling := z.PowerDNSHandle.makeSling()
-
-	req, _ := exportSling.New().Get(strings.TrimRight(z.URL, ".") + "/export").Request()
-	resp, err := http.DefaultClient.Do(req)
-
+func (z *ZonesService) Export(domain string) (Export, error) {
+	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s/export", z.client.VHost, strings.TrimRight(domain, ".")), nil)
 	if err != nil {
 		return "", err
 	}
 
-	if err := handleAPIClientError(resp, &err, myError); err != nil {
+	resp, err := z.client.do(req, nil)
+	if err != nil {
 		return "", err
 	}
 
@@ -249,11 +210,4 @@ func fixDomainSuffix(domain string) string {
 		domain += "."
 	}
 	return domain
-}
-
-func fixZoneType(zoneType ZoneType) ZoneType {
-	if zoneType == "" {
-		return ZoneZoneType
-	}
-	return zoneType
 }
