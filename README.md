@@ -14,7 +14,7 @@ This community project provides bindings for the currently latest version of Pow
 - PowerDNS 4.1 ("API v1")
   - `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`
   - Note that API v1 is actively maintained. There are differences between 3.x, 4.0 and 4.1 and this client works only with 4.1.
-- Go 1.11/1.12 (should work with other minor releases as well)
+- Tested with Go version 1.11/1.12/1.13, according to [Go's version support policy](https://golang.org/doc/devel/release.html#policy) (should work with other minor releases as well)
 
 ### Install from source
 
