@@ -12,7 +12,7 @@ type Statistic struct {
 	Value *string `json:"value,omitempty"`
 }
 
-// GetStatistics retrieves a list of Statistics
+// List retrieves a list of Statistics
 func (s *StatisticsService) List() ([]Statistic, error) {
 	req, err := s.client.newRequest("GET", fmt.Sprintf("servers/%s/statistics", s.client.VHost), nil)
 	if err != nil {
