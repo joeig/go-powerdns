@@ -76,9 +76,9 @@ func TestDeleteCryptokey(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("%s/zones/%s/cryptokeys/%s", generateTestAPIVhostURL(), testDomain, cryptokeyIDToString(*id)),
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
-				return httpmock.NewStringResponse(204, ""), nil
+				return httpmock.NewStringResponse(http.StatusNoContent, ""), nil
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 

@@ -18,9 +18,9 @@ func TestAddRecord(t *testing.T) {
 	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
-				return httpmock.NewBytesResponse(200, []byte{}), nil
+				return httpmock.NewBytesResponse(http.StatusOK, []byte{}), nil
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -41,9 +41,9 @@ func TestChangeRecord(t *testing.T) {
 	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
-				return httpmock.NewBytesResponse(200, []byte{}), nil
+				return httpmock.NewBytesResponse(http.StatusOK, []byte{}), nil
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -68,9 +68,9 @@ func TestDeleteRecord(t *testing.T) {
 					Name: String(fixDomainSuffix(testDomain)),
 					URL:  String("/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
 				}
-				return httpmock.NewJsonResponse(200, zoneMock)
+				return httpmock.NewJsonResponse(http.StatusOK, zoneMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 

@@ -24,9 +24,9 @@ func TestListZones(t *testing.T) {
 						NotifiedSerial: Uint32(1337),
 					},
 				}
-				return httpmock.NewJsonResponse(200, zonesMock)
+				return httpmock.NewJsonResponse(http.StatusOK, zonesMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -67,9 +67,9 @@ func TestGetZone(t *testing.T) {
 					Serial:         Uint32(1337),
 					NotifiedSerial: Uint32(1337),
 				}
-				return httpmock.NewJsonResponse(200, zoneMock)
+				return httpmock.NewJsonResponse(http.StatusOK, zoneMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -130,9 +130,9 @@ func TestAddNativeZone(t *testing.T) {
 					APIRectify:  Bool(true),
 					Account:     String(""),
 				}
-				return httpmock.NewJsonResponse(201, zoneMock)
+				return httpmock.NewJsonResponse(http.StatusCreated, zoneMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -193,9 +193,9 @@ func TestAddMasterZone(t *testing.T) {
 					APIRectify:  Bool(true),
 					Account:     String(""),
 				}
-				return httpmock.NewJsonResponse(201, zoneMock)
+				return httpmock.NewJsonResponse(http.StatusCreated, zoneMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -232,9 +232,9 @@ func TestAddSlaveZone(t *testing.T) {
 					APIRectify:  Bool(true),
 					Account:     String(""),
 				}
-				return httpmock.NewJsonResponse(201, zoneMock)
+				return httpmock.NewJsonResponse(http.StatusCreated, zoneMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -255,9 +255,9 @@ func TestChangeZone(t *testing.T) {
 	httpmock.RegisterResponder("PUT", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
-				return httpmock.NewBytesResponse(204, []byte{}), nil
+				return httpmock.NewBytesResponse(http.StatusNoContent, []byte{}), nil
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -282,9 +282,9 @@ func TestDeleteZone(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", generateTestAPIVhostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
-				return httpmock.NewBytesResponse(204, []byte{}), nil
+				return httpmock.NewBytesResponse(http.StatusNoContent, []byte{}), nil
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -302,9 +302,9 @@ func TestNotify(t *testing.T) {
 	httpmock.RegisterResponder("PUT", generateTestAPIVhostURL()+"/zones/"+testDomain+"/notify",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
-				return httpmock.NewStringResponse(200, "{\"result\":\"Notification queued\"}"), nil
+				return httpmock.NewStringResponse(http.StatusOK, "{\"result\":\"Notification queued\"}"), nil
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
@@ -326,9 +326,9 @@ func TestExport(t *testing.T) {
 	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/export",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
-				return httpmock.NewStringResponse(200, fixDomainSuffix(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+fixDomainSuffix(testDomain)+" 1 10800 3600 604800 3600"), nil
+				return httpmock.NewStringResponse(http.StatusOK, fixDomainSuffix(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+fixDomainSuffix(testDomain)+" 1 10800 3600 604800 3600"), nil
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 

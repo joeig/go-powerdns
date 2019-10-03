@@ -85,9 +85,9 @@ func registerZoneMockResponder(testDomain string) {
 					Serial:         Uint32(1337),
 					NotifiedSerial: Uint32(1337),
 				}
-				return httpmock.NewJsonResponse(200, zoneMock)
+				return httpmock.NewJsonResponse(http.StatusOK, zoneMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 }
@@ -121,9 +121,9 @@ func registerCryptokeysMockResponder(testDomain string) {
 						Bits:      Uint64(2048),
 					},
 				}
-				return httpmock.NewJsonResponse(200, cryptokeysMock)
+				return httpmock.NewJsonResponse(http.StatusOK, cryptokeysMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 }
@@ -142,9 +142,9 @@ func registerCryptokeyMockResponder(testDomain string, id uint64) {
 					Algorithm:  String("ECDSAP256SHA256"),
 					Bits:       Uint64(1024),
 				}
-				return httpmock.NewJsonResponse(200, cryptokeyMock)
+				return httpmock.NewJsonResponse(http.StatusOK, cryptokeyMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 }

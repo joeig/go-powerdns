@@ -50,9 +50,9 @@ func TestListStatistics(t *testing.T) {
 						Value: String("567"),
 					},
 				}
-				return httpmock.NewJsonResponse(200, statisticsMock)
+				return httpmock.NewJsonResponse(http.StatusOK, statisticsMock)
 			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
+			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},
 	)
 
