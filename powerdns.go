@@ -103,6 +103,10 @@ func generateAPIURL(scheme, hostname, port, path string) url.URL {
 	return u
 }
 
+func trimDomain(domain string) string {
+	return strings.TrimSuffix(domain, ".")
+}
+
 func (p *Client) newRequest(method string, path string, body interface{}) (*http.Request, error) {
 	var buf io.ReadWriter
 	if body != nil {
