@@ -147,3 +147,12 @@ func TestGenerateAPIURL(t *testing.T) {
 		t.Errorf("Template does not match generated API URL: %s", g.String())
 	}
 }
+
+func TestTrimDomain(t *testing.T) {
+	if "example.com" != trimDomain("example.com.") {
+		t.Error("TrimDomain return value invalid while testing with trailing dot")
+	}
+	if "example.com" != trimDomain("example.com") {
+		t.Error("TrimDomain return value invalid while testing without trailing dot")
+	}
+}
