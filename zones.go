@@ -95,7 +95,7 @@ func (z *ZonesService) Get(domain string) (*Zone, error) {
 }
 
 // AddNative creates a new native zone
-func (z *ZonesService) AddNative(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit string, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
+func (z *ZonesService) AddNative(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
 	zone := Zone{
 		Name:        String(domain),
 		Kind:        ZoneKindPtr(NativeZoneKind),
@@ -111,7 +111,7 @@ func (z *ZonesService) AddNative(domain string, dnssec bool, nsec3Param string, 
 }
 
 // AddMaster creates a new master zone
-func (z *ZonesService) AddMaster(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit string, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
+func (z *ZonesService) AddMaster(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
 	zone := Zone{
 		Name:        String(domain),
 		Kind:        ZoneKindPtr(MasterZoneKind),
@@ -152,10 +152,10 @@ func (z *ZonesService) postZone(zone *Zone) (*Zone, error) {
 
 // Change modifies an existing zone
 func (z *ZonesService) Change(domain string, zone *Zone) error {
-	zone.ID = String("")
-	zone.Name = String("")
-	zone.Type = ZoneTypePtr(ZoneZoneType)
-	zone.URL = String("")
+	zone.ID = nil
+	zone.Name = nil
+	zone.Type = nil
+	zone.URL = nil
 
 	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, strings.TrimRight(domain, ".")), zone)
 	if err != nil {
