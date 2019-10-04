@@ -38,7 +38,7 @@ type Client struct {
 var logFatalf = log.Fatalf
 
 // NewClient initializes a new client instance
-func NewClient(baseURL string, vhost string, headers map[string]string, httpClient *http.Client) *Client {
+func NewClient(baseURL string, vHost string, headers map[string]string, httpClient *http.Client) *Client {
 	scheme, hostname, port, err := parseBaseURL(baseURL)
 	if err != nil {
 		logFatalf("%s is not a valid url: %v", baseURL, err)
@@ -48,7 +48,7 @@ func NewClient(baseURL string, vhost string, headers map[string]string, httpClie
 		Scheme:   scheme,
 		Hostname: hostname,
 		Port:     port,
-		VHost:    parseVhost(vhost),
+		VHost:    parseVHost(vHost),
 		Headers:  headers,
 	}
 
@@ -88,11 +88,11 @@ func parseBaseURL(baseURL string) (string, string, string, error) {
 	return u.Scheme, hostname, port, nil
 }
 
-func parseVhost(vhost string) string {
-	if vhost == "" {
+func parseVHost(vHost string) string {
+	if vHost == "" {
 		return "localhost"
 	}
-	return vhost
+	return vHost
 }
 
 func generateAPIURL(scheme, hostname, port, path string) url.URL {

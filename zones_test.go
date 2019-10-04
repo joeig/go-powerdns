@@ -11,7 +11,7 @@ func TestListZones(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones",
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zonesMock := []Zone{
@@ -44,7 +44,7 @@ func TestGetZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
@@ -87,7 +87,7 @@ func TestAddNativeZone(t *testing.T) {
 	testDomain := generateTestZone(false)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("POST", generateTestAPIVhostURL()+"/zones",
+	httpmock.RegisterResponder("POST", generateTestAPIVHostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
@@ -150,7 +150,7 @@ func TestAddMasterZone(t *testing.T) {
 	testDomain := generateTestZone(false)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("POST", generateTestAPIVhostURL()+"/zones",
+	httpmock.RegisterResponder("POST", generateTestAPIVHostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
@@ -213,7 +213,7 @@ func TestAddSlaveZone(t *testing.T) {
 	testDomain := generateTestZone(false)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("POST", generateTestAPIVhostURL()+"/zones",
+	httpmock.RegisterResponder("POST", generateTestAPIVHostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
@@ -252,7 +252,7 @@ func TestChangeZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("PUT", generateTestAPIVhostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewBytesResponse(http.StatusNoContent, []byte{}), nil
@@ -279,7 +279,7 @@ func TestDeleteZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("DELETE", generateTestAPIVhostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("DELETE", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewBytesResponse(http.StatusNoContent, []byte{}), nil
@@ -299,7 +299,7 @@ func TestNotify(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerZoneMockResponder(testDomain)
-	httpmock.RegisterResponder("PUT", generateTestAPIVhostURL()+"/zones/"+testDomain+"/notify",
+	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+testDomain+"/notify",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewStringResponse(http.StatusOK, "{\"result\":\"Notification queued\"}"), nil
@@ -323,7 +323,7 @@ func TestExport(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerZoneMockResponder(testDomain)
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/export",
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/export",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewStringResponse(http.StatusOK, fixDomainSuffix(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+fixDomainSuffix(testDomain)+" 1 10800 3600 604800 3600"), nil

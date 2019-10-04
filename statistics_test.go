@@ -10,7 +10,7 @@ import (
 func TestListStatistics(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/statistics",
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/statistics",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				statisticsMock := []Statistic{

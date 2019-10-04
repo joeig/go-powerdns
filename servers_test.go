@@ -43,7 +43,7 @@ func TestListServers(t *testing.T) {
 func TestGetServer(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL(),
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL(),
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				serverMock := Server{

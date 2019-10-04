@@ -127,15 +127,15 @@ func TestParseBaseURL(t *testing.T) {
 	})
 }
 
-func TestParseVhost(t *testing.T) {
-	t.Run("ValidVhost", func(t *testing.T) {
-		if parseVhost("example.com") != "example.com" {
-			t.Error("Valid vhost returned invalid value")
+func TestParseVHost(t *testing.T) {
+	t.Run("ValidVHost", func(t *testing.T) {
+		if parseVHost("example.com") != "example.com" {
+			t.Error("Valid vHost returned invalid value")
 		}
 	})
-	t.Run("MissingVhost", func(t *testing.T) {
-		if parseVhost("") != "localhost" {
-			t.Error("Missing vhost did not return localhost")
+	t.Run("MissingVHost", func(t *testing.T) {
+		if parseVHost("") != "localhost" {
+			t.Error("Missing vHost did not return localhost")
 		}
 	})
 }

@@ -15,7 +15,7 @@ func TestAddRecord(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	testRecordName := generateTestRecord(p, testDomain, false)
 
-	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("PATCH", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewBytesResponse(http.StatusOK, []byte{}), nil
@@ -38,7 +38,7 @@ func TestChangeRecord(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	testRecordName := generateTestRecord(p, testDomain, true)
 
-	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("PATCH", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewBytesResponse(http.StatusOK, []byte{}), nil
@@ -61,7 +61,7 @@ func TestDeleteRecord(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	testRecordName := generateTestRecord(p, testDomain, true)
 
-	httpmock.RegisterResponder("PATCH", generateTestAPIVhostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("PATCH", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{

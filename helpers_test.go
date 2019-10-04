@@ -18,7 +18,7 @@ func generateTestAPIURL() string {
 	return fmt.Sprintf("%s/api/v1", testBaseURL)
 }
 
-func generateTestAPIVhostURL() string {
+func generateTestAPIVHostURL() string {
 	return fmt.Sprintf("%s/servers/%s", generateTestAPIURL(), testVHost)
 }
 
@@ -62,7 +62,7 @@ func generateTestRecord(client *Client, domain string, autoAddRecord bool) strin
 }
 
 func registerZoneMockResponder(testDomain string) {
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
@@ -93,7 +93,7 @@ func registerZoneMockResponder(testDomain string) {
 }
 
 func registerCryptokeysMockResponder(testDomain string) {
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys",
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/cryptokeys",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				cryptokeysMock := []Cryptokey{
@@ -129,7 +129,7 @@ func registerCryptokeysMockResponder(testDomain string) {
 }
 
 func registerCryptokeyMockResponder(testDomain string, id uint64) {
-	httpmock.RegisterResponder("GET", generateTestAPIVhostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				cryptokeyMock := Cryptokey{
