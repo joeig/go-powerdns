@@ -66,7 +66,7 @@ func TestDeleteRecord(t *testing.T) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				zoneMock := Zone{
 					Name: String(fixDomainSuffix(testDomain)),
-					URL:  String("/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
+					URL:  String("/api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
 				}
 				return httpmock.NewJsonResponse(http.StatusOK, zoneMock)
 			}

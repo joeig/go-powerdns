@@ -18,7 +18,7 @@ func TestListZones(t *testing.T) {
 					{
 						ID:             String(fixDomainSuffix(testDomain)),
 						Name:           String(fixDomainSuffix(testDomain)),
-						URL:            String("/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
+						URL:            String("/api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
 						Kind:           ZoneKindPtr(NativeZoneKind),
 						Serial:         Uint32(1337),
 						NotifiedSerial: Uint32(1337),
@@ -50,7 +50,7 @@ func TestGetZone(t *testing.T) {
 				zoneMock := Zone{
 					ID:   String(fixDomainSuffix(testDomain)),
 					Name: String(fixDomainSuffix(testDomain)),
-					URL:  String("/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
+					URL:  String("/api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
 					Kind: ZoneKindPtr(NativeZoneKind),
 					RRsets: []RRset{
 						{
@@ -94,7 +94,7 @@ func TestAddNativeZone(t *testing.T) {
 					ID:   String(fixDomainSuffix(testDomain)),
 					Name: String(fixDomainSuffix(testDomain)),
 					Type: ZoneTypePtr(ZoneZoneType),
-					URL:  String("api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
+					URL:  String("api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
 					Kind: ZoneKindPtr(NativeZoneKind),
 					RRsets: []RRset{
 						{
@@ -157,7 +157,7 @@ func TestAddMasterZone(t *testing.T) {
 					ID:   String(fixDomainSuffix(testDomain)),
 					Name: String(fixDomainSuffix(testDomain)),
 					Type: ZoneTypePtr(ZoneZoneType),
-					URL:  String("api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
+					URL:  String("api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
 					Kind: ZoneKindPtr(MasterZoneKind),
 					RRsets: []RRset{
 						{
@@ -220,7 +220,7 @@ func TestAddSlaveZone(t *testing.T) {
 					ID:          String(fixDomainSuffix(testDomain)),
 					Name:        String(fixDomainSuffix(testDomain)),
 					Type:        ZoneTypePtr(ZoneZoneType),
-					URL:         String("api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
+					URL:         String("api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
 					Kind:        ZoneKindPtr(SlaveZoneKind),
 					Serial:      Uint32(0),
 					Masters:     []string{"ns5.foo.tld."},

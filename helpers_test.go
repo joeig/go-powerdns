@@ -10,7 +10,7 @@ import (
 
 const (
 	testBaseURL string = "http://localhost:8080"
-	testVhost   string = "localhost"
+	testVHost   string = "localhost"
 	testAPIKey  string = "apipw"
 )
 
@@ -19,11 +19,11 @@ func generateTestAPIURL() string {
 }
 
 func generateTestAPIVhostURL() string {
-	return fmt.Sprintf("%s/servers/%s", generateTestAPIURL(), testVhost)
+	return fmt.Sprintf("%s/servers/%s", generateTestAPIURL(), testVHost)
 }
 
 func initialisePowerDNSTestClient() *Client {
-	return NewClient(testBaseURL, testVhost, map[string]string{"X-API-Key": testAPIKey}, nil)
+	return NewClient(testBaseURL, testVHost, map[string]string{"X-API-Key": testAPIKey}, nil)
 }
 
 func generateTestZone(autoAddZone bool) string {
@@ -68,7 +68,7 @@ func registerZoneMockResponder(testDomain string) {
 				zoneMock := Zone{
 					ID:   String(fixDomainSuffix(testDomain)),
 					Name: String(fixDomainSuffix(testDomain)),
-					URL:  String("/api/v1/servers/" + testVhost + "/zones/" + fixDomainSuffix(testDomain)),
+					URL:  String("/api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
 					Kind: ZoneKindPtr(NativeZoneKind),
 					RRsets: []RRset{
 						{
