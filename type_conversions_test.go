@@ -14,6 +14,9 @@ func TestBoolValue(t *testing.T) {
 	if BoolValue(&source) != source {
 		t.Error("Invalid return value")
 	}
+	if BoolValue(nil) != false {
+		t.Error("Unexpected return value")
+	}
 }
 
 func TestUint32(t *testing.T) {
@@ -27,6 +30,9 @@ func TestUint32Value(t *testing.T) {
 	source := uint32(1337)
 	if Uint32Value(&source) != source {
 		t.Error("Invalid return value")
+	}
+	if Uint32Value(nil) != 0 {
+		t.Error("Unexpected return value")
 	}
 }
 
@@ -42,6 +48,9 @@ func TestUint64Value(t *testing.T) {
 	if Uint64Value(&source) != source {
 		t.Error("Invalid return value")
 	}
+	if Uint64Value(nil) != 0 {
+		t.Error("Unexpected return value")
+	}
 }
 
 func TestString(t *testing.T) {
@@ -55,5 +64,8 @@ func TestStringValue(t *testing.T) {
 	source := "foo"
 	if StringValue(&source) != source {
 		t.Error("Invalid return value")
+	}
+	if StringValue(nil) != "" {
+		t.Error("Unexpected return value")
 	}
 }
