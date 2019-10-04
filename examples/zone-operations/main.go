@@ -54,11 +54,12 @@ func main() {
 	}
 
 	// Retrieve zone attributes
-	newZone, err := pdns.Zones.Get(domain)
+	changedZone, err := pdns.Zones.Get(domain)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	o, _ = json.MarshalIndent(newZone, "", "\t")
-	fmt.Printf("new zone: %s\n\n", o)
+	o, _ = json.MarshalIndent(changedZone, "", "\t")
+	fmt.Printf("changed zone: %s\n\n", o)
+	fmt.Printf("Account is \"%s\" and DNSsec is %t\n\n", powerdns.StringValue(changedZone.Account), powerdns.BoolValue(changedZone.DNSsec))
 }

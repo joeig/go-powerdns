@@ -177,23 +177,3 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	return resp, err
 }
-
-// Bool is a helper function that allocates a new bool value to store v and returns a pointer to it.
-func Bool(v bool) *bool {
-	return &v
-}
-
-// Uint32 is a helper function that allocates a new uint32 value to store v and returns a pointer to it.
-func Uint32(v uint32) *uint32 {
-	return &v
-}
-
-// Uint64 is a helper function that allocates a new uint64 value to store v and returns a pointer to it.
-func Uint64(v uint64) *uint64 {
-	return &v
-}
-
-// String is a helper function that allocates a new string value to store v and returns a pointer to it.
-func String(v string) *string {
-	return &v
-}
