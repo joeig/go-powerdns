@@ -2,11 +2,10 @@ GOCMD=go
 GOTEST=$(GOCMD) test
 GOCOVER=$(GOCMD) tool cover
 GOFMT=gofmt
-GODEP=dep
 GOFILES=$(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 .DEFAULT_GOAL := all
-.PHONY: all test test-without-mocks coverage check-fmt fmt deps
+.PHONY: all test test-without-mocks coverage check-fmt fmt
 
 all: check-fmt test coverage
 
@@ -24,6 +23,3 @@ check-fmt:
 
 fmt:
 	$(GOFMT) -w ${GOFILES}
-
-deps:
-	$(GODEP) ensure
