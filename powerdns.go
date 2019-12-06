@@ -45,14 +45,15 @@ func NewClient(baseURL string, vHost string, headers map[string]string, httpClie
 	}
 
 	c := &Client{
-		Scheme:   scheme,
-		Hostname: hostname,
-		Port:     port,
-		VHost:    parseVHost(vHost),
-		Headers:  headers,
+		Scheme:     scheme,
+		Hostname:   hostname,
+		Port:       port,
+		VHost:      parseVHost(vHost),
+		Headers:    headers,
+		httpClient: httpClient,
 	}
 
-	if httpClient == nil {
+	if c.httpClient == nil {
 		c.httpClient = http.DefaultClient
 	}
 
