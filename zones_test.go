@@ -40,6 +40,13 @@ func TestListZones(t *testing.T) {
 	}
 }
 
+func TestListZonesError(t *testing.T) {
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Zones.List(); err == nil {
+		t.Error("error is nil")
+	}
+}
+
 func TestGetZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
@@ -80,6 +87,14 @@ func TestGetZone(t *testing.T) {
 	}
 	if *zone.ID != fixDomainSuffix(testDomain) {
 		t.Error("Received no zone")
+	}
+}
+
+func TestGetZonesError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Zones.Get(testDomain); err == nil {
+		t.Error("error is nil")
 	}
 }
 
@@ -146,6 +161,14 @@ func TestAddNativeZone(t *testing.T) {
 	}
 }
 
+func TestAddNativeZoneError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Zones.AddNative(testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
+		t.Error("error is nil")
+	}
+}
+
 func TestAddMasterZone(t *testing.T) {
 	testDomain := generateTestZone(false)
 	httpmock.Activate()
@@ -209,6 +232,14 @@ func TestAddMasterZone(t *testing.T) {
 	}
 }
 
+func TestAddMasterZoneError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Zones.AddMaster(testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
+		t.Error("error is nil")
+	}
+}
+
 func TestAddSlaveZone(t *testing.T) {
 	testDomain := generateTestZone(false)
 	httpmock.Activate()
@@ -248,6 +279,14 @@ func TestAddSlaveZone(t *testing.T) {
 	}
 }
 
+func TestAddSlaveZoneError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Zones.AddSlave(testDomain, []string{"ns5.foo.tld."}); err == nil {
+		t.Error("error is nil")
+	}
+}
+
 func TestChangeZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
@@ -275,6 +314,14 @@ func TestChangeZone(t *testing.T) {
 	})
 }
 
+func TestChangeZoneError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	if err := p.Zones.Change(testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}}); err == nil {
+		t.Error("error is nil")
+	}
+}
+
 func TestDeleteZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
@@ -291,6 +338,14 @@ func TestDeleteZone(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	if err := p.Zones.Delete(testDomain); err != nil {
 		t.Errorf("%s", err)
+	}
+}
+
+func TestDeleteZoneError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	if err := p.Zones.Delete(testDomain); err == nil {
+		t.Error("error is nil")
 	}
 }
 
@@ -318,6 +373,14 @@ func TestNotify(t *testing.T) {
 	}
 }
 
+func TestNotifyError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Zones.Notify(testDomain); err == nil {
+		t.Error("error is nil")
+	}
+}
+
 func TestExport(t *testing.T) {
 	testDomain := generateTestZone(true)
 	httpmock.Activate()
@@ -339,5 +402,13 @@ func TestExport(t *testing.T) {
 	}
 	if !strings.HasPrefix(string(export), testDomain) {
 		t.Errorf("Export payload wrong: \"%s\"", export)
+	}
+}
+
+func TestExportError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Zones.Export(testDomain); err == nil {
+		t.Error("error is nil")
 	}
 }

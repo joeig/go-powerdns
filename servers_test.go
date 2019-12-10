@@ -40,6 +40,13 @@ func TestListServers(t *testing.T) {
 	}
 }
 
+func TestListServersError(t *testing.T) {
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Servers.List(); err == nil {
+		t.Error("error is nil")
+	}
+}
+
 func TestGetServer(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -68,5 +75,12 @@ func TestGetServer(t *testing.T) {
 	}
 	if *server.ID != testVHost {
 		t.Error("Received no server")
+	}
+}
+
+func TestGetServerError(t *testing.T) {
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Servers.Get(testVHost); err == nil {
+		t.Error("error is nil")
 	}
 }

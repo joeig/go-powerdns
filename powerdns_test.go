@@ -40,9 +40,12 @@ func TestNewClient(t *testing.T) {
 
 func TestNewRequest(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	if _, err := p.newRequest("GET", "servers", nil); err != nil {
-		t.Error("NewRequest returns an error")
-	}
+
+	t.Run("TestValidRequest", func(t *testing.T) {
+		if _, err := p.newRequest("GET", "servers", nil); err != nil {
+			t.Error("error is not nil")
+		}
+	})
 }
 
 func TestDo(t *testing.T) {

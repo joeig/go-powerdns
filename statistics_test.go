@@ -65,3 +65,10 @@ func TestListStatistics(t *testing.T) {
 		t.Error("Received amount of statistics is 0")
 	}
 }
+
+func TestListStatisticsError(t *testing.T) {
+	p := initialisePowerDNSTestClient()
+	if _, err := p.Statistics.List(); err == nil {
+		t.Error("error is nil")
+	}
+}
