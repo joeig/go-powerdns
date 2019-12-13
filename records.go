@@ -48,6 +48,7 @@ func (r *RecordsService) Change(domain string, name string, recordType string, t
 	rrset.Type = &recordType
 	rrset.TTL = &ttl
 	rrset.ChangeType = String("REPLACE")
+	rrset.Records = make([]Record, 0)
 
 	for _, c := range content {
 		r := Record{Content: String(c), Disabled: Bool(false), SetPTR: Bool(false)}
