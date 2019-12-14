@@ -1,0 +1,36 @@
+---
+name: Go
+on: [push, pull_request]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goVer: [1.11, 1.12, 1.13]
+    steps:
+      - name: Set up Go ${{ matrix.goVer }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.goVer }}
+        id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: GolangCI-Lint
+        run: |
+          curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.19.1
+          $(go env GOPATH)/bin/golangci-lint --version
+          $(go env GOPATH)/bin/golangci-lint run
+      - name: Staticcheck
+        run: |
+          go get -u honnef.co/go/tools/cmd/staticcheck
+          $(go env GOPATH)/bin/staticcheck ./...
+      - name: Make
+        run: make
+      - name: Coveralls
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_PARALLEL: true
+        run: |
+          GO111MODULE=off go get github.com/mattn/goveralls
+          $(go env GOPATH)/bin/goveralls -coverprofile=c.out -service=github
