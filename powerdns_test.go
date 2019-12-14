@@ -149,10 +149,10 @@ func TestGenerateAPIURL(t *testing.T) {
 }
 
 func TestTrimDomain(t *testing.T) {
-	if "example.com" != trimDomain("example.com.") {
+	if trimDomain("example.com.") != "example.com" {
 		t.Error("TrimDomain return value invalid while testing with trailing dot")
 	}
-	if "example.com" != trimDomain("example.com") {
+	if trimDomain("example.com") != "example.com" {
 		t.Error("TrimDomain return value invalid while testing without trailing dot")
 	}
 }
