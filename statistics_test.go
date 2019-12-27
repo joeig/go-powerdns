@@ -13,44 +13,8 @@ func TestListStatistics(t *testing.T) {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/statistics",
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
-				statisticsMock := []Statistic{
-					{
-						Name:  String("corrupt-packets"),
-						Type:  String("StatisticItem"),
-						Value: String("1337"),
-					},
-					{
-						Name:  String("deferred-cache-inserts"),
-						Type:  String("StatisticItem"),
-						Value: String("42"),
-					},
-					{
-						Name:  String("deferred-cache-lookup"),
-						Type:  String("StatisticItem"),
-						Value: String("123"),
-					},
-					{
-						Name:  String("deferred-packetcache-inserts"),
-						Type:  String("StatisticItem"),
-						Value: String("234"),
-					},
-					{
-						Name:  String("deferred-packetcache-lookup"),
-						Type:  String("StatisticItem"),
-						Value: String("345"),
-					},
-					{
-						Name:  String("dnsupdate-answers"),
-						Type:  String("StatisticItem"),
-						Value: String("456"),
-					},
-					{
-						Name:  String("dnsupdate-changes"),
-						Type:  String("StatisticItem"),
-						Value: String("567"),
-					},
-				}
-				return httpmock.NewJsonResponse(http.StatusOK, statisticsMock)
+				statisticsMock := "[{\"name\": \"corrupt-packets\", \"type\": \"StatisticItem\", \"value\": \"0\"}, {\"name\": \"response-by-rcode\", \"type\": \"MapStatisticItem\", \"value\": [{\"name\": \"foo1\", \"value\": \"bar1\"}, {\"name\": \"foo2\", \"value\": \"bar2\"}]}, {\"name\": \"logmessages\", \"size\": \"10000\", \"type\": \"RingStatisticItem\", \"value\": [{\"name\": \"gmysql Connection successful. Connected to database 'powerdns' on 'mariadb'.\", \"value\": \"235\"}]}]"
+				return httpmock.NewStringResponse(http.StatusOK, statisticsMock), nil
 			}
 			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 		},

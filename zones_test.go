@@ -254,7 +254,7 @@ func TestAddSlaveZone(t *testing.T) {
 					URL:         String("api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
 					Kind:        ZoneKindPtr(SlaveZoneKind),
 					Serial:      Uint32(0),
-					Masters:     []string{"ns5.foo.tld."},
+					Masters:     []string{"127.0.0.1"},
 					DNSsec:      Bool(true),
 					Nsec3Param:  String(""),
 					Nsec3Narrow: Bool(false),
@@ -270,7 +270,7 @@ func TestAddSlaveZone(t *testing.T) {
 	)
 
 	p := initialisePowerDNSTestClient()
-	zone, err := p.Zones.AddSlave(testDomain, []string{"ns5.foo.tld."})
+	zone, err := p.Zones.AddSlave(testDomain, []string{"127.0.0.1"})
 	if err != nil {
 		t.Errorf("%s", err)
 	}
