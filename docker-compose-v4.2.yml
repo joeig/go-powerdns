@@ -4,8 +4,6 @@ version: '3.3'
 services:
   mariadb:
     image: mariadb:10.3
-    volumes:
-    - mariadb_data:/var/lib/mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -16,7 +14,7 @@ services:
   powerdns:
     depends_on:
     - mariadb
-    image: psitrax/powerdns:4.1
+    image: psitrax/powerdns:v4.2
     ports:
     - "8053:53"
     - "8053:53/udp"
@@ -39,7 +37,6 @@ services:
       "--webserver-allow-from=0.0.0.0/0",
       "--api=yes",
       "--api-key=apipw",
-      "--api-readonly=no",
       "--disable-syslog=yes",
       "--loglevel=9",
       "--log-dns-queries=yes",
@@ -48,6 +45,3 @@ services:
       "--default-soa-edit=INCEPTION-INCREMENT",
       "--gmysql-dnssec=yes"
     ]
-
-volumes:
-  mariadb_data:
