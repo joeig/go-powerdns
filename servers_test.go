@@ -42,6 +42,7 @@ func TestListServers(t *testing.T) {
 
 func TestListServersError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
+	p.Hostname = "invalid"
 	if _, err := p.Servers.List(); err == nil {
 		t.Error("error is nil")
 	}
@@ -80,6 +81,7 @@ func TestGetServer(t *testing.T) {
 
 func TestGetServerError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
+	p.Hostname = "invalid"
 	if _, err := p.Servers.Get(testVHost); err == nil {
 		t.Error("error is nil")
 	}

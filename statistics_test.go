@@ -32,6 +32,7 @@ func TestListStatistics(t *testing.T) {
 
 func TestListStatisticsError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
+	p.Hostname = "invalid"
 	if _, err := p.Statistics.List(); err == nil {
 		t.Error("error is nil")
 	}
