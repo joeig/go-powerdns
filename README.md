@@ -2,7 +2,7 @@
 
 This community project provides bindings for the currently latest version of PowerDNS.
 
-[![Build Status](https://github.com/joeig/go-powerdns/workflows/Go/badge.svg)](https://github.com/joeig/go-powerdns/actions)
+[![Build Status](https://github.com/joeig/go-powerdns/workflows/Tests/badge.svg)](https://github.com/joeig/go-powerdns/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/joeig/go-powerdns)](https://goreportcard.com/report/github.com/joeig/go-powerdns)
 [![Coverage Status](https://coveralls.io/repos/github/joeig/go-powerdns/badge.svg?branch=master)](https://coveralls.io/github/joeig/go-powerdns?branch=master)
 [![Documentation](https://godoc.org/github.com/joeig/go-powerdns?status.svg)](https://godoc.org/github.com/joeig/go-powerdns)
