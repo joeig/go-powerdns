@@ -6,13 +6,11 @@ import (
 	"testing"
 )
 
-func TestListConfig(t *testing.T) {
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
+func registerConfigsMockResponder() {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/config",
 		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") != testAPIKey {
-				return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
+			if res := verifyApiKey(req); res != nil {
+				return res, nil
 			}
 
 			configMock := []ConfigSetting{
@@ -25,6 +23,12 @@ func TestListConfig(t *testing.T) {
 			return httpmock.NewJsonResponse(http.StatusOK, configMock)
 		},
 	)
+}
+
+func TestListConfig(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	registerConfigsMockResponder()
 
 	p := initialisePowerDNSTestClient()
 	config, err := p.Config.List()

@@ -8,28 +8,72 @@ import (
 	"github.com/jarcoal/httpmock"
 )
 
+func registerServersMockResponder() {
+	httpmock.RegisterResponder("GET", generateTestAPIURL()+"/servers",
+		func(req *http.Request) (*http.Response, error) {
+			if res := verifyApiKey(req); res != nil {
+				return res, nil
+			}
+
+			serversMock := []Server{
+				{
+					Type:       String("Server"),
+					ID:         String(testVHost),
+					DaemonType: String("authoritative"),
+					Version:    String("4.1.2"),
+					URL:        String("/api/v1/servers/" + testVHost),
+					ConfigURL:  String("/api/v1/servers/" + testVHost + "/config{/config_setting}"),
+					ZonesURL:   String("/api/v1/servers/" + testVHost + "/zones{/zone}"),
+				},
+			}
+			return httpmock.NewJsonResponse(http.StatusOK, serversMock)
+		},
+	)
+
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL(),
+		func(req *http.Request) (*http.Response, error) {
+			if res := verifyApiKey(req); res != nil {
+				return res, nil
+			}
+
+			serverMock := Server{
+				Type:       String("Server"),
+				ID:         String(testVHost),
+				DaemonType: String("authoritative"),
+				Version:    String("4.1.2"),
+				URL:        String("/api/v1/servers/" + testVHost),
+				ConfigURL:  String("/api/v1/servers/" + testVHost + "/config{/config_setting}"),
+				ZonesURL:   String("/api/v1/servers/" + testVHost + "/zones{/zone}"),
+			}
+			return httpmock.NewJsonResponse(http.StatusOK, serverMock)
+		},
+	)
+}
+
+func registerCacheFlushMockResponder(testDomain string) {
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("%s/cache/flush", generateTestAPIVHostURL()),
+		func(req *http.Request) (*http.Response, error) {
+			if res := verifyApiKey(req); res != nil {
+				return res, nil
+			}
+
+			if req.URL.Query().Get("domain") != makeDomainCanonical(testDomain) {
+				return httpmock.NewStringResponse(http.StatusUnprocessableEntity, "Unprocessable Eneity"), nil
+			}
+
+			cacheFlushResultMock := CacheFlushResult{
+				Count:  Uint32(1),
+				Result: String("foo"),
+			}
+			return httpmock.NewJsonResponse(http.StatusOK, cacheFlushResultMock)
+		},
+	)
+}
+
 func TestListServers(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", generateTestAPIURL()+"/servers",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == testAPIKey {
-				serversMock := []Server{
-					{
-						Type:       String("Server"),
-						ID:         String(testVHost),
-						DaemonType: String("authoritative"),
-						Version:    String("4.1.2"),
-						URL:        String("/api/v1/servers/" + testVHost),
-						ConfigURL:  String("/api/v1/servers/" + testVHost + "/config{/config_setting}"),
-						ZonesURL:   String("/api/v1/servers/" + testVHost + "/zones{/zone}"),
-					},
-				}
-				return httpmock.NewJsonResponse(http.StatusOK, serversMock)
-			}
-			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
-		},
-	)
+	registerServersMockResponder()
 
 	p := initialisePowerDNSTestClient()
 	servers, err := p.Servers.List()
@@ -52,23 +96,7 @@ func TestListServersError(t *testing.T) {
 func TestGetServer(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", generateTestAPIVHostURL(),
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") == testAPIKey {
-				serverMock := Server{
-					Type:       String("Server"),
-					ID:         String(testVHost),
-					DaemonType: String("authoritative"),
-					Version:    String("4.1.2"),
-					URL:        String("/api/v1/servers/" + testVHost),
-					ConfigURL:  String("/api/v1/servers/" + testVHost + "/config{/config_setting}"),
-					ZonesURL:   String("/api/v1/servers/" + testVHost + "/zones{/zone}"),
-				}
-				return httpmock.NewJsonResponse(http.StatusOK, serverMock)
-			}
-			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
-		},
-	)
+	registerServersMockResponder()
 
 	p := initialisePowerDNSTestClient()
 	server, err := p.Servers.Get(testVHost)
@@ -90,25 +118,10 @@ func TestGetServerError(t *testing.T) {
 
 func TestCacheFlush(t *testing.T) {
 	testDomain := generateTestZone(true)
+
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("PUT", fmt.Sprintf("%s/cache/flush", generateTestAPIVHostURL()),
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("X-Api-Key") != testAPIKey {
-				return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
-			}
-
-			if req.URL.Query().Get("domain") != makeDomainCanonical(testDomain) {
-				return httpmock.NewStringResponse(http.StatusUnprocessableEntity, "Unprocessable Eneity"), nil
-			}
-
-			cacheFlushResultMock := CacheFlushResult{
-				Count:  Uint32(1),
-				Result: String("foo"),
-			}
-			return httpmock.NewJsonResponse(http.StatusOK, cacheFlushResultMock)
-		},
-	)
+	registerCacheFlushMockResponder(testDomain)
 
 	p := initialisePowerDNSTestClient()
 	cacheFlushResult, err := p.Servers.CacheFlush(testVHost, testDomain)

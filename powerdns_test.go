@@ -8,6 +8,52 @@ import (
 	"testing"
 )
 
+const (
+	testBaseURL string = "http://localhost:8080"
+	testVHost   string = "localhost"
+	testAPIKey  string = "apipw"
+)
+
+func generateTestAPIURL() string {
+	return fmt.Sprintf("%s/api/v1", testBaseURL)
+}
+
+func generateTestAPIVHostURL() string {
+	return fmt.Sprintf("%s/servers/%s", generateTestAPIURL(), testVHost)
+}
+
+func verifyApiKey(req *http.Request) *http.Response {
+	if req.Header.Get("X-Api-Key") != testAPIKey {
+		return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized")
+	}
+	return nil
+}
+
+func initialisePowerDNSTestClient() *Client {
+	return NewClient(testBaseURL, testVHost, map[string]string{"X-API-Key": testAPIKey}, nil)
+}
+
+func registerDoMockResponder() {
+	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/doesntExist", generateTestAPIURL()),
+		func(req *http.Request) (*http.Response, error) {
+			if res := verifyApiKey(req); res != nil {
+				return res, nil
+			}
+			return httpmock.NewStringResponse(http.StatusNotFound, "Not Found"), nil
+		},
+	)
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/server", generateTestAPIURL()),
+		func(req *http.Request) (*http.Response, error) {
+			mock := Error{
+				Status:  "Not Found",
+				Message: "Not Found",
+			}
+			return httpmock.NewJsonResponse(http.StatusNotImplemented, mock)
+		},
+	)
+}
+
 func TestNewClient(t *testing.T) {
 	t.Run("TestValidURL", func(t *testing.T) {
 		tmpl := &Client{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient, service{}, nil, nil, nil, nil, nil, nil}
@@ -52,35 +98,25 @@ func TestNewRequest(t *testing.T) {
 func TestDo(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/return-401", generateTestAPIURL()),
-		func(req *http.Request) (*http.Response, error) {
-			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
-		},
-	)
-	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/return-404", generateTestAPIURL()),
-		func(req *http.Request) (*http.Response, error) {
-			return httpmock.NewStringResponse(http.StatusNotFound, "Not Found"), nil
-		},
-	)
-	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/server", generateTestAPIURL()),
-		func(req *http.Request) (*http.Response, error) {
-			mock := Error{
-				Status:  "Not Found",
-				Message: "Not Found",
-			}
-			return httpmock.NewJsonResponse(http.StatusNotImplemented, mock)
-		},
-	)
+	registerDoMockResponder()
+
 	p := initialisePowerDNSTestClient()
 
+	t.Run("TestStringErrorResponse", func(t *testing.T) {
+		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
+		if _, err := p.do(req, nil); err == nil {
+			t.Error("err is nil")
+		}
+	})
 	t.Run("Test401Handling", func(t *testing.T) {
-		req, _ := p.newRequest("GET", "return-401", nil, nil)
+		p.Headers = nil
+		req, _ := p.newRequest("GET", "servers", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("401 response does not result into an error")
 		}
 	})
 	t.Run("Test404Handling", func(t *testing.T) {
-		req, _ := p.newRequest("GET", "return-404", nil, nil)
+		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("404 response does not result into an error")
 		}
