@@ -115,6 +115,10 @@ func trimDomain(domain string) string {
 	return strings.TrimSuffix(domain, ".")
 }
 
+func makeDomainCanonical(domain string) string {
+	return fmt.Sprintf("%s.", trimDomain(domain))
+}
+
 func (p *Client) newRequest(method string, path string, query *url.Values, body interface{}) (*http.Request, error) {
 	var buf io.ReadWriter
 	if body != nil {

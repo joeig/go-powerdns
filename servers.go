@@ -52,7 +52,7 @@ func (s *ServersService) Get(vHost string) (*Server, error) {
 // CacheFlush flushes a cache-entry by name
 func (s *ServersService) CacheFlush(vHost string, domain string) (*CacheFlushResult, error) {
 	query := url.Values{}
-	query.Add("domain", fmt.Sprintf("%s.", domain))
+	query.Add("domain", makeDomainCanonical(domain))
 	req, err := s.client.newRequest("PUT", fmt.Sprintf("servers/%s/cache/flush", vHost), &query, nil)
 	if err != nil {
 		return nil, err

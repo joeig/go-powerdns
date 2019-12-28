@@ -98,8 +98,8 @@ func TestCacheFlush(t *testing.T) {
 				return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
 			}
 
-			if req.URL.Query().Get("domain") != fmt.Sprintf("%s.", testDomain) {
-				return httpmock.NewStringResponse(http.StatusBadRequest, "Bad Request"), nil
+			if req.URL.Query().Get("domain") != makeDomainCanonical(testDomain) {
+				return httpmock.NewStringResponse(http.StatusUnprocessableEntity, "Unprocessable Eneity"), nil
 			}
 
 			cacheFlushResultMock := CacheFlushResult{
