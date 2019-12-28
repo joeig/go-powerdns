@@ -34,6 +34,7 @@ func TestListCryptokeys(t *testing.T) {
 func TestListCryptokeysError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
+	p.Port = "x"
 	if _, err := p.Cryptokeys.List(testDomain); err == nil {
 		t.Error("error is nil")
 	}
@@ -68,6 +69,7 @@ func TestGetCryptokey(t *testing.T) {
 func TestGetCryptokeyError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
+	p.Port = "x"
 	if _, err := p.Cryptokeys.Get(testDomain, uint64(0)); err == nil {
 		t.Error("error is nil")
 	}
@@ -106,6 +108,7 @@ func TestDeleteCryptokey(t *testing.T) {
 func TestDeleteCryptokeyError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
+	p.Port = "x"
 	if err := p.Cryptokeys.Delete(testDomain, uint64(0)); err == nil {
 		t.Error("error is nil")
 	}

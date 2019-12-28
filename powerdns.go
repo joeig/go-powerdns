@@ -123,10 +123,7 @@ func (p *Client) newRequest(method string, path string, query *url.Values, body 
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
-		err := json.NewEncoder(buf).Encode(body)
-		if err != nil {
-			return nil, err
-		}
+		_ = json.NewEncoder(buf).Encode(body)
 	}
 
 	apiURL := generateAPIURL(p.Scheme, p.Hostname, p.Port, path, query)

@@ -42,7 +42,7 @@ func TestListZones(t *testing.T) {
 
 func TestListZonesError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Hostname = "invalid"
+	p.Port = "x"
 	if _, err := p.Zones.List(); err == nil {
 		t.Error("error is nil")
 	}
@@ -94,7 +94,7 @@ func TestGetZone(t *testing.T) {
 func TestGetZonesError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Hostname = "invalid"
+	p.Port = "x"
 	if _, err := p.Zones.Get(testDomain); err == nil {
 		t.Error("error is nil")
 	}
@@ -166,7 +166,7 @@ func TestAddNativeZone(t *testing.T) {
 func TestAddNativeZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Hostname = "invalid"
+	p.Port = "x"
 	if _, err := p.Zones.AddNative(testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
 		t.Error("error is nil")
 	}
@@ -238,7 +238,7 @@ func TestAddMasterZone(t *testing.T) {
 func TestAddMasterZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Hostname = "invalid"
+	p.Port = "x"
 	if _, err := p.Zones.AddMaster(testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
 		t.Error("error is nil")
 	}
@@ -286,7 +286,7 @@ func TestAddSlaveZone(t *testing.T) {
 func TestAddSlaveZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Hostname = "invalid"
+	p.Port = "x"
 	if _, err := p.Zones.AddSlave(testDomain, []string{"ns5.foo.tld."}); err == nil {
 		t.Error("error is nil")
 	}
@@ -322,7 +322,7 @@ func TestChangeZone(t *testing.T) {
 func TestChangeZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Hostname = "invalid"
+	p.Port = "x"
 	if err := p.Zones.Change(testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}}); err == nil {
 		t.Error("error is nil")
 	}
@@ -350,7 +350,7 @@ func TestDeleteZone(t *testing.T) {
 func TestDeleteZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Hostname = "invalid"
+	p.Port = "x"
 	if err := p.Zones.Delete(testDomain); err == nil {
 		t.Error("error is nil")
 	}
@@ -383,7 +383,7 @@ func TestNotify(t *testing.T) {
 func TestNotifyError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Hostname = "invalid"
+	p.Port = "x"
 	if _, err := p.Zones.Notify(testDomain); err == nil {
 		t.Error("error is nil")
 	}
@@ -417,6 +417,10 @@ func TestExportError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Hostname = "invalid"
+	if _, err := p.Zones.Export(testDomain); err == nil {
+		t.Error("error is nil")
+	}
+	p.Port = "x"
 	if _, err := p.Zones.Export(testDomain); err == nil {
 		t.Error("error is nil")
 	}
