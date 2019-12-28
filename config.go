@@ -2,7 +2,7 @@ package powerdns
 
 import "fmt"
 
-// ConfigsService handles communication with the zones related methods of the Client API
+// ConfigService handles communication with the zones related methods of the Client API
 type ConfigService service
 
 // ConfigSetting structure with JSON API metadata
