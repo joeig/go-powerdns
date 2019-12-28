@@ -1,6 +1,7 @@
 package powerdns
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -83,6 +84,47 @@ func TestGetServerError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Hostname = "invalid"
 	if _, err := p.Servers.Get(testVHost); err == nil {
+		t.Error("error is nil")
+	}
+}
+
+func TestCacheFlush(t *testing.T) {
+	testDomain := generateTestZone(true)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("%s/cache/flush", generateTestAPIVHostURL()),
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") != testAPIKey {
+				return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
+			}
+
+			if req.URL.Query().Get("domain") != fmt.Sprintf("%s.", testDomain) {
+				return httpmock.NewStringResponse(http.StatusBadRequest, "Bad Request"), nil
+			}
+
+			cacheFlushResultMock := CacheFlushResult{
+				Count:  Uint32(1),
+				Result: String("foo"),
+			}
+			return httpmock.NewJsonResponse(http.StatusOK, cacheFlushResultMock)
+		},
+	)
+
+	p := initialisePowerDNSTestClient()
+	cacheFlushResult, err := p.Servers.CacheFlush(testVHost, testDomain)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if *cacheFlushResult.Count != 1 {
+		t.Error("Received cache flush result is invalid")
+	}
+}
+
+func TestCacheFlushResultError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	p.Hostname = "invalid"
+	if _, err := p.Servers.CacheFlush(testVHost, testDomain); err == nil {
 		t.Error("error is nil")
 	}
 }
