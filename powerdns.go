@@ -27,6 +27,7 @@ type Client struct {
 
 	common service // Reuse a single struct instead of allocating one for each service on the heap
 
+	Config     *ConfigService
 	Cryptokeys *CryptokeysService
 	Records    *RecordsService
 	Servers    *ServersService
@@ -59,6 +60,7 @@ func NewClient(baseURL string, vHost string, headers map[string]string, httpClie
 
 	c.common.client = c
 
+	c.Config = (*ConfigService)(&c.common)
 	c.Cryptokeys = (*CryptokeysService)(&c.common)
 	c.Records = (*RecordsService)(&c.common)
 	c.Servers = (*ServersService)(&c.common)
