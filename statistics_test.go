@@ -37,3 +37,39 @@ func TestListStatisticsError(t *testing.T) {
 		t.Error("error is nil")
 	}
 }
+
+func TestGetStatistics(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/statistics",
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("X-Api-Key") != testAPIKey {
+				return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
+			}
+
+			if req.URL.Query().Get("statistic") != "corrupt-packets" {
+				return httpmock.NewStringResponse(http.StatusUnprocessableEntity, "Unprocessable Entity"), nil
+			}
+
+			statisticsMock := "[{\"name\": \"corrupt-packets\", \"type\": \"StatisticItem\", \"value\": \"0\"}]"
+			return httpmock.NewStringResponse(http.StatusOK, statisticsMock), nil
+		},
+	)
+
+	p := initialisePowerDNSTestClient()
+	statistics, err := p.Statistics.Get("corrupt-packets")
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if len(statistics) != 1 {
+		t.Error("Received amount of statistics is not 1")
+	}
+}
+
+func TestGetStatisticsError(t *testing.T) {
+	p := initialisePowerDNSTestClient()
+	p.Hostname = "invalid"
+	if _, err := p.Statistics.Get("corrupt-packets"); err == nil {
+		t.Error("error is nil")
+	}
+}
