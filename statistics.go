@@ -19,7 +19,7 @@ type Statistic struct {
 
 // List retrieves a list of Statistics
 func (s *StatisticsService) List() ([]Statistic, error) {
-	req, err := s.client.newRequest("GET", fmt.Sprintf("servers/%s/statistics", s.client.VHost), nil)
+	req, err := s.client.newRequest("GET", fmt.Sprintf("servers/%s/statistics", s.client.VHost), nil, nil)
 	if err != nil {
 		return nil, err
 	}

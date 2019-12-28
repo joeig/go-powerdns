@@ -72,7 +72,7 @@ const (
 
 // List retrieves a list of Zones
 func (z *ZonesService) List() ([]Zone, error) {
-	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil)
+	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (z *ZonesService) List() ([]Zone, error) {
 
 // Get returns a certain Zone for a given domain
 func (z *ZonesService) Get(domain string) (*Zone, error) {
-	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil)
+	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (z *ZonesService) postZone(zone *Zone) (*Zone, error) {
 	zone.Name = String(fixDomainSuffix(*zone.Name))
 	zone.Type = ZoneTypePtr(ZoneZoneType)
 
-	req, err := z.client.newRequest("POST", fmt.Sprintf("servers/%s/zones", z.client.VHost), zone)
+	req, err := z.client.newRequest("POST", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil, zone)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (z *ZonesService) Change(domain string, zone *Zone) error {
 	zone.Type = nil
 	zone.URL = nil
 
-	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), zone)
+	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, zone)
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (z *ZonesService) Change(domain string, zone *Zone) error {
 
 // Delete removes a certain Zone for a given domain
 func (z *ZonesService) Delete(domain string) error {
-	req, err := z.client.newRequest("DELETE", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil)
+	req, err := z.client.newRequest("DELETE", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func (z *ZonesService) Delete(domain string) error {
 
 // Notify sends a DNS notify packet to all slaves
 func (z *ZonesService) Notify(domain string) (*NotifyResult, error) {
-	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s/notify", z.client.VHost, trimDomain(domain)), nil)
+	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s/notify", z.client.VHost, trimDomain(domain)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func (z *ZonesService) Notify(domain string) (*NotifyResult, error) {
 
 // Export returns a BIND-like Zone file
 func (z *ZonesService) Export(domain string) (Export, error) {
-	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s/export", z.client.VHost, trimDomain(domain)), nil)
+	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s/export", z.client.VHost, trimDomain(domain)), nil, nil)
 	if err != nil {
 		return "", err
 	}

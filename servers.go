@@ -18,7 +18,7 @@ type Server struct {
 
 // List retrieves a list of Servers
 func (s *ServersService) List() ([]Server, error) {
-	req, err := s.client.newRequest("GET", "servers", nil)
+	req, err := s.client.newRequest("GET", "servers", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (s *ServersService) List() ([]Server, error) {
 
 // Get returns a certain Server
 func (s *ServersService) Get(vHost string) (*Server, error) {
-	req, err := s.client.newRequest("GET", fmt.Sprintf("servers/%s", vHost), nil)
+	req, err := s.client.newRequest("GET", fmt.Sprintf("servers/%s", vHost), nil, nil)
 	if err != nil {
 		return nil, err
 	}

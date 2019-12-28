@@ -74,7 +74,7 @@ func (r *RecordsService) patchRRset(domain string, rrset RRset) error {
 	payload := RRsets{}
 	payload.Sets = append(payload.Sets, rrset)
 
-	req, err := r.client.newRequest("PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, trimDomain(domain)), payload)
+	req, err := r.client.newRequest("PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, trimDomain(domain)), nil, payload)
 	if err != nil {
 		return err
 	}

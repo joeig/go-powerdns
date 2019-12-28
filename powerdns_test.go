@@ -2,8 +2,9 @@ package powerdns
 
 import (
 	"fmt"
-	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/jarcoal/httpmock"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -21,7 +22,7 @@ func TestNewClient(t *testing.T) {
 		defer func() {
 			logFatalf = originalLogFatalf
 		}()
-		errors := []string{}
+		var errors []string
 		logFatalf = func(format string, args ...interface{}) {
 			if len(args) > 0 {
 				errors = append(errors, fmt.Sprintf(format, args))
@@ -42,7 +43,7 @@ func TestNewRequest(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 
 	t.Run("TestValidRequest", func(t *testing.T) {
-		if _, err := p.newRequest("GET", "servers", nil); err != nil {
+		if _, err := p.newRequest("GET", "servers", nil, nil); err != nil {
 			t.Error("error is not nil")
 		}
 	})
@@ -73,19 +74,19 @@ func TestDo(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 
 	t.Run("Test401Handling", func(t *testing.T) {
-		req, _ := p.newRequest("GET", "return-401", nil)
+		req, _ := p.newRequest("GET", "return-401", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("401 response does not result into an error")
 		}
 	})
 	t.Run("Test404Handling", func(t *testing.T) {
-		req, _ := p.newRequest("GET", "return-404", nil)
+		req, _ := p.newRequest("GET", "return-404", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("404 response does not result into an error")
 		}
 	})
 	t.Run("TestJSONResponseHandling", func(t *testing.T) {
-		req, _ := p.newRequest("GET", "server", &Server{})
+		req, _ := p.newRequest("GET", "server", nil, &Server{})
 		if _, err := p.do(req, nil); err.(*Error).Message != "Not Found" {
 			t.Error("501 JSON response does not result into Error structure")
 		}
@@ -144,8 +145,10 @@ func TestParseVHost(t *testing.T) {
 }
 
 func TestGenerateAPIURL(t *testing.T) {
-	tmpl := "https://localhost:8080/api/v1/foo"
-	g := generateAPIURL("https", "localhost", "8080", "foo")
+	tmpl := "https://localhost:8080/api/v1/foo?a=b"
+	query := url.Values{}
+	query.Add("a", "b")
+	g := generateAPIURL("https", "localhost", "8080", "foo", &query)
 	if tmpl != g.String() {
 		t.Errorf("Template does not match generated API URL: %s", g.String())
 	}

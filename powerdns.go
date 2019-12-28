@@ -96,11 +96,16 @@ func parseVHost(vHost string) string {
 	return vHost
 }
 
-func generateAPIURL(scheme, hostname, port, path string) url.URL {
+func generateAPIURL(scheme, hostname, port, path string, query *url.Values) url.URL {
 	u := url.URL{}
 	u.Scheme = scheme
 	u.Host = fmt.Sprintf("%s:%s", hostname, port)
 	u.Path = fmt.Sprintf("/api/v1/%s", path)
+
+	if query != nil {
+		u.RawQuery = query.Encode()
+	}
+
 	return u
 }
 
@@ -108,7 +113,7 @@ func trimDomain(domain string) string {
 	return strings.TrimSuffix(domain, ".")
 }
 
-func (p *Client) newRequest(method string, path string, body interface{}) (*http.Request, error) {
+func (p *Client) newRequest(method string, path string, query *url.Values, body interface{}) (*http.Request, error) {
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
@@ -118,7 +123,7 @@ func (p *Client) newRequest(method string, path string, body interface{}) (*http
 		}
 	}
 
-	apiURL := generateAPIURL(p.Scheme, p.Hostname, p.Port, path)
+	apiURL := generateAPIURL(p.Scheme, p.Hostname, p.Port, path, query)
 	req, err := http.NewRequest(method, apiURL.String(), buf)
 	if err != nil {
 		return nil, err

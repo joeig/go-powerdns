@@ -1,7 +1,7 @@
 package powerdns
 
 import (
-	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/jarcoal/httpmock"
 	"net/http"
 	"testing"
 )
