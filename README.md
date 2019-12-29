@@ -7,20 +7,14 @@ This community project provides bindings for the currently latest version of Pow
 [![Coverage Status](https://coveralls.io/repos/github/joeig/go-powerdns/badge.svg?branch=master)](https://coveralls.io/github/joeig/go-powerdns?branch=master)
 [![Documentation](https://godoc.org/github.com/joeig/go-powerdns?status.svg)](https://godoc.org/github.com/joeig/go-powerdns)
 
-## Setup
+## Features
 
-### Requirements
+* Zone handling
+* Resource record handling
+* Server statistics gathering
+* DNSSEC handling
 
-- PowerDNS 4.x ("API v1")
-  - `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`
-  - Note that API v1 is actively maintained. There are major differences between 3.x, 4.0 and 4.1 and this client works only with 4.1 and 4.2.
-- Tested with Go version 1.11/1.12/1.13, according to [Go's version support policy](https://golang.org/doc/devel/release.html#policy) (should work with other minor releases as well)
-
-### Install from source
-
-```bash
-go get -u github.com/joeig/go-powerdns
-```
+For more features, consult our [documentation](https://godoc.org/github.com/joeig/go-powerdns).
 
 ## Usage
 
@@ -51,7 +45,6 @@ err := pdns.Zones.Delete("example.com")
 err := pdns.Records.Add("example.com", "www.example.com", "AAAA", 60, []string{"::1"})
 err := pdns.Records.Change("example.com", "www.example.com", "AAAA", 3600, []string{"::1"})
 err := pdns.Records.Delete("example.com", "www.example.com", "A")
-notifyResult, err := pdns.Records.Notify("example.com")
 ```
 
 ### Request server information and statistics
@@ -68,6 +61,25 @@ server, err := pdns.Servers.Get("localhost")
 cryptokeys, err := pdns.Cryptokeys.List()
 cryptokey, err := pdns.Cryptokeys.Get("example.com", "1337")
 err := pdns.Cryptokeys.Delete("example.com", "1337")
+```
+
+### More examples
+
+See [examples](https://github.com/joeig/go-powerdns/tree/master/examples).
+
+## Setup
+
+### Requirements
+
+- PowerDNS 4.x ("API v1")
+  - `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`
+  - Note that API v1 is actively maintained. There are major differences between 3.x, 4.0 and 4.1 and this client works only with 4.1 and 4.2.
+- Tested with Go version 1.11/1.12/1.13, according to [Go's version support policy](https://golang.org/doc/devel/release.html#policy) (should work with other minor releases as well)
+
+### Install from source
+
+```bash
+go get -u github.com/joeig/go-powerdns
 ```
 
 ## Documentation
@@ -90,5 +102,3 @@ It's also possible to target mocks against this server:
 ```bash
 make test-without-mocks
 ```
-
-Based on the work of [jgreat](https://github.com/jgreat/powerdns) and [waynz0r](https://github.com/waynz0r/go-powerdns).
