@@ -9,7 +9,7 @@ import (
 func registerConfigsMockResponder() {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/config",
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 

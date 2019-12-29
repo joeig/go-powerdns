@@ -11,7 +11,7 @@ import (
 func registerServersMockResponder() {
 	httpmock.RegisterResponder("GET", generateTestAPIURL()+"/servers",
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 
@@ -32,7 +32,7 @@ func registerServersMockResponder() {
 
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL(),
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 
@@ -53,7 +53,7 @@ func registerServersMockResponder() {
 func registerCacheFlushMockResponder(testDomain string) {
 	httpmock.RegisterResponder("PUT", fmt.Sprintf("%s/cache/flush", generateTestAPIVHostURL()),
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 

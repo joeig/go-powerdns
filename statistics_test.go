@@ -10,7 +10,7 @@ import (
 func registerStatisticsMockResponder() {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/statistics",
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 

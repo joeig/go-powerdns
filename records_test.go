@@ -28,7 +28,7 @@ func generateTestRecord(client *Client, domain string, autoAddRecord bool) strin
 func registerRecordMockResponder(testDomain string) {
 	httpmock.RegisterResponder("PATCH", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 			zoneMock := Zone{

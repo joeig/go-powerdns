@@ -32,7 +32,7 @@ func generateTestZone(autoAddZone bool) string {
 func registerZonesMockResponder() {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 			testDomain := "example.com"
@@ -54,7 +54,7 @@ func registerZonesMockResponder() {
 func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 
@@ -84,7 +84,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 
 	httpmock.RegisterResponder("POST", generateTestAPIVHostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 
@@ -158,7 +158,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 
 	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 			return httpmock.NewBytesResponse(http.StatusNoContent, []byte{}), nil
@@ -167,7 +167,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 
 	httpmock.RegisterResponder("DELETE", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 			return httpmock.NewBytesResponse(http.StatusNoContent, []byte{}), nil
@@ -176,7 +176,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 
 	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+testDomain+"/notify",
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 			return httpmock.NewStringResponse(http.StatusOK, "{\"result\":\"Notification queued\"}"), nil
@@ -185,7 +185,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/export",
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 			return httpmock.NewStringResponse(http.StatusOK, fixDomainSuffix(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+fixDomainSuffix(testDomain)+" 1 10800 3600 604800 3600"), nil

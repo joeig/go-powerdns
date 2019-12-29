@@ -10,7 +10,7 @@ import (
 func registerCryptokeysMockResponder(testDomain string) {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/cryptokeys",
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 
@@ -47,7 +47,7 @@ func registerCryptokeysMockResponder(testDomain string) {
 func registerCryptokeyMockResponder(testDomain string, id uint64) {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 

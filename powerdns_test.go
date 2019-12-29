@@ -22,7 +22,7 @@ func generateTestAPIVHostURL() string {
 	return fmt.Sprintf("%s/servers/%s", generateTestAPIURL(), testVHost)
 }
 
-func verifyApiKey(req *http.Request) *http.Response {
+func verifyAPIKey(req *http.Request) *http.Response {
 	if req.Header.Get("X-Api-Key") != testAPIKey {
 		return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized")
 	}
@@ -36,7 +36,7 @@ func initialisePowerDNSTestClient() *Client {
 func registerDoMockResponder() {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/doesntExist", generateTestAPIURL()),
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyApiKey(req); res != nil {
+			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
 			return httpmock.NewStringResponse(http.StatusNotFound, "Not Found"), nil
@@ -135,18 +135,27 @@ func TestParseBaseURL(t *testing.T) {
 		wantScheme   string
 		wantHostname string
 		wantPort     string
+		wantError    bool
 	}{
-		{"https://example.com", "https", "example.com", "443"},
-		{"http://example.com", "http", "example.com", "80"},
-		{"https://example.com:8080", "https", "example.com", "8080"},
-		{"http://example.com:8080", "http", "example.com", "8080"},
+		{"https://example.com", "https", "example.com", "443", false},
+		{"http://example.com", "http", "example.com", "80", false},
+		{"https://example.com:8080", "https", "example.com", "8080", false},
+		{"http://example.com:8080", "http", "example.com", "8080", false},
+		{"http%%%foo", "http", "", "", true},
 	}
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
 			scheme, hostname, port, err := parseBaseURL(tc.baseURL)
-			if err != nil {
-				t.Errorf("%s is not a valid url: %v", tc.baseURL, err)
+
+			if err != nil && tc.wantError == true {
+				return
+			}
+			if err != nil && tc.wantError == false {
+				t.Error("Error was returned unexpectedly")
+			}
+			if err == nil && tc.wantError == true {
+				t.Error("No error was returned")
 			}
 			if scheme != tc.wantScheme {
 				t.Errorf("Scheme parsing failed: %s != %s", scheme, tc.wantScheme)
@@ -159,25 +168,24 @@ func TestParseBaseURL(t *testing.T) {
 			}
 		})
 	}
-
-	t.Run("InvalidURL", func(t *testing.T) {
-		if _, _, _, err := parseBaseURL("http%%%foo"); err == nil {
-			t.Error("Invalid URL does not return an error")
-		}
-	})
 }
 
 func TestParseVHost(t *testing.T) {
-	t.Run("ValidVHost", func(t *testing.T) {
-		if parseVHost("example.com") != "example.com" {
-			t.Error("Valid vHost returned invalid value")
-		}
-	})
-	t.Run("MissingVHost", func(t *testing.T) {
-		if parseVHost("") != "localhost" {
-			t.Error("Missing vHost did not return localhost")
-		}
-	})
+	testCases := []struct {
+		vHost     string
+		wantVHost string
+	}{
+		{"example.com", "example.com"},
+		{"", "localhost"},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
+			if parseVHost(tc.vHost) != tc.wantVHost {
+				t.Error("parseVHost returned an invalid value")
+			}
+		})
+	}
 }
 
 func TestGenerateAPIURL(t *testing.T) {
@@ -191,19 +199,37 @@ func TestGenerateAPIURL(t *testing.T) {
 }
 
 func TestTrimDomain(t *testing.T) {
-	if trimDomain("example.com.") != "example.com" {
-		t.Error("trimDomain return value invalid while testing with trailing dot")
+	testCases := []struct {
+		domain     string
+		wantDomain string
+	}{
+		{"example.com.", "example.com"},
+		{"example.com", "example.com"},
 	}
-	if trimDomain("example.com") != "example.com" {
-		t.Error("trimDomain return value invalid while testing without trailing dot")
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
+			if trimDomain(tc.domain) != tc.wantDomain {
+				t.Error("trimDomain returned an invalid value")
+			}
+		})
 	}
 }
 
 func TestMakeDomainCanonical(t *testing.T) {
-	if makeDomainCanonical("example.com.") != "example.com." {
-		t.Error("makeDomainCanonical return value invalid while testing with trailing dot")
+	testCases := []struct {
+		domain     string
+		wantDomain string
+	}{
+		{"example.com.", "example.com."},
+		{"example.com", "example.com."},
 	}
-	if makeDomainCanonical("example.com") != "example.com." {
-		t.Error("makeDomainCanonical return value invalid while testing without trailing dot")
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
+			if makeDomainCanonical(tc.domain) != tc.wantDomain {
+				t.Error("makeDomainCanonical returned an invalid value")
+			}
+		})
 	}
 }
