@@ -3,7 +3,6 @@ package powerdns
 import (
 	"fmt"
 	"io/ioutil"
-	"strings"
 )
 
 // ZonesService handles communication with the zones related methods of the Client API
@@ -137,7 +136,7 @@ func (z *ZonesService) AddSlave(domain string, masters []string) (*Zone, error) 
 }
 
 func (z *ZonesService) postZone(zone *Zone) (*Zone, error) {
-	zone.Name = String(fixDomainSuffix(*zone.Name))
+	zone.Name = String(makeDomainCanonical(*zone.Name))
 	zone.Type = ZoneTypePtr(ZoneZoneType)
 
 	req, err := z.client.newRequest("POST", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil, zone)
@@ -203,11 +202,4 @@ func (z *ZonesService) Export(domain string) (Export, error) {
 
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
 	return Export(bodyBytes), nil
-}
-
-func fixDomainSuffix(domain string) string {
-	if !strings.HasSuffix(domain, ".") {
-		domain += "."
-	}
-	return domain
 }

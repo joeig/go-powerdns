@@ -69,7 +69,7 @@ func (r *RecordsService) Delete(domain string, name string, recordType string) e
 }
 
 func (r *RecordsService) patchRRset(domain string, rrset RRset) error {
-	rrset.Name = String(fixDomainSuffix(*rrset.Name))
+	rrset.Name = String(makeDomainCanonical(*rrset.Name))
 
 	payload := RRsets{}
 	payload.Sets = append(payload.Sets, rrset)

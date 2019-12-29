@@ -32,8 +32,8 @@ func registerRecordMockResponder(testDomain string) {
 				return res, nil
 			}
 			zoneMock := Zone{
-				Name: String(fixDomainSuffix(testDomain)),
-				URL:  String("/api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
+				Name: String(makeDomainCanonical(testDomain)),
+				URL:  String("/api/v1/servers/" + testVHost + "/zones/" + makeDomainCanonical(testDomain)),
 			}
 			return httpmock.NewJsonResponse(http.StatusOK, zoneMock)
 		},

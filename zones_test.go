@@ -38,9 +38,9 @@ func registerZonesMockResponder() {
 			testDomain := "example.com"
 			zonesMock := []Zone{
 				{
-					ID:             String(fixDomainSuffix(testDomain)),
-					Name:           String(fixDomainSuffix(testDomain)),
-					URL:            String("/api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
+					ID:             String(makeDomainCanonical(testDomain)),
+					Name:           String(makeDomainCanonical(testDomain)),
+					URL:            String("/api/v1/servers/" + testVHost + "/zones/" + makeDomainCanonical(testDomain)),
 					Kind:           ZoneKindPtr(NativeZoneKind),
 					Serial:         Uint32(1337),
 					NotifiedSerial: Uint32(1337),
@@ -59,18 +59,18 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 			}
 
 			zoneMock := Zone{
-				ID:   String(fixDomainSuffix(testDomain)),
-				Name: String(fixDomainSuffix(testDomain)),
-				URL:  String("/api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
+				ID:   String(makeDomainCanonical(testDomain)),
+				Name: String(makeDomainCanonical(testDomain)),
+				URL:  String("/api/v1/servers/" + testVHost + "/zones/" + makeDomainCanonical(testDomain)),
 				Kind: ZoneKindPtr(NativeZoneKind),
 				RRsets: []RRset{
 					{
-						Name: String(fixDomainSuffix(testDomain)),
+						Name: String(makeDomainCanonical(testDomain)),
 						Type: String("SOA"),
 						TTL:  Uint32(3600),
 						Records: []Record{
 							{
-								Content: String("a.misconfigured.powerdns.server. hostmaster." + fixDomainSuffix(testDomain) + " 1337 10800 3600 604800 3600"),
+								Content: String("a.misconfigured.powerdns.server. hostmaster." + makeDomainCanonical(testDomain) + " 1337 10800 3600 604800 3600"),
 							},
 						},
 					},
@@ -92,25 +92,25 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 
 			if zoneKind == NativeZoneKind || zoneKind == MasterZoneKind {
 				zoneMock = Zone{
-					ID:   String(fixDomainSuffix(testDomain)),
-					Name: String(fixDomainSuffix(testDomain)),
+					ID:   String(makeDomainCanonical(testDomain)),
+					Name: String(makeDomainCanonical(testDomain)),
 					Type: ZoneTypePtr(ZoneZoneType),
-					URL:  String("api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
+					URL:  String("api/v1/servers/" + testVHost + "/zones/" + makeDomainCanonical(testDomain)),
 					Kind: ZoneKindPtr(zoneKind),
 					RRsets: []RRset{
 						{
-							Name: String(fixDomainSuffix(testDomain)),
+							Name: String(makeDomainCanonical(testDomain)),
 							Type: String("SOA"),
 							TTL:  Uint32(3600),
 							Records: []Record{
 								{
-									Content:  String("a.misconfigured.powerdns.server. hostmaster." + fixDomainSuffix(testDomain) + " 0 10800 3600 604800 3600"),
+									Content:  String("a.misconfigured.powerdns.server. hostmaster." + makeDomainCanonical(testDomain) + " 0 10800 3600 604800 3600"),
 									Disabled: Bool(false),
 								},
 							},
 						},
 						{
-							Name: String(fixDomainSuffix(testDomain)),
+							Name: String(makeDomainCanonical(testDomain)),
 							Type: String("NS"),
 							TTL:  Uint32(3600),
 							Records: []Record{
@@ -133,10 +133,10 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 				}
 			} else if zoneKind == SlaveZoneKind {
 				zoneMock = Zone{
-					ID:          String(fixDomainSuffix(testDomain)),
-					Name:        String(fixDomainSuffix(testDomain)),
+					ID:          String(makeDomainCanonical(testDomain)),
+					Name:        String(makeDomainCanonical(testDomain)),
 					Type:        ZoneTypePtr(ZoneZoneType),
-					URL:         String("api/v1/servers/" + testVHost + "/zones/" + fixDomainSuffix(testDomain)),
+					URL:         String("api/v1/servers/" + testVHost + "/zones/" + makeDomainCanonical(testDomain)),
 					Kind:        ZoneKindPtr(zoneKind),
 					Serial:      Uint32(0),
 					Masters:     []string{"127.0.0.1"},
@@ -188,7 +188,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
-			return httpmock.NewStringResponse(http.StatusOK, fixDomainSuffix(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+fixDomainSuffix(testDomain)+" 1 10800 3600 604800 3600"), nil
+			return httpmock.NewStringResponse(http.StatusOK, makeDomainCanonical(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+makeDomainCanonical(testDomain)+" 1 10800 3600 604800 3600"), nil
 		},
 	)
 }
@@ -228,7 +228,7 @@ func TestGetZone(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if *zone.ID != fixDomainSuffix(testDomain) {
+	if *zone.ID != makeDomainCanonical(testDomain) {
 		t.Error("Received no zone")
 	}
 }
@@ -254,7 +254,7 @@ func TestAddNativeZone(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if *zone.ID != fixDomainSuffix(testDomain) || *zone.Kind != NativeZoneKind {
+	if *zone.ID != makeDomainCanonical(testDomain) || *zone.Kind != NativeZoneKind {
 		t.Error("Zone wasn't created")
 	}
 }
@@ -280,7 +280,7 @@ func TestAddMasterZone(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if *zone.ID != fixDomainSuffix(testDomain) || *zone.Kind != MasterZoneKind {
+	if *zone.ID != makeDomainCanonical(testDomain) || *zone.Kind != MasterZoneKind {
 		t.Error("Zone wasn't created")
 	}
 }
@@ -306,7 +306,7 @@ func TestAddSlaveZone(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if *zone.ID != fixDomainSuffix(testDomain) || *zone.Kind != SlaveZoneKind {
+	if *zone.ID != makeDomainCanonical(testDomain) || *zone.Kind != SlaveZoneKind {
 		t.Error("Zone wasn't created")
 	}
 }

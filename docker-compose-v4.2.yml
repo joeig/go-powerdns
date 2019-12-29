@@ -13,16 +13,16 @@ services:
 
   powerdns:
     depends_on:
-    - mariadb
+      - mariadb
     image: psitrax/powerdns:v4.2
     ports:
-    - "8053:53"
-    - "8053:53/udp"
-    - "8080:80"
+      - "8053:53"
+      - "8053:53/udp"
+      - "8080:80"
     links:
-    - mariadb
+      - mariadb
     volumes:
-    - ./scripts/init_docker_fixtures.sh:/init_docker_fixtures.sh:ro
+      - ./scripts/init_docker_fixtures.sh:/init_docker_fixtures.sh:ro
     restart: always
     environment:
       MYSQL_HOST: mariadb
