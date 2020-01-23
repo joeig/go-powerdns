@@ -71,6 +71,12 @@ func (r *RecordsService) Delete(domain string, name string, recordType string) e
 func (r *RecordsService) patchRRset(domain string, rrset RRset) error {
 	rrset.Name = String(makeDomainCanonical(*rrset.Name))
 
+	if *rrset.Type == "CNAME" {
+		for i, _ := range rrset.Records {
+			rrset.Records[i].Content = String(makeDomainCanonical(*rrset.Records[i].Content))
+		}
+	}
+
 	payload := RRsets{}
 	payload.Sets = append(payload.Sets, rrset)
 
