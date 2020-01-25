@@ -66,7 +66,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 				RRsets: []RRset{
 					{
 						Name: String(makeDomainCanonical(testDomain)),
-						Type: String("SOA"),
+						Type: RRTypePtr(RRTypeSOA),
 						TTL:  Uint32(3600),
 						Records: []Record{
 							{
@@ -100,7 +100,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 					RRsets: []RRset{
 						{
 							Name: String(makeDomainCanonical(testDomain)),
-							Type: String("SOA"),
+							Type: RRTypePtr(RRTypeSOA),
 							TTL:  Uint32(3600),
 							Records: []Record{
 								{
@@ -111,7 +111,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 						},
 						{
 							Name: String(makeDomainCanonical(testDomain)),
-							Type: String("NS"),
+							Type: RRTypePtr(RRTypeNS),
 							TTL:  Uint32(3600),
 							Records: []Record{
 								{

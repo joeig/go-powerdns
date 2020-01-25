@@ -25,20 +25,20 @@ func main() {
 	fmt.Printf("zone: %s\n\n", o)
 
 	// Add and change an A record
-	if err := pdns.Records.Add(domain, fmt.Sprintf("www.%s", domain), "A", 1337, []string{"127.0.0.9"}); err != nil {
+	if err := pdns.Records.Add(domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeA, 1337, []string{"127.0.0.9"}); err != nil {
 		log.Fatalf("%v", err)
 	}
-	if err := pdns.Records.Change(domain, fmt.Sprintf("www.%s", domain), "A", 42, []string{"127.0.0.10"}); err != nil {
+	if err := pdns.Records.Change(domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeA, 42, []string{"127.0.0.10"}); err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	// Add a MX record with multiple values
-	if err := pdns.Records.Add(domain, domain, "MX", 1337, []string{"10 mx1.example.com.", "20 mx2.example.com."}); err != nil {
+	if err := pdns.Records.Add(domain, domain, powerdns.RRTypeMX, 1337, []string{"10 mx1.example.com.", "20 mx2.example.com."}); err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	// Add a TXT record
-	if err := pdns.Records.Add(domain, fmt.Sprintf("www.%s", domain), "TXT", 1337, []string{"\"foo1\""}); err != nil {
+	if err := pdns.Records.Add(domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeTXT, 1337, []string{"\"foo1\""}); err != nil {
 		log.Fatalf("%v", err)
 	}
 
