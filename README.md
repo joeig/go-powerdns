@@ -42,9 +42,9 @@ err := pdns.Zones.Delete("example.com")
 ### Add/change/delete resource records
 
 ```go
-err := pdns.Records.Add("example.com", "www.example.com", "AAAA", 60, []string{"::1"})
-err := pdns.Records.Change("example.com", "www.example.com", "AAAA", 3600, []string{"::1"})
-err := pdns.Records.Delete("example.com", "www.example.com", "A")
+err := pdns.Records.Add("example.com", "www.example.com", powerdns.RRTypeAAAA, 60, []string{"::1"})
+err := pdns.Records.Change("example.com", "www.example.com", powerdns.RRTypeAAAA, 3600, []string{"::1"})
+err := pdns.Records.Delete("example.com", "www.example.com", powerdns.RRTypeA)
 ```
 
 ### Request server information and statistics
