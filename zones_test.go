@@ -1,10 +1,13 @@
 package powerdns
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/jarcoal/httpmock"
+	"log"
 	"math/rand"
 	"net/http"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -29,12 +32,33 @@ func generateTestZone(autoAddZone bool) string {
 	return domain
 }
 
+func validateZoneType(zoneType ZoneType) error {
+	if zoneType != "Zone" {
+		return &Error{}
+	}
+	return nil
+}
+
+func validateZoneKind(zoneKind ZoneKind) error {
+	matched, err := regexp.MatchString(`^(Native|Master|Slave)$`, string(zoneKind))
+	if matched == false || err != nil {
+		return &Error{}
+	}
+	return nil
+}
+
 func registerZonesMockResponder() {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones",
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
+
+			if req.Body != nil {
+				log.Print("Request body is not nil")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+			}
+
 			testDomain := "example.com"
 			zonesMock := []Zone{
 				{
@@ -56,6 +80,11 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
+			}
+
+			if req.Body != nil {
+				log.Print("Request body is not nil")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
 			}
 
 			zoneMock := Zone{
@@ -88,8 +117,28 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 				return res, nil
 			}
 
-			var zoneMock Zone
+			if req.Body == nil {
+				log.Print("Request body is nil")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+			}
 
+			var zone Zone
+			if json.NewDecoder(req.Body).Decode(&zone) != nil {
+				log.Print("Cannot decode request body")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+			}
+
+			if validateZoneType(*zone.Type) != nil {
+				log.Print("Invalid zone type", *zone.Type)
+				return httpmock.NewStringResponse(http.StatusUnprocessableEntity, "Unprocessable Entity"), nil
+			}
+
+			if validateZoneKind(*zone.Kind) != nil {
+				log.Print("Invalid zone kind", *zone.Kind)
+				return httpmock.NewStringResponse(http.StatusUnprocessableEntity, "Unprocessable Entity"), nil
+			}
+
+			var zoneMock Zone
 			if zoneKind == NativeZoneKind || zoneKind == MasterZoneKind {
 				zoneMock = Zone{
 					ID:   String(makeDomainCanonical(testDomain)),
@@ -161,6 +210,12 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
+
+			if req.Body == nil {
+				log.Print("Request body is nil")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+			}
+
 			return httpmock.NewBytesResponse(http.StatusNoContent, []byte{}), nil
 		},
 	)
@@ -170,6 +225,12 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
+
+			if req.Body != nil {
+				log.Print("Request body is not nil")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+			}
+
 			return httpmock.NewBytesResponse(http.StatusNoContent, []byte{}), nil
 		},
 	)
@@ -179,6 +240,12 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
+
+			if req.Body != nil {
+				log.Print("Request body is not nil")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+			}
+
 			return httpmock.NewStringResponse(http.StatusOK, "{\"result\":\"Notification queued\"}"), nil
 		},
 	)
@@ -188,6 +255,12 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
+
+			if req.Body != nil {
+				log.Print("Request body is not nil")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+			}
+
 			return httpmock.NewStringResponse(http.StatusOK, makeDomainCanonical(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+makeDomainCanonical(testDomain)+" 1 10800 3600 604800 3600"), nil
 		},
 	)
