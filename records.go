@@ -9,12 +9,12 @@ type RecordsService service
 
 // RRset structure with JSON API metadata
 type RRset struct {
-	Name       *string   `json:"name,omitempty"`
-	Type       *RRType   `json:"type,omitempty"`
-	TTL        *uint32   `json:"ttl,omitempty"`
-	ChangeType *string   `json:"changetype,omitempty"`
-	Records    []Record  `json:"records"`
-	Comments   []Comment `json:"comments,omitempty"`
+	Name       *string     `json:"name,omitempty"`
+	Type       *RRType     `json:"type,omitempty"`
+	TTL        *uint32     `json:"ttl,omitempty"`
+	ChangeType *ChangeType `json:"changetype,omitempty"`
+	Records    []Record    `json:"records"`
+	Comments   []Comment   `json:"comments,omitempty"`
 }
 
 // Record structure with JSON API metadata
@@ -35,6 +35,21 @@ type Comment struct {
 type RRsets struct {
 	Sets []RRset `json:"rrsets,omitempty"`
 }
+
+// ChangeType represents a string-valued change type
+type ChangeType string
+
+// ChangeTypePtr is a helper function that allocates a new ChangeType value to store v and returns a pointer to it.
+func ChangeTypePtr(v ChangeType) *ChangeType {
+	return &v
+}
+
+const (
+	// ChangeTypeReplace represents the REPLACE change type
+	ChangeTypeReplace ChangeType = "REPLACE"
+	// ChangeTypeDelete represents the DELETE change type
+	ChangeTypeDelete ChangeType = "DELETE"
+)
 
 // RRType represents a string-valued resource record type
 type RRType string
@@ -128,7 +143,7 @@ func (r *RecordsService) Change(domain string, name string, recordType RRType, t
 	rrset.Name = &name
 	rrset.Type = &recordType
 	rrset.TTL = &ttl
-	rrset.ChangeType = String("REPLACE")
+	rrset.ChangeType = ChangeTypePtr(ChangeTypeReplace)
 	rrset.Records = make([]Record, 0)
 
 	for _, c := range content {
@@ -144,7 +159,7 @@ func (r *RecordsService) Delete(domain string, name string, recordType RRType) e
 	rrset := new(RRset)
 	rrset.Name = &name
 	rrset.Type = &recordType
-	rrset.ChangeType = String("DELETE")
+	rrset.ChangeType = ChangeTypePtr(ChangeTypeDelete)
 
 	return r.patchRRset(domain, *rrset)
 }

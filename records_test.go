@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -28,6 +29,29 @@ func generateTestRecord(client *Client, domain string, autoAddRecord bool) strin
 	return name
 }
 
+func validateChangeType(changeType ChangeType) error {
+	matched, err := regexp.MatchString(`^(REPLACE|DELETE)$`, string(changeType))
+	if matched == false || err != nil {
+		return &Error{}
+	}
+	return nil
+}
+
+func validateRRType(rrType RRType) error {
+	matched, err := regexp.MatchString(`^(A|AAAA|AFSDB|ALIAS|CAA|CERT|CDNSKEY|CDS|CNAME|DNSKEY|DNAME|DS|HINFO|KEY|LOC|MX|NAPTR|NS|NSEC|NSEC3|NSEC3PARAM|OPENPGPKEY|PTR|RP|RRSIG|SOA|SPF|SSHFP|SRV|TKEY|TSIG|TLSA|SMIMEA|TXT|URI)$`, string(rrType))
+	if matched == false || err != nil {
+		return &Error{}
+	}
+	return nil
+}
+
+func validateCNAMEContent(content string) error {
+	if !strings.HasSuffix(content, ".") {
+		return &Error{}
+	}
+	return nil
+}
+
 func registerRecordMockResponder(testDomain string) {
 	httpmock.RegisterResponder("PATCH", generateTestAPIVHostURL()+"/zones/"+testDomain,
 		func(req *http.Request) (*http.Response, error) {
@@ -40,21 +64,29 @@ func registerRecordMockResponder(testDomain string) {
 				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
 			}
 
-			var requestBodyRRsets RRsets
-			err := json.NewDecoder(req.Body).Decode(&requestBodyRRsets)
-			if err != nil {
+			var rrsets RRsets
+			if json.NewDecoder(req.Body).Decode(&rrsets) != nil {
 				log.Print("Cannot decode request body")
 				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
 			}
 
-			for _, set := range requestBodyRRsets.Sets {
-				if *set.Type != RRTypeCNAME {
-					break
+			for _, set := range rrsets.Sets {
+				if validateChangeType(*set.ChangeType) != nil {
+					log.Print("Invalid change type", *set.ChangeType)
+					return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
 				}
-				for _, record := range set.Records {
-					if !strings.HasSuffix(*record.Content, ".") {
-						log.Print("CNAME content validation failed")
-						return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+
+				if validateRRType(*set.Type) != nil {
+					log.Print("Invalid record type", *set.Type)
+					return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+				}
+
+				if *set.Type == RRTypeCNAME {
+					for _, record := range set.Records {
+						if validateCNAMEContent(*record.Content) != nil {
+							log.Print("CNAME content validation failed")
+							return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+						}
 					}
 				}
 			}
@@ -75,12 +107,13 @@ func TestAddRecord(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
-	testRecordName := generateTestRecord(p, testDomain, false)
 	registerRecordMockResponder(testDomain)
-	if err := p.Records.Add(testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err != nil {
+	testRecordNameTXT := generateTestRecord(p, testDomain, false)
+	if err := p.Records.Add(testDomain, testRecordNameTXT, RRTypeTXT, 300, []string{"\"bar\""}); err != nil {
 		t.Errorf("%s", err)
 	}
-	if err := p.Records.Add(testDomain, testRecordName, RRTypeCNAME, 300, []string{"foo.tld"}); err != nil {
+	testRecordNameCNAME := generateTestRecord(p, testDomain, false)
+	if err := p.Records.Add(testDomain, testRecordNameCNAME, RRTypeCNAME, 300, []string{"foo.tld"}); err != nil {
 		t.Errorf("%s", err)
 	}
 }
