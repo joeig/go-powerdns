@@ -176,7 +176,7 @@ func TestDeleteRecordError(t *testing.T) {
 	}
 }
 
-func TestFixCNAMEResourceRecordValues(t *testing.T) {
+func TestFixResourceRecordValues(t *testing.T) {
 	testCases := []struct {
 		records     []Record
 		wantContent []string
@@ -188,7 +188,7 @@ func TestFixCNAMEResourceRecordValues(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
-			fixCNAMEResourceRecordValues(tc.records)
+			fixResourceRecordValues(tc.records)
 			for j := range tc.records {
 				isContent := *tc.records[j].Content
 				wantContent := tc.wantContent[j]
