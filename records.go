@@ -164,18 +164,23 @@ func (r *RecordsService) Delete(domain string, name string, recordType RRType) e
 	return r.patchRRset(domain, *rrset)
 }
 
-func fixCNAMEResourceRecordValues(records []Record) {
+func canonicalResourceRecordValues(records []Record) {
 	for i := range records {
 		records[i].Content = String(makeDomainCanonical(*records[i].Content))
 	}
 }
 
+func fixRRset(rrset *RRset) {
+	if *rrset.Type != RRTypeCNAME && *rrset.Type != RRTypeMX {
+		return
+	}
+	canonicalResourceRecordValues(rrset.Records)
+}
+
 func (r *RecordsService) patchRRset(domain string, rrset RRset) error {
 	rrset.Name = String(makeDomainCanonical(*rrset.Name))
 
-	if *rrset.Type == RRTypeCNAME {
-		fixCNAMEResourceRecordValues(rrset.Records)
-	}
+	fixRRset(&rrset)
 
 	payload := RRsets{}
 	payload.Sets = append(payload.Sets, rrset)
