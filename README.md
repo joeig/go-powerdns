@@ -21,7 +21,7 @@ For more features, consult our [documentation](https://godoc.org/github.com/joei
 ### Initialize the handle
 
 ```go
-import "github.com/joeig/go-powerdns"
+import "github.com/joeig/go-powerdns/v2"
 
 pdns := powerdns.NewClient("http://localhost:80", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
 ```
