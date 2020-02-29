@@ -1,4 +1,4 @@
-module github.com/joeig/go-powerdns
+module github.com/joeig/go-powerdns/v2
 
 go 1.13
 
