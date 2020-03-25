@@ -393,6 +393,50 @@ func TestAddSlaveZoneError(t *testing.T) {
 	}
 }
 
+func TestAddZone(t *testing.T) {
+	testDomain := generateTestZone(false)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	registerZoneMockResponder(testDomain, MasterZoneKind)
+
+	p := initialisePowerDNSTestClient()
+
+	z := Zone{
+		Name:        String(testDomain),
+		Kind:        ZoneKindPtr(MasterZoneKind),
+		DNSsec:      Bool(true),
+		Nsec3Param:  String(""),
+		Nsec3Narrow: Bool(false),
+		SOAEdit:     String("foo"),
+		SOAEditAPI:  String("foo"),
+		APIRectify:  Bool(true),
+		Nameservers: []string{"ns.foo.tld."},
+	}
+
+	zone, err := p.Zones.Add(&z)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if *zone.ID != makeDomainCanonical(testDomain) || *zone.Kind != MasterZoneKind {
+		t.Error("Zone wasn't created")
+	}
+}
+
+func TestAddZoneError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	p.Port = "x"
+
+	z := Zone{
+		Name: String(testDomain),
+	}
+
+	if _, err := p.Zones.Add(&z); err == nil {
+		t.Error("error is nil")
+	}
+}
+
 func TestChangeZone(t *testing.T) {
 	testDomain := generateTestZone(true)
 

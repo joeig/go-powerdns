@@ -135,6 +135,11 @@ func (z *ZonesService) AddSlave(domain string, masters []string) (*Zone, error) 
 	return z.postZone(&zone)
 }
 
+// Add pre-created zone
+func (z *ZonesService) Add(zone *Zone) (*Zone, error) {
+	return z.postZone(zone)
+}
+
 func (z *ZonesService) postZone(zone *Zone) (*Zone, error) {
 	zone.Name = String(makeDomainCanonical(*zone.Name))
 	zone.Type = ZoneTypePtr(ZoneZoneType)

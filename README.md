@@ -35,6 +35,7 @@ zones, err := pdns.Zones.List()
 zone, err := pdns.Zones.Get("example.com")
 export, err := pdns.Zones.Export("example.com")
 zone, err := pdns.Zones.AddNative("example.com", true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+zone, err := pdns.Zones.Add(&powerdns.Zone{})
 err := pdns.Zones.Change("example.com", &zone)
 err := pdns.Zones.Delete("example.com")
 ```
