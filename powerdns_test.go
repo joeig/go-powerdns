@@ -117,7 +117,7 @@ func TestDo(t *testing.T) {
 	})
 	t.Run("Test404Handling", func(t *testing.T) {
 		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
-		if _, err := p.do(req, nil); err == nil {
+		if _, err := p.do(req, nil); err.Error() != "Not Found" {
 			t.Error("404 response does not result into an error")
 		}
 	})
