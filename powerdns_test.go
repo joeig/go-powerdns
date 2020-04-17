@@ -123,7 +123,7 @@ func TestDo(t *testing.T) {
 	})
 	t.Run("TestJSONResponseHandling", func(t *testing.T) {
 		req, _ := p.newRequest("GET", "server", nil, &Server{})
-		if _, err := p.do(req, nil); err.(*Error).Message != "Not Found" {
+		if _, err := p.do(req, nil); err.Error() != "Not Found" {
 			t.Error("501 JSON response does not result into Error structure")
 		}
 	})
