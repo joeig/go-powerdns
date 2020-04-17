@@ -100,15 +100,15 @@ func TestDo(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 	registerDoMockResponder()
 
-	p := initialisePowerDNSTestClient()
-
 	t.Run("TestStringErrorResponse", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("err is nil")
 		}
 	})
 	t.Run("Test401Handling", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		p.Headers = nil
 		req, _ := p.newRequest("GET", "servers", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
@@ -116,12 +116,14 @@ func TestDo(t *testing.T) {
 		}
 	})
 	t.Run("Test404Handling", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Not Found" {
 			t.Error("404 response does not result into an error")
 		}
 	})
 	t.Run("TestJSONResponseHandling", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		req, _ := p.newRequest("GET", "server", nil, &Server{})
 		if _, err := p.do(req, nil); err.Error() != "Not Found" {
 			t.Error("501 JSON response does not result into Error structure")
