@@ -151,7 +151,8 @@ func (r *RecordsService) Change(domain string, name string, recordType RRType, t
 		rrset.Records = append(rrset.Records, r)
 	}
 
-	return r.patchRRset(domain, *rrset)
+	payload := r.prepareRRSet(rrset)
+	return r.patchRRSet(domain, payload)
 }
 
 // Delete removes an existing resource record
@@ -161,7 +162,16 @@ func (r *RecordsService) Delete(domain string, name string, recordType RRType) e
 	rrset.Type = &recordType
 	rrset.ChangeType = ChangeTypePtr(ChangeTypeDelete)
 
-	return r.patchRRset(domain, *rrset)
+	payload := r.prepareRRSet(rrset)
+	return r.patchRRSet(domain, payload)
+}
+
+// Patch method makes patch of already prepared rrsets
+func (r *RecordsService) Patch(domain string, rrSets *RRsets) error {
+	for i := range rrSets.Sets {
+		fixRRSet(&rrSets.Sets[i])
+	}
+	return r.patchRRSet(domain, rrSets)
 }
 
 func canonicalResourceRecordValues(records []Record) {
@@ -170,22 +180,26 @@ func canonicalResourceRecordValues(records []Record) {
 	}
 }
 
-func fixRRset(rrset *RRset) {
+func fixRRSet(rrset *RRset) {
 	if *rrset.Type != RRTypeCNAME && *rrset.Type != RRTypeMX {
 		return
 	}
 	canonicalResourceRecordValues(rrset.Records)
 }
 
-func (r *RecordsService) patchRRset(domain string, rrset RRset) error {
-	rrset.Name = String(makeDomainCanonical(*rrset.Name))
+func (r *RecordsService) prepareRRSet(rrSet *RRset) *RRsets {
+	rrSet.Name = String(makeDomainCanonical(*rrSet.Name))
 
-	fixRRset(&rrset)
+	fixRRSet(rrSet)
 
 	payload := RRsets{}
-	payload.Sets = append(payload.Sets, rrset)
+	payload.Sets = append(payload.Sets, *rrSet)
+	return &payload
+}
 
-	req, err := r.client.newRequest("PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, trimDomain(domain)), nil, payload)
+func (r *RecordsService) patchRRSet(domain string, rrSets *RRsets) error {
+
+	req, err := r.client.newRequest("PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, trimDomain(domain)), nil, &rrSets)
 	if err != nil {
 		return err
 	}

@@ -213,7 +213,7 @@ func TestFixRRset(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
-			fixRRset(&tc.rrset)
+			fixRRSet(&tc.rrset)
 
 			if tc.wantFixedCanonicalRecords {
 				for j := range tc.rrset.Records {
@@ -233,5 +233,24 @@ func TestFixRRset(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestPatchRRSets(t *testing.T) {
+	testDomain := generateTestZone(true)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	p := initialisePowerDNSTestClient()
+
+	testRecordName := generateTestRecord(p, testDomain, true)
+	registerRecordMockResponder(testDomain)
+	rrSets := RRsets{}
+	rrSets.Sets = []RRset{{Name: &testRecordName, Type: RRTypePtr(RRTypeTXT),
+		ChangeType: ChangeTypePtr(ChangeTypeDelete)}}
+
+	if err := p.Records.Patch(testDomain, &rrSets); err != nil {
+		t.Errorf("%s", err)
 	}
 }
