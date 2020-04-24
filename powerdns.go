@@ -188,7 +188,7 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		}
 	}
 
-	if v != nil {
+	if v != nil && resp.StatusCode != 204 {
 		defer func() {
 			_ = resp.Body.Close()
 		}()
