@@ -46,8 +46,9 @@ func registerDoMockResponder() {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/server", generateTestAPIURL()),
 		func(req *http.Request) (*http.Response, error) {
 			mock := Error{
-				Status:  "Not Found",
-				Message: "Not Found",
+				Status:     "Not Found",
+				StatusCode: http.StatusNotFound,
+				Message:    "Not Found",
 			}
 			return httpmock.NewJsonResponse(http.StatusNotImplemented, mock)
 		},

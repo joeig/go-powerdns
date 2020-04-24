@@ -154,8 +154,9 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	if resp.StatusCode == 401 {
 		return resp, &Error{
-			Status:  resp.Status,
-			Message: "Unauthorized",
+			Status:     resp.Status,
+			StatusCode: resp.StatusCode,
+			Message:    "Unauthorized",
 		}
 	}
 
@@ -181,8 +182,9 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		}
 
 		return resp, &Error{
-			Status:  resp.Status,
-			Message: message,
+			Status:     resp.Status,
+			StatusCode: resp.StatusCode,
+			Message:    message,
 		}
 	}
 
