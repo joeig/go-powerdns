@@ -135,8 +135,8 @@ func (p *Client) newRequest(method string, path string, query *url.Values, body 
 
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "application/json")
 	}
-	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", "go-powerdns")
 
 	for key, value := range p.Headers {
