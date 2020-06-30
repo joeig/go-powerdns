@@ -1,7 +1,6 @@
 package powerdns
 
 import (
-	"errors"
 	"fmt"
 	"github.com/jarcoal/httpmock"
 	"net/http"
@@ -14,16 +13,6 @@ const (
 	testVHost   string = "localhost"
 	testAPIKey  string = "apipw"
 )
-
-type err struct{}
-
-func (err) Read(p []byte) (n int, err error) {
-	return 0, errors.New("broken message")
-}
-
-func (err) Close() (err error) {
-	return nil
-}
 
 func generateTestAPIURL() string {
 	return fmt.Sprintf("%s/api/v1", testBaseURL)
@@ -53,20 +42,9 @@ func registerDoMockResponder() {
 			return httpmock.NewStringResponse(http.StatusNotFound, "Not Found"), nil
 		},
 	)
-	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/unexpected", generateTestAPIURL()),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/localhost", generateTestAPIURL()),
 		func(req *http.Request) (*http.Response, error) {
-			if res := verifyAPIKey(req); res != nil {
-				return res, nil
-			}
-			if req.Header.Get("Accept") == "application/json" {
-				resp := httpmock.NewStringResponse(http.StatusNotFound, "")
-				resp.Header.Set("Content-Type", "application/json")
-				return resp, nil
-			} else {
-				resp := httpmock.NewStringResponse(http.StatusNotFound, "")
-				resp.Body = &err{}
-				return resp, nil
-			}
+			return verifyAPIKey(req), nil
 		},
 	)
 
@@ -138,7 +116,7 @@ func TestDo(t *testing.T) {
 	t.Run("Test401Handling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
 		p.Headers = nil
-		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
+		req, _ := p.newRequest("GET", "servers/localhost", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Unauthorized" {
 			t.Error("401 response does not result into an error with correct message.")
 		}
@@ -155,20 +133,6 @@ func TestDo(t *testing.T) {
 		req, _ := p.newRequest("GET", "server", nil, &Server{})
 		if _, err := p.do(req, nil); err.Error() != "Not Found" {
 			t.Error("501 JSON response does not result into an error with correct message.")
-		}
-	})
-	t.Run("TestUnexpectedDnsJsonResponse", func(t *testing.T) {
-		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest("GET", "servers/unexpected", nil, &Server{})
-		if _, err := p.do(req, nil); err.Error() != "EOF" {
-			t.Error("Internal error does not result into an error with correct message.")
-		}
-	})
-	t.Run("TestUnexpectedDnsStringResponse", func(t *testing.T) {
-		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest("GET", "servers/unexpected", nil, nil)
-		if _, err := p.do(req, nil); err.Error() != "broken message" {
-			t.Error("Internal error does not result into an error with correct message.")
 		}
 	})
 }

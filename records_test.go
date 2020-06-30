@@ -246,8 +246,10 @@ func TestPatchRRSets(t *testing.T) {
 
 	testRecordName := generateTestRecord(p, testDomain, true)
 	registerRecordMockResponder(testDomain)
+
 	rrSets := RRsets{}
-	rrSets.Sets = []RRset{{Name: &testRecordName, Type: RRTypePtr(RRTypeTXT),
+	rrSetName := makeDomainCanonical(testRecordName)
+	rrSets.Sets = []RRset{{Name: &rrSetName, Type: RRTypePtr(RRTypeTXT),
 		ChangeType: ChangeTypePtr(ChangeTypeDelete)}}
 
 	if err := p.Records.Patch(testDomain, &rrSets); err != nil {

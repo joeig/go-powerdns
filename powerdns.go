@@ -168,16 +168,10 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 		if resp.Header.Get("Content-Type") == "application/json" {
 			apiError := new(Error)
-			err = json.NewDecoder(resp.Body).Decode(&apiError)
-			if err != nil {
-				return resp, err
-			}
+			_ = json.NewDecoder(resp.Body).Decode(&apiError)
 			message = apiError.Message
 		} else {
-			messageBytes, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				return resp, err
-			}
+			messageBytes, _ := ioutil.ReadAll(resp.Body)
 			message = string(messageBytes)
 		}
 
