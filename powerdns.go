@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -136,7 +137,6 @@ func (p *Client) newRequest(method string, path string, query *url.Values, body 
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Accept", "application/json")
 	}
-
 	req.Header.Set("User-Agent", "go-powerdns")
 
 	for key, value := range p.Headers {
@@ -154,8 +154,9 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	if resp.StatusCode == 401 {
 		return resp, &Error{
-			Status:  resp.Status,
-			Message: "Unauthorized",
+			Status:     resp.Status,
+			StatusCode: resp.StatusCode,
+			Message:    "Unauthorized",
 		}
 	}
 
@@ -163,20 +164,25 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		defer func() {
 			_ = resp.Body.Close()
 		}()
+		var message string
 
-		apiError := new(Error)
-		err = json.NewDecoder(resp.Body).Decode(apiError)
-		if err != nil {
-			return resp, err
+		if resp.Header.Get("Content-Type") == "application/json" {
+			apiError := new(Error)
+			_ = json.NewDecoder(resp.Body).Decode(&apiError)
+			message = apiError.Message
+		} else {
+			messageBytes, _ := ioutil.ReadAll(resp.Body)
+			message = string(messageBytes)
 		}
 
 		return resp, &Error{
-			Status:  resp.Status,
-			Message: apiError.Message,
+			Status:     resp.Status,
+			StatusCode: resp.StatusCode,
+			Message:    message,
 		}
 	}
 
-	if v != nil {
+	if v != nil && resp.StatusCode != http.StatusNoContent {
 		defer func() {
 			_ = resp.Body.Close()
 		}()

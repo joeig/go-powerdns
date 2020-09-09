@@ -4,8 +4,9 @@ import "fmt"
 
 // Error structure with JSON API metadata
 type Error struct {
-	Status  string
-	Message string `json:"error"`
+	StatusCode int    `json:"-"`
+	Status     string `json:"-"`
+	Message    string `json:"error"`
 }
 
 func (e Error) Error() string {

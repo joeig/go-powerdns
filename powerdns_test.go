@@ -28,12 +28,12 @@ func verifyAPIKey(req *http.Request) *http.Response {
 	}
 	return nil
 }
-
 func initialisePowerDNSTestClient() *Client {
 	return NewClient(testBaseURL, testVHost, map[string]string{"X-API-Key": testAPIKey}, nil)
 }
 
 func registerDoMockResponder() {
+
 	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/doesntExist", generateTestAPIURL()),
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
@@ -42,12 +42,18 @@ func registerDoMockResponder() {
 			return httpmock.NewStringResponse(http.StatusNotFound, "Not Found"), nil
 		},
 	)
+	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/localhost", generateTestAPIURL()),
+		func(req *http.Request) (*http.Response, error) {
+			return verifyAPIKey(req), nil
+		},
+	)
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/server", generateTestAPIURL()),
 		func(req *http.Request) (*http.Response, error) {
 			mock := Error{
-				Status:  "Not Found",
-				Message: "Not Found",
+				Status:     "Not Found",
+				StatusCode: http.StatusNotFound,
+				Message:    "Not Found",
 			}
 			return httpmock.NewJsonResponse(http.StatusNotImplemented, mock)
 		},
@@ -100,31 +106,33 @@ func TestDo(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 	registerDoMockResponder()
 
-	p := initialisePowerDNSTestClient()
-
 	t.Run("TestStringErrorResponse", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("err is nil")
 		}
 	})
 	t.Run("Test401Handling", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		p.Headers = nil
-		req, _ := p.newRequest("GET", "servers", nil, nil)
-		if _, err := p.do(req, nil); err == nil {
-			t.Error("401 response does not result into an error")
+		req, _ := p.newRequest("GET", "servers/localhost", nil, nil)
+		if _, err := p.do(req, nil); err.Error() != "Unauthorized" {
+			t.Error("401 response does not result into an error with correct message.")
 		}
 	})
 	t.Run("Test404Handling", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
-		if _, err := p.do(req, nil); err == nil {
-			t.Error("404 response does not result into an error")
+		if _, err := p.do(req, nil); err.Error() != "Not Found" {
+			t.Error("404 response does not result into an error with correct message.")
 		}
 	})
 	t.Run("TestJSONResponseHandling", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		req, _ := p.newRequest("GET", "server", nil, &Server{})
-		if _, err := p.do(req, nil); err.(*Error).Message != "Not Found" {
-			t.Error("501 JSON response does not result into Error structure")
+		if _, err := p.do(req, nil); err.Error() != "Not Found" {
+			t.Error("501 JSON response does not result into an error with correct message.")
 		}
 	})
 }
