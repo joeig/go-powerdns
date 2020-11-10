@@ -5,7 +5,7 @@ This community project provides bindings for the currently latest version of Pow
 [![Build Status](https://github.com/joeig/go-powerdns/workflows/Tests/badge.svg)](https://github.com/joeig/go-powerdns/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/joeig/go-powerdns)](https://goreportcard.com/report/github.com/joeig/go-powerdns)
 [![Coverage Status](https://coveralls.io/repos/github/joeig/go-powerdns/badge.svg?branch=master)](https://coveralls.io/github/joeig/go-powerdns?branch=master)
-[![Documentation](https://godoc.org/github.com/joeig/go-powerdns?status.svg)](https://pkg.go.dev/github.com/joeig/go-powerdns/v2)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/joeig/go-powerdns/v2)](https://pkg.go.dev/github.com/joeig/go-powerdns/v2)
 
 ## Features
 
@@ -75,7 +75,7 @@ See [examples](https://github.com/joeig/go-powerdns/tree/master/examples).
 - PowerDNS 4.x ("API v1")
   - `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`
   - Note that API v1 is actively maintained. There are major differences between 3.x, 4.0 and 4.1 and this client works only with 4.1, 4.2 and 4.3.
-- Tested with Go version 1.12/1.13/1.14, according to [Go's version support policy](https://golang.org/doc/devel/release.html#policy) (should work with other minor releases as well)
+- Tested with Go version 1.13/1.14/1.15, according to [Go's version support policy](https://golang.org/doc/devel/release.html#policy) (should work with other minor releases as well)
 
 ### Install from source
 
