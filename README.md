@@ -1,6 +1,6 @@
 # PowerDNS 4.x API bindings for Golang
 
-This community project provides bindings for the currently latest version of PowerDNS.
+This community project provides bindings for the currently latest version of PowerDNS Authoritative Server.
 
 [![Build Status](https://github.com/joeig/go-powerdns/workflows/Tests/badge.svg)](https://github.com/joeig/go-powerdns/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/joeig/go-powerdns)](https://goreportcard.com/report/github.com/joeig/go-powerdns)
@@ -14,7 +14,7 @@ This community project provides bindings for the currently latest version of Pow
 * Server statistics gathering
 * DNSSEC handling
 
-For more features, consult our [documentation](https://godoc.org/github.com/joeig/go-powerdns).
+For more features, consult our [documentation](https://pkg.go.dev/badge/github.com/joeig/go-powerdns/v2).
 
 ## Usage
 
