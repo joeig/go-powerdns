@@ -21,7 +21,6 @@ type RRset struct {
 type Record struct {
 	Content  *string `json:"content,omitempty"`
 	Disabled *bool   `json:"disabled,omitempty"`
-	SetPTR   *bool   `json:"set-ptr,omitempty"`
 }
 
 // Comment structure with JSON API metadata
@@ -139,15 +138,16 @@ func (r *RecordsService) Add(domain string, name string, recordType RRType, ttl 
 
 // Change replaces an existing resource record
 func (r *RecordsService) Change(domain string, name string, recordType RRType, ttl uint32, content []string) error {
+	n := name + "." + domain
 	rrset := new(RRset)
-	rrset.Name = &name
+	rrset.Name = &n
 	rrset.Type = &recordType
 	rrset.TTL = &ttl
 	rrset.ChangeType = ChangeTypePtr(ChangeTypeReplace)
 	rrset.Records = make([]Record, 0)
 
 	for _, c := range content {
-		r := Record{Content: String(c), Disabled: Bool(false), SetPTR: Bool(false)}
+		r := Record{Content: String(c), Disabled: Bool(false)}
 		rrset.Records = append(rrset.Records, r)
 	}
 
