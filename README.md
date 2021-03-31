@@ -14,7 +14,7 @@ This community project provides bindings for the currently latest version of Pow
 * Server statistics gathering
 * DNSSEC handling
 
-For more features, consult our [documentation](https://pkg.go.dev/badge/github.com/joeig/go-powerdns/v2).
+For more features, consult our [documentation](https://pkg.go.dev/github.com/joeig/go-powerdns/v2).
 
 ## Usage
 
