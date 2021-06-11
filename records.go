@@ -104,7 +104,7 @@ const (
 	RRTypeKX RRType = "KX"
 	// RRTypeLOC represents the LOC resource record type
 	RRTypeLOC RRType = "LOC"
-	// RRTypeLua represents the LUA resource record type
+	// RRTypeLUA represents the LUA resource record type
 	RRTypeLUA RRType = "LUA"
 	// RRTypeMAILA represents the MAILA resource record type
 	RRTypeMAILA RRType = "MAILA"
