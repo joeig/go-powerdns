@@ -136,9 +136,9 @@ const (
 	RRTypeRP RRType = "RP"
 	// RRTypeRRSIG represents the RRSIG resource record type
 	RRTypeRRSIG RRType = "RRSIG"
-	// RRTypeSIG represents the SOA resource record type
+	// RRTypeSIG represents the SIG resource record type
 	RRTypeSIG RRType = "SIG"
-	// RRTypeSPF represents the SPF resource record type
+	// RRTypeSOA represents the SOA resource record type
 	RRTypeSOA RRType = "SOA"
 	// RRTypeSPF represents the SPF resource record type
 	RRTypeSPF RRType = "SPF"
