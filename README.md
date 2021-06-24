@@ -74,7 +74,7 @@ See [examples](https://github.com/joeig/go-powerdns/tree/master/examples).
 
 - PowerDNS 4.x ("API v1")
   - `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`
-  - Note that API v1 is actively maintained. There are major differences between 3.x, 4.0 and 4.1 and this client works only with 4.1, 4.2 and 4.3.
+  - Note that API v1 is actively maintained. There are major differences between 3.x, 4.0 and 4.1 and this client works only with 4.1 to 4.4.
 - Tested with Go version 1.14/1.15/1.16, according to [Go's version support policy](https://golang.org/doc/devel/release.html#policy) (should work with other minor releases as well)
 
 ### Install from source
@@ -94,8 +94,8 @@ This API client has not been completed yet, so feel free to contribute. The [Ope
 Start a PowerDNS authoritative server including a generic MySQL backend, DNSSEC support and some fixtures using Docker compose:
 
 ```bash
-docker-compose -f docker-compose-v4.3.yml up
-docker-compose -f docker-compose-v4.3.yml exec powerdns sh init_docker_fixtures.sh
+docker-compose -f docker-compose-v4.4.yml up
+docker-compose -f docker-compose-v4.4.yml exec powerdns sh init_docker_fixtures.sh
 ```
 
 It's also possible to target mocks against this server:
