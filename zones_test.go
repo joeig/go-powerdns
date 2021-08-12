@@ -3,7 +3,6 @@ package powerdns
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"log"
 	"math/rand"
 	"net/http"
@@ -11,6 +10,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func generateTestZone(autoAddZone bool) string {
@@ -172,7 +173,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 					},
 					Serial:      Uint32(0),
 					Masters:     []string{},
-					DNSsec:      Bool(true),
+					DNSsec:      Bool(*zone.DNSsec),
 					Nsec3Param:  String(""),
 					Nsec3Narrow: Bool(false),
 					SOAEdit:     String("foo"),
@@ -322,7 +323,7 @@ func TestGetZonesError(t *testing.T) {
 	}
 }
 
-func TestAddNativeZone(t *testing.T) {
+func TestAddNativeZoneWithDNSSec(t *testing.T) {
 	testDomain := generateTestZone(false)
 
 	httpmock.Activate()
@@ -339,6 +340,24 @@ func TestAddNativeZone(t *testing.T) {
 	}
 }
 
+func TestAddNativeZoneWithoutDNSSec(t *testing.T) {
+	testDomain := generateTestZone(false)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	registerZoneMockResponder(testDomain, NativeZoneKind)
+
+	p := initialisePowerDNSTestClient()
+	zone, err := p.Zones.AddNative(testDomain, false, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if *zone.DNSsec {
+		t.Error("Zone has incorrect DNSSec params")
+	}
+}
+
 func TestAddNativeZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
@@ -348,7 +367,7 @@ func TestAddNativeZoneError(t *testing.T) {
 	}
 }
 
-func TestAddMasterZone(t *testing.T) {
+func TestAddMasterZoneWithDNSSec(t *testing.T) {
 	testDomain := generateTestZone(false)
 
 	httpmock.Activate()
@@ -362,6 +381,25 @@ func TestAddMasterZone(t *testing.T) {
 	}
 	if *zone.ID != makeDomainCanonical(testDomain) || *zone.Kind != MasterZoneKind {
 		t.Error("Zone wasn't created")
+	}
+}
+
+func TestAddMasterZoneWithoutDNSSec(t *testing.T) {
+	testDomain := generateTestZone(false)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	registerZoneMockResponder(testDomain, MasterZoneKind)
+
+	p := initialisePowerDNSTestClient()
+	zone, err := p.Zones.AddMaster(testDomain, false, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if *zone.DNSsec {
+		t.Error("Zone has incorrect DNSSec params")
 	}
 }
 
