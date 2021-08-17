@@ -99,12 +99,14 @@ func (z *ZonesService) AddNative(domain string, dnssec bool, nsec3Param string, 
 		Name:        String(domain),
 		Kind:        ZoneKindPtr(NativeZoneKind),
 		DNSsec:      Bool(dnssec),
-		Nsec3Param:  String(nsec3Param),
-		Nsec3Narrow: Bool(nsec3Narrow),
 		SOAEdit:     String(soaEdit),
 		SOAEditAPI:  String(soaEditApi),
 		APIRectify:  Bool(apiRectify),
 		Nameservers: nameservers,
+	}
+	if dnssec {
+		zone.Nsec3Param = String(nsec3Param)
+		zone.Nsec3Narrow = Bool(nsec3Narrow)
 	}
 	return z.postZone(&zone)
 }
@@ -115,12 +117,14 @@ func (z *ZonesService) AddMaster(domain string, dnssec bool, nsec3Param string, 
 		Name:        String(domain),
 		Kind:        ZoneKindPtr(MasterZoneKind),
 		DNSsec:      Bool(dnssec),
-		Nsec3Param:  String(nsec3Param),
-		Nsec3Narrow: Bool(nsec3Narrow),
 		SOAEdit:     String(soaEdit),
 		SOAEditAPI:  String(soaEditApi),
 		APIRectify:  Bool(apiRectify),
 		Nameservers: nameservers,
+	}
+	if dnssec {
+		zone.Nsec3Param = String(nsec3Param)
+		zone.Nsec3Narrow = Bool(nsec3Narrow)
 	}
 	return z.postZone(&zone)
 }
