@@ -1,6 +1,7 @@
 package powerdns
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -20,7 +21,7 @@ func generateTestZone(autoAddZone bool) string {
 
 	if httpmock.Disabled() && autoAddZone {
 		pdns := initialisePowerDNSTestClient()
-		zone, err := pdns.Zones.AddNative(domain, true, "", false, "", "", true, []string{"ns.foo.tld."})
+		zone, err := pdns.Zones.AddNative(context.Background(), domain, true, "", false, "", "", true, []string{"ns.foo.tld."})
 		if err != nil {
 			fmt.Printf("Error creating %s\n", domain)
 			fmt.Printf("%v\n", err)
@@ -280,7 +281,7 @@ func TestListZones(t *testing.T) {
 	registerZonesMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	zones, err := p.Zones.List()
+	zones, err := p.Zones.List(context.Background())
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -292,7 +293,7 @@ func TestListZones(t *testing.T) {
 func TestListZonesError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Zones.List(); err == nil {
+	if _, err := p.Zones.List(context.Background()); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -305,7 +306,7 @@ func TestGetZone(t *testing.T) {
 	registerZoneMockResponder(testDomain, NativeZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	zone, err := p.Zones.Get(testDomain)
+	zone, err := p.Zones.Get(context.Background(), testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -318,7 +319,7 @@ func TestGetZonesError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Zones.Get(testDomain); err == nil {
+	if _, err := p.Zones.Get(context.Background(), testDomain); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -331,7 +332,7 @@ func TestAddNativeZoneWithDNSSec(t *testing.T) {
 	registerZoneMockResponder(testDomain, NativeZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	zone, err := p.Zones.AddNative(testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+	zone, err := p.Zones.AddNative(context.Background(), testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -348,7 +349,7 @@ func TestAddNativeZoneWithoutDNSSec(t *testing.T) {
 	registerZoneMockResponder(testDomain, NativeZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	zone, err := p.Zones.AddNative(testDomain, false, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+	zone, err := p.Zones.AddNative(context.Background(), testDomain, false, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -362,7 +363,7 @@ func TestAddNativeZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Zones.AddNative(testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
+	if _, err := p.Zones.AddNative(context.Background(), testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -375,7 +376,7 @@ func TestAddMasterZoneWithDNSSec(t *testing.T) {
 	registerZoneMockResponder(testDomain, MasterZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	zone, err := p.Zones.AddMaster(testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+	zone, err := p.Zones.AddMaster(context.Background(), testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -392,7 +393,7 @@ func TestAddMasterZoneWithoutDNSSec(t *testing.T) {
 	registerZoneMockResponder(testDomain, MasterZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	zone, err := p.Zones.AddMaster(testDomain, false, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+	zone, err := p.Zones.AddMaster(context.Background(), testDomain, false, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
 
 	if err != nil {
 		t.Errorf("%s", err)
@@ -407,7 +408,7 @@ func TestAddMasterZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Zones.AddMaster(testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
+	if _, err := p.Zones.AddMaster(context.Background(), testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -420,7 +421,7 @@ func TestAddSlaveZone(t *testing.T) {
 	registerZoneMockResponder(testDomain, SlaveZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	zone, err := p.Zones.AddSlave(testDomain, []string{"127.0.0.1"})
+	zone, err := p.Zones.AddSlave(context.Background(), testDomain, []string{"127.0.0.1"})
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -433,7 +434,7 @@ func TestAddSlaveZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Zones.AddSlave(testDomain, []string{"ns5.foo.tld."}); err == nil {
+	if _, err := p.Zones.AddSlave(context.Background(), testDomain, []string{"ns5.foo.tld."}); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -459,7 +460,7 @@ func TestAddZone(t *testing.T) {
 		Nameservers: []string{"ns.foo.tld."},
 	}
 
-	zone, err := p.Zones.Add(&z)
+	zone, err := p.Zones.Add(context.Background(), &z)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -477,7 +478,7 @@ func TestAddZoneError(t *testing.T) {
 		Name: String(testDomain),
 	}
 
-	if _, err := p.Zones.Add(&z); err == nil {
+	if _, err := p.Zones.Add(context.Background(), &z); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -492,12 +493,12 @@ func TestChangeZone(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 
 	t.Run("ChangeValidZone", func(t *testing.T) {
-		if err := p.Zones.Change(testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}}); err != nil {
+		if err := p.Zones.Change(context.Background(), testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}}); err != nil {
 			t.Errorf("%s", err)
 		}
 	})
 	t.Run("ChangeInvalidZone", func(t *testing.T) {
-		if err := p.Zones.Change("doesnt-exist", &Zone{Nameservers: []string{"ns23.foo.tld."}}); err == nil {
+		if err := p.Zones.Change(context.Background(), "doesnt-exist", &Zone{Nameservers: []string{"ns23.foo.tld."}}); err == nil {
 			t.Errorf("Changing an invalid zone does not return an error")
 		}
 	})
@@ -507,7 +508,7 @@ func TestChangeZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if err := p.Zones.Change(testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}}); err == nil {
+	if err := p.Zones.Change(context.Background(), testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}}); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -520,7 +521,7 @@ func TestDeleteZone(t *testing.T) {
 	registerZoneMockResponder(testDomain, NativeZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	if err := p.Zones.Delete(testDomain); err != nil {
+	if err := p.Zones.Delete(context.Background(), testDomain); err != nil {
 		t.Errorf("%s", err)
 	}
 }
@@ -529,7 +530,7 @@ func TestDeleteZoneError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if err := p.Zones.Delete(testDomain); err == nil {
+	if err := p.Zones.Delete(context.Background(), testDomain); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -542,7 +543,7 @@ func TestNotify(t *testing.T) {
 	registerZoneMockResponder(testDomain, MasterZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	notifyResult, err := p.Zones.Notify(testDomain)
+	notifyResult, err := p.Zones.Notify(context.Background(), testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -555,7 +556,7 @@ func TestNotifyError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Zones.Notify(testDomain); err == nil {
+	if _, err := p.Zones.Notify(context.Background(), testDomain); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -568,7 +569,7 @@ func TestExport(t *testing.T) {
 	registerZoneMockResponder(testDomain, NativeZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	export, err := p.Zones.Export(testDomain)
+	export, err := p.Zones.Export(context.Background(), testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -581,11 +582,11 @@ func TestExportError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Hostname = "invalid"
-	if _, err := p.Zones.Export(testDomain); err == nil {
+	if _, err := p.Zones.Export(context.Background(), testDomain); err == nil {
 		t.Error("error is nil")
 	}
 	p.Port = "x"
-	if _, err := p.Zones.Export(testDomain); err == nil {
+	if _, err := p.Zones.Export(context.Background(), testDomain); err == nil {
 		t.Error("error is nil")
 	}
 }

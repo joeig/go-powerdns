@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/joeig/go-powerdns/v2"
 	"log"
 	"math/rand"
 	"time"
+
+	"github.com/joeig/go-powerdns/v2"
 )
 
 func main() {
@@ -16,7 +18,7 @@ func main() {
 	pdns := powerdns.NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
 
 	// Create a native zone
-	zone, err := pdns.Zones.AddNative(domain, false, "", false, "", "", true, []string{"localhost."})
+	zone, err := pdns.Zones.AddNative(context.Background(), domain, false, "", false, "", "", true, []string{"localhost."})
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -25,20 +27,20 @@ func main() {
 	fmt.Printf("zone: %s\n\n", o)
 
 	// Add and change an A record
-	if err := pdns.Records.Add(domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeA, 1337, []string{"127.0.0.9"}); err != nil {
+	if err := pdns.Records.Add(context.Background(), domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeA, 1337, []string{"127.0.0.9"}); err != nil {
 		log.Fatalf("%v", err)
 	}
-	if err := pdns.Records.Change(domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeA, 42, []string{"127.0.0.10"}); err != nil {
+	if err := pdns.Records.Change(context.Background(), domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeA, 42, []string{"127.0.0.10"}); err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	// Add a MX record with multiple values
-	if err := pdns.Records.Add(domain, domain, powerdns.RRTypeMX, 1337, []string{"10 mx1.example.com.", "20 mx2.example.com."}); err != nil {
+	if err := pdns.Records.Add(context.Background(), domain, domain, powerdns.RRTypeMX, 1337, []string{"10 mx1.example.com.", "20 mx2.example.com."}); err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	// Add a TXT record
-	if err := pdns.Records.Add(domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeTXT, 1337, []string{"\"foo1\""}); err != nil {
+	if err := pdns.Records.Add(context.Background(), domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeTXT, 1337, []string{"\"foo1\""}); err != nil {
 		log.Fatalf("%v", err)
 	}
 
@@ -48,13 +50,13 @@ func main() {
 		DNSsec:  powerdns.Bool(true),
 	}
 
-	err = pdns.Zones.Change(domain, zoneChangeSet)
+	err = pdns.Zones.Change(context.Background(), domain, zoneChangeSet)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	// Retrieve zone attributes
-	changedZone, err := pdns.Zones.Get(domain)
+	changedZone, err := pdns.Zones.Get(context.Background(), domain)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

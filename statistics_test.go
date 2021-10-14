@@ -1,6 +1,7 @@
 package powerdns
 
 import (
+	"context"
 	"net/http"
 	"testing"
 
@@ -36,7 +37,7 @@ func TestListStatistics(t *testing.T) {
 	registerStatisticsMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	statistics, err := p.Statistics.List()
+	statistics, err := p.Statistics.List(context.Background())
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -48,7 +49,7 @@ func TestListStatistics(t *testing.T) {
 func TestListStatisticsError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Statistics.List(); err == nil {
+	if _, err := p.Statistics.List(context.Background()); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -59,7 +60,7 @@ func TestGetStatistics(t *testing.T) {
 	registerStatisticsMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	statistics, err := p.Statistics.Get("corrupt-packets")
+	statistics, err := p.Statistics.Get(context.Background(), "corrupt-packets")
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -71,7 +72,7 @@ func TestGetStatistics(t *testing.T) {
 func TestGetStatisticsError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Statistics.Get("corrupt-packets"); err == nil {
+	if _, err := p.Statistics.Get(context.Background(), "corrupt-packets"); err == nil {
 		t.Error("error is nil")
 	}
 }
