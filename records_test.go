@@ -1,9 +1,9 @@
 package powerdns
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"log"
 	"math/rand"
 	"net/http"
@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func generateTestRecord(client *Client, domain string, autoAddRecord bool) string {
@@ -18,7 +20,7 @@ func generateTestRecord(client *Client, domain string, autoAddRecord bool) strin
 	name := fmt.Sprintf("test-%d.%s", rand.Int(), domain)
 
 	if httpmock.Disabled() && autoAddRecord {
-		if err := client.Records.Add(domain, name, RRTypeTXT, 300, []string{"\"Testing...\""}); err != nil {
+		if err := client.Records.Add(context.Background(), domain, name, RRTypeTXT, 300, []string{"\"Testing...\""}); err != nil {
 			fmt.Printf("Error creating record: %s\n", name)
 			fmt.Printf("%s\n", err)
 		} else {
@@ -109,11 +111,11 @@ func TestAddRecord(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	registerRecordMockResponder(testDomain)
 	testRecordNameTXT := generateTestRecord(p, testDomain, false)
-	if err := p.Records.Add(testDomain, testRecordNameTXT, RRTypeTXT, 300, []string{"\"bar\""}); err != nil {
+	if err := p.Records.Add(context.Background(), testDomain, testRecordNameTXT, RRTypeTXT, 300, []string{"\"bar\""}); err != nil {
 		t.Errorf("%s", err)
 	}
 	testRecordNameCNAME := generateTestRecord(p, testDomain, false)
-	if err := p.Records.Add(testDomain, testRecordNameCNAME, RRTypeCNAME, 300, []string{"foo.tld"}); err != nil {
+	if err := p.Records.Add(context.Background(), testDomain, testRecordNameCNAME, RRTypeCNAME, 300, []string{"foo.tld"}); err != nil {
 		t.Errorf("%s", err)
 	}
 }
@@ -123,7 +125,7 @@ func TestAddRecordError(t *testing.T) {
 	p.Port = "x"
 	testDomain := generateTestZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false)
-	if err := p.Records.Add(testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err == nil {
+	if err := p.Records.Add(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -137,7 +139,7 @@ func TestChangeRecord(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	testRecordName := generateTestRecord(p, testDomain, true)
 	registerRecordMockResponder(testDomain)
-	if err := p.Records.Change(testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err != nil {
+	if err := p.Records.Change(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err != nil {
 		t.Errorf("%s", err)
 	}
 }
@@ -147,7 +149,7 @@ func TestChangeRecordError(t *testing.T) {
 	p.Port = "x"
 	testDomain := generateTestZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false)
-	if err := p.Records.Change(testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err == nil {
+	if err := p.Records.Change(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -161,7 +163,7 @@ func TestDeleteRecord(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	testRecordName := generateTestRecord(p, testDomain, true)
 	registerRecordMockResponder(testDomain)
-	if err := p.Records.Delete(testDomain, testRecordName, RRTypeTXT); err != nil {
+	if err := p.Records.Delete(context.Background(), testDomain, testRecordName, RRTypeTXT); err != nil {
 		t.Errorf("%s", err)
 	}
 }
@@ -171,7 +173,7 @@ func TestDeleteRecordError(t *testing.T) {
 	p.Port = "x"
 	testDomain := generateTestZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false)
-	if err := p.Records.Delete(testDomain, testRecordName, RRTypeTXT); err == nil {
+	if err := p.Records.Delete(context.Background(), testDomain, testRecordName, RRTypeTXT); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -252,7 +254,7 @@ func TestPatchRRSets(t *testing.T) {
 	rrSets.Sets = []RRset{{Name: &rrSetName, Type: RRTypePtr(RRTypeTXT),
 		ChangeType: ChangeTypePtr(ChangeTypeDelete)}}
 
-	if err := p.Records.Patch(testDomain, &rrSets); err != nil {
+	if err := p.Records.Patch(context.Background(), testDomain, &rrSets); err != nil {
 		t.Errorf("%s", err)
 	}
 }

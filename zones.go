@@ -1,6 +1,7 @@
 package powerdns
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 )
@@ -70,8 +71,8 @@ const (
 )
 
 // List retrieves a list of Zones
-func (z *ZonesService) List() ([]Zone, error) {
-	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil, nil)
+func (z *ZonesService) List(ctx context.Context) ([]Zone, error) {
+	req, err := z.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +83,8 @@ func (z *ZonesService) List() ([]Zone, error) {
 }
 
 // Get returns a certain Zone for a given domain
-func (z *ZonesService) Get(domain string) (*Zone, error) {
-	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, nil)
+func (z *ZonesService) Get(ctx context.Context, domain string) (*Zone, error) {
+	req, err := z.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +95,7 @@ func (z *ZonesService) Get(domain string) (*Zone, error) {
 }
 
 // AddNative creates a new native zone
-func (z *ZonesService) AddNative(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
+func (z *ZonesService) AddNative(ctx context.Context, domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
 	zone := Zone{
 		Name:        String(domain),
 		Kind:        ZoneKindPtr(NativeZoneKind),
@@ -108,11 +109,11 @@ func (z *ZonesService) AddNative(domain string, dnssec bool, nsec3Param string, 
 		zone.Nsec3Param = String(nsec3Param)
 		zone.Nsec3Narrow = Bool(nsec3Narrow)
 	}
-	return z.postZone(&zone)
+	return z.postZone(ctx, &zone)
 }
 
 // AddMaster creates a new master zone
-func (z *ZonesService) AddMaster(domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
+func (z *ZonesService) AddMaster(ctx context.Context, domain string, dnssec bool, nsec3Param string, nsec3Narrow bool, soaEdit, soaEditApi string, apiRectify bool, nameservers []string) (*Zone, error) {
 	zone := Zone{
 		Name:        String(domain),
 		Kind:        ZoneKindPtr(MasterZoneKind),
@@ -126,29 +127,29 @@ func (z *ZonesService) AddMaster(domain string, dnssec bool, nsec3Param string, 
 		zone.Nsec3Param = String(nsec3Param)
 		zone.Nsec3Narrow = Bool(nsec3Narrow)
 	}
-	return z.postZone(&zone)
+	return z.postZone(ctx, &zone)
 }
 
 // AddSlave creates a new slave zone
-func (z *ZonesService) AddSlave(domain string, masters []string) (*Zone, error) {
+func (z *ZonesService) AddSlave(ctx context.Context, domain string, masters []string) (*Zone, error) {
 	zone := Zone{
 		Name:    String(domain),
 		Kind:    ZoneKindPtr(SlaveZoneKind),
 		Masters: masters,
 	}
-	return z.postZone(&zone)
+	return z.postZone(ctx, &zone)
 }
 
 // Add pre-created zone
-func (z *ZonesService) Add(zone *Zone) (*Zone, error) {
-	return z.postZone(zone)
+func (z *ZonesService) Add(ctx context.Context, zone *Zone) (*Zone, error) {
+	return z.postZone(ctx, zone)
 }
 
-func (z *ZonesService) postZone(zone *Zone) (*Zone, error) {
+func (z *ZonesService) postZone(ctx context.Context, zone *Zone) (*Zone, error) {
 	zone.Name = String(makeDomainCanonical(*zone.Name))
 	zone.Type = ZoneTypePtr(ZoneZoneType)
 
-	req, err := z.client.newRequest("POST", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil, zone)
+	req, err := z.client.newRequest(ctx, "POST", fmt.Sprintf("servers/%s/zones", z.client.VHost), nil, zone)
 	if err != nil {
 		return nil, err
 	}
@@ -159,13 +160,13 @@ func (z *ZonesService) postZone(zone *Zone) (*Zone, error) {
 }
 
 // Change modifies an existing zone
-func (z *ZonesService) Change(domain string, zone *Zone) error {
+func (z *ZonesService) Change(ctx context.Context, domain string, zone *Zone) error {
 	zone.ID = nil
 	zone.Name = nil
 	zone.Type = nil
 	zone.URL = nil
 
-	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, zone)
+	req, err := z.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, zone)
 	if err != nil {
 		return err
 	}
@@ -175,8 +176,8 @@ func (z *ZonesService) Change(domain string, zone *Zone) error {
 }
 
 // Delete removes a certain Zone for a given domain
-func (z *ZonesService) Delete(domain string) error {
-	req, err := z.client.newRequest("DELETE", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, nil)
+func (z *ZonesService) Delete(ctx context.Context, domain string) error {
+	req, err := z.client.newRequest(ctx, "DELETE", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -186,8 +187,8 @@ func (z *ZonesService) Delete(domain string) error {
 }
 
 // Notify sends a DNS notify packet to all slaves
-func (z *ZonesService) Notify(domain string) (*NotifyResult, error) {
-	req, err := z.client.newRequest("PUT", fmt.Sprintf("servers/%s/zones/%s/notify", z.client.VHost, trimDomain(domain)), nil, nil)
+func (z *ZonesService) Notify(ctx context.Context, domain string) (*NotifyResult, error) {
+	req, err := z.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/zones/%s/notify", z.client.VHost, trimDomain(domain)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -198,8 +199,8 @@ func (z *ZonesService) Notify(domain string) (*NotifyResult, error) {
 }
 
 // Export returns a BIND-like Zone file
-func (z *ZonesService) Export(domain string) (Export, error) {
-	req, err := z.client.newRequest("GET", fmt.Sprintf("servers/%s/zones/%s/export", z.client.VHost, trimDomain(domain)), nil, nil)
+func (z *ZonesService) Export(ctx context.Context, domain string) (Export, error) {
+	req, err := z.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s/export", z.client.VHost, trimDomain(domain)), nil, nil)
 	if err != nil {
 		return "", err
 	}

@@ -1,6 +1,7 @@
 package powerdns
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
@@ -26,8 +27,8 @@ type CacheFlushResult struct {
 }
 
 // List retrieves a list of Servers
-func (s *ServersService) List() ([]Server, error) {
-	req, err := s.client.newRequest("GET", "servers", nil, nil)
+func (s *ServersService) List(ctx context.Context) ([]Server, error) {
+	req, err := s.client.newRequest(ctx, "GET", "servers", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +39,8 @@ func (s *ServersService) List() ([]Server, error) {
 }
 
 // Get returns a certain Server
-func (s *ServersService) Get(vHost string) (*Server, error) {
-	req, err := s.client.newRequest("GET", fmt.Sprintf("servers/%s", vHost), nil, nil)
+func (s *ServersService) Get(ctx context.Context, vHost string) (*Server, error) {
+	req, err := s.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s", vHost), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +51,10 @@ func (s *ServersService) Get(vHost string) (*Server, error) {
 }
 
 // CacheFlush flushes a cache-entry by name
-func (s *ServersService) CacheFlush(vHost string, domain string) (*CacheFlushResult, error) {
+func (s *ServersService) CacheFlush(ctx context.Context, vHost string, domain string) (*CacheFlushResult, error) {
 	query := url.Values{}
 	query.Add("domain", makeDomainCanonical(domain))
-	req, err := s.client.newRequest("PUT", fmt.Sprintf("servers/%s/cache/flush", vHost), &query, nil)
+	req, err := s.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/cache/flush", vHost), &query, nil)
 	if err != nil {
 		return nil, err
 	}

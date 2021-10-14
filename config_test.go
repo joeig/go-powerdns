@@ -1,9 +1,11 @@
 package powerdns
 
 import (
-	"github.com/jarcoal/httpmock"
+	"context"
 	"net/http"
 	"testing"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func registerConfigsMockResponder() {
@@ -31,7 +33,7 @@ func TestListConfig(t *testing.T) {
 	registerConfigsMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	config, err := p.Config.List()
+	config, err := p.Config.List(context.Background())
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -43,7 +45,7 @@ func TestListConfig(t *testing.T) {
 func TestListConfigError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Config.List(); err == nil {
+	if _, err := p.Config.List(context.Background()); err == nil {
 		t.Error("error is nil")
 	}
 }

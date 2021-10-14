@@ -1,6 +1,7 @@
 package powerdns
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -76,7 +77,7 @@ func TestListServers(t *testing.T) {
 	registerServersMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	servers, err := p.Servers.List()
+	servers, err := p.Servers.List(context.Background())
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -88,7 +89,7 @@ func TestListServers(t *testing.T) {
 func TestListServersError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Servers.List(); err == nil {
+	if _, err := p.Servers.List(context.Background()); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -99,7 +100,7 @@ func TestGetServer(t *testing.T) {
 	registerServersMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	server, err := p.Servers.Get(testVHost)
+	server, err := p.Servers.Get(context.Background(), testVHost)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -111,7 +112,7 @@ func TestGetServer(t *testing.T) {
 func TestGetServerError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Servers.Get(testVHost); err == nil {
+	if _, err := p.Servers.Get(context.Background(), testVHost); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -124,7 +125,7 @@ func TestCacheFlush(t *testing.T) {
 	registerCacheFlushMockResponder(testDomain)
 
 	p := initialisePowerDNSTestClient()
-	cacheFlushResult, err := p.Servers.CacheFlush(testVHost, testDomain)
+	cacheFlushResult, err := p.Servers.CacheFlush(context.Background(), testVHost, testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -137,7 +138,7 @@ func TestCacheFlushResultError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Servers.CacheFlush(testVHost, testDomain); err == nil {
+	if _, err := p.Servers.CacheFlush(context.Background(), testVHost, testDomain); err == nil {
 		t.Error("error is nil")
 	}
 }

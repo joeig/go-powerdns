@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -120,7 +121,7 @@ func makeDomainCanonical(domain string) string {
 	return fmt.Sprintf("%s.", trimDomain(domain))
 }
 
-func (p *Client) newRequest(method string, path string, query *url.Values, body interface{}) (*http.Request, error) {
+func (p *Client) newRequest(ctx context.Context, method string, path string, query *url.Values, body interface{}) (*http.Request, error) {
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
@@ -128,7 +129,7 @@ func (p *Client) newRequest(method string, path string, query *url.Values, body 
 	}
 
 	apiURL := generateAPIURL(p.Scheme, p.Hostname, p.Port, path, query)
-	req, err := http.NewRequest(method, apiURL.String(), buf)
+	req, err := http.NewRequestWithContext(ctx, method, apiURL.String(), buf)
 	if err != nil {
 		return nil, err
 	}

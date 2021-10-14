@@ -1,11 +1,13 @@
 package powerdns
 
 import (
+	"context"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/jarcoal/httpmock"
 )
 
 const (
@@ -95,7 +97,7 @@ func TestNewRequest(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 
 	t.Run("TestValidRequest", func(t *testing.T) {
-		if _, err := p.newRequest("GET", "servers", nil, nil); err != nil {
+		if _, err := p.newRequest(context.Background(), "GET", "servers", nil, nil); err != nil {
 			t.Error("error is not nil")
 		}
 	})
@@ -108,7 +110,7 @@ func TestDo(t *testing.T) {
 
 	t.Run("TestStringErrorResponse", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
+		req, _ := p.newRequest(context.Background(), "GET", "servers/doesntExist", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("err is nil")
 		}
@@ -116,21 +118,21 @@ func TestDo(t *testing.T) {
 	t.Run("Test401Handling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
 		p.Headers = nil
-		req, _ := p.newRequest("GET", "servers/localhost", nil, nil)
+		req, _ := p.newRequest(context.Background(), "GET", "servers/localhost", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Unauthorized" {
 			t.Error("401 response does not result into an error with correct message.")
 		}
 	})
 	t.Run("Test404Handling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest("GET", "servers/doesntExist", nil, nil)
+		req, _ := p.newRequest(context.Background(), "GET", "servers/doesntExist", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Not Found" {
 			t.Error("404 response does not result into an error with correct message.")
 		}
 	})
 	t.Run("TestJSONResponseHandling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest("GET", "server", nil, &Server{})
+		req, _ := p.newRequest(context.Background(), "GET", "server", nil, &Server{})
 		if _, err := p.do(req, nil); err.Error() != "Not Found" {
 			t.Error("501 JSON response does not result into an error with correct message.")
 		}

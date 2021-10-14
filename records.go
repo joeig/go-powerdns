@@ -1,6 +1,7 @@
 package powerdns
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -163,12 +164,12 @@ const (
 )
 
 // Add creates a new resource record
-func (r *RecordsService) Add(domain string, name string, recordType RRType, ttl uint32, content []string) error {
-	return r.Change(domain, name, recordType, ttl, content)
+func (r *RecordsService) Add(ctx context.Context, domain string, name string, recordType RRType, ttl uint32, content []string) error {
+	return r.Change(ctx, domain, name, recordType, ttl, content)
 }
 
 // Change replaces an existing resource record
-func (r *RecordsService) Change(domain string, name string, recordType RRType, ttl uint32, content []string) error {
+func (r *RecordsService) Change(ctx context.Context, domain string, name string, recordType RRType, ttl uint32, content []string) error {
 	rrset := new(RRset)
 	rrset.Name = &name
 	rrset.Type = &recordType
@@ -182,26 +183,26 @@ func (r *RecordsService) Change(domain string, name string, recordType RRType, t
 	}
 
 	payload := r.prepareRRSet(rrset)
-	return r.patchRRSet(domain, payload)
+	return r.patchRRSet(ctx, domain, payload)
 }
 
 // Delete removes an existing resource record
-func (r *RecordsService) Delete(domain string, name string, recordType RRType) error {
+func (r *RecordsService) Delete(ctx context.Context, domain string, name string, recordType RRType) error {
 	rrset := new(RRset)
 	rrset.Name = &name
 	rrset.Type = &recordType
 	rrset.ChangeType = ChangeTypePtr(ChangeTypeDelete)
 
 	payload := r.prepareRRSet(rrset)
-	return r.patchRRSet(domain, payload)
+	return r.patchRRSet(ctx, domain, payload)
 }
 
 // Patch method makes patch of already prepared rrsets
-func (r *RecordsService) Patch(domain string, rrSets *RRsets) error {
+func (r *RecordsService) Patch(ctx context.Context, domain string, rrSets *RRsets) error {
 	for i := range rrSets.Sets {
 		fixRRSet(&rrSets.Sets[i])
 	}
-	return r.patchRRSet(domain, rrSets)
+	return r.patchRRSet(ctx, domain, rrSets)
 }
 
 func canonicalResourceRecordValues(records []Record) {
@@ -227,9 +228,9 @@ func (r *RecordsService) prepareRRSet(rrSet *RRset) *RRsets {
 	return &payload
 }
 
-func (r *RecordsService) patchRRSet(domain string, rrSets *RRsets) error {
+func (r *RecordsService) patchRRSet(ctx context.Context, domain string, rrSets *RRsets) error {
 
-	req, err := r.client.newRequest("PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, trimDomain(domain)), nil, &rrSets)
+	req, err := r.client.newRequest(ctx, "PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, trimDomain(domain)), nil, &rrSets)
 	if err != nil {
 		return err
 	}

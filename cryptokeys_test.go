@@ -1,10 +1,12 @@
 package powerdns
 
 import (
+	"context"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"net/http"
 	"testing"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func registerCryptokeysMockResponder(testDomain string) {
@@ -89,7 +91,7 @@ func TestListCryptokeys(t *testing.T) {
 
 	p := initialisePowerDNSTestClient()
 
-	cryptokeys, err := p.Cryptokeys.List(testDomain)
+	cryptokeys, err := p.Cryptokeys.List(context.Background(), testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -103,7 +105,7 @@ func TestListCryptokeysError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Cryptokeys.List(testDomain); err == nil {
+	if _, err := p.Cryptokeys.List(context.Background(), testDomain); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -116,7 +118,7 @@ func TestGetCryptokey(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 
 	registerCryptokeysMockResponder(testDomain)
-	cryptokeys, err := p.Cryptokeys.List(testDomain)
+	cryptokeys, err := p.Cryptokeys.List(context.Background(), testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -124,7 +126,7 @@ func TestGetCryptokey(t *testing.T) {
 	id := cryptokeys[0].ID
 
 	registerCryptokeyMockResponder(testDomain, *id)
-	cryptokey, err := p.Cryptokeys.Get(testDomain, *id)
+	cryptokey, err := p.Cryptokeys.Get(context.Background(), testDomain, *id)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -138,7 +140,7 @@ func TestGetCryptokeyError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if _, err := p.Cryptokeys.Get(testDomain, uint64(0)); err == nil {
+	if _, err := p.Cryptokeys.Get(context.Background(), testDomain, uint64(0)); err == nil {
 		t.Error("error is nil")
 	}
 }
@@ -151,14 +153,14 @@ func TestDeleteCryptokey(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 
 	registerCryptokeysMockResponder(testDomain)
-	cryptokeys, err := p.Cryptokeys.List(testDomain)
+	cryptokeys, err := p.Cryptokeys.List(context.Background(), testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
 
 	id := cryptokeys[0].ID
 	registerCryptokeyMockResponder(testDomain, *id)
-	if p.Cryptokeys.Delete(testDomain, *id) != nil {
+	if p.Cryptokeys.Delete(context.Background(), testDomain, *id) != nil {
 		t.Errorf("%s", err)
 	}
 }
@@ -167,7 +169,7 @@ func TestDeleteCryptokeyError(t *testing.T) {
 	testDomain := generateTestZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	if err := p.Cryptokeys.Delete(testDomain, uint64(0)); err == nil {
+	if err := p.Cryptokeys.Delete(context.Background(), testDomain, uint64(0)); err == nil {
 		t.Error("error is nil")
 	}
 }
