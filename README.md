@@ -5,7 +5,7 @@ This community project provides bindings for the currently latest version of Pow
 [![Build Status](https://github.com/joeig/go-powerdns/workflows/Tests/badge.svg)](https://github.com/joeig/go-powerdns/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/joeig/go-powerdns)](https://goreportcard.com/report/github.com/joeig/go-powerdns)
 [![Coverage Status](https://coveralls.io/repos/github/joeig/go-powerdns/badge.svg?branch=master)](https://coveralls.io/github/joeig/go-powerdns?branch=master)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/joeig/go-powerdns/v2)](https://pkg.go.dev/github.com/joeig/go-powerdns/v2)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/joeig/go-powerdns/v3)](https://pkg.go.dev/github.com/joeig/go-powerdns/v3)
 
 ## Features
 
@@ -14,7 +14,7 @@ This community project provides bindings for the currently latest version of Pow
 * Server statistics gathering
 * DNSSEC handling
 
-For more features, consult our [documentation](https://pkg.go.dev/github.com/joeig/go-powerdns/v2).
+For more features, consult our [documentation](https://pkg.go.dev/github.com/joeig/go-powerdns/v3).
 
 ## Usage
 
@@ -23,7 +23,7 @@ For more features, consult our [documentation](https://pkg.go.dev/github.com/joe
 ```go
 import (
   "context"
-  "github.com/joeig/go-powerdns/v2"
+  "github.com/joeig/go-powerdns/v3"
 )
 
 pdns := powerdns.NewClient("http://localhost:80", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)

@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/joeig/go-powerdns/v2"
+	"github.com/joeig/go-powerdns/v3"
 )
 
 func main() {
