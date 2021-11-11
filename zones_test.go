@@ -394,7 +394,6 @@ func TestAddMasterZoneWithoutDNSSec(t *testing.T) {
 
 	p := initialisePowerDNSTestClient()
 	zone, err := p.Zones.AddMaster(context.Background(), testDomain, false, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
-
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -483,7 +482,7 @@ func TestAddZoneError(t *testing.T) {
 	}
 }
 
-func TestChangeZone(t *testing.T) {
+func TestChangeZoneWithDNSSec(t *testing.T) {
 	testDomain := generateTestZone(true)
 
 	httpmock.Activate()
@@ -493,12 +492,33 @@ func TestChangeZone(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 
 	t.Run("ChangeValidZone", func(t *testing.T) {
-		if err := p.Zones.Change(context.Background(), testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}}); err != nil {
+		if err := p.Zones.Change(context.Background(), testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}, Nsec3Param: String(""), DNSsec: Bool(true)}); err != nil {
 			t.Errorf("%s", err)
 		}
 	})
 	t.Run("ChangeInvalidZone", func(t *testing.T) {
-		if err := p.Zones.Change(context.Background(), "doesnt-exist", &Zone{Nameservers: []string{"ns23.foo.tld."}}); err == nil {
+		if err := p.Zones.Change(context.Background(), "doesnt-exist", &Zone{Nameservers: []string{"ns23.foo.tld."}, Nsec3Param: String(""), DNSsec: Bool(true)}); err == nil {
+			t.Errorf("Changing an invalid zone does not return an error")
+		}
+	})
+}
+
+func TestChangeZoneWithoutDNSSec(t *testing.T) {
+	testDomain := generateTestZone(true)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	registerZoneMockResponder(testDomain, NativeZoneKind)
+
+	p := initialisePowerDNSTestClient()
+
+	t.Run("ChangeValidZone", func(t *testing.T) {
+		if err := p.Zones.Change(context.Background(), testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}, Nsec3Param: String(""), DNSsec: Bool(false)}); err != nil {
+			t.Errorf("%s", err)
+		}
+	})
+	t.Run("ChangeInvalidZone", func(t *testing.T) {
+		if err := p.Zones.Change(context.Background(), "doesnt-exist", &Zone{Nameservers: []string{"ns23.foo.tld."}, Nsec3Param: String(""), DNSsec: Bool(false)}); err == nil {
 			t.Errorf("Changing an invalid zone does not return an error")
 		}
 	})
