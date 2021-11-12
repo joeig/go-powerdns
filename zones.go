@@ -165,6 +165,9 @@ func (z *ZonesService) Change(ctx context.Context, domain string, zone *Zone) er
 	zone.Name = nil
 	zone.Type = nil
 	zone.URL = nil
+	if zone.DNSsec != nil && !*zone.DNSsec {
+		zone.Nsec3Param = nil
+	}
 
 	req, err := z.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, zone)
 	if err != nil {
