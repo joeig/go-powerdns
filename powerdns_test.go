@@ -35,7 +35,6 @@ func initialisePowerDNSTestClient() *Client {
 }
 
 func registerDoMockResponder() {
-
 	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/doesntExist", generateTestAPIURL()),
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {

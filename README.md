@@ -34,37 +34,38 @@ Assuming that the server is listening on http://localhost:80 for virtual host `l
 ### Get/add/change/delete zones
 
 ```go
-zones, err := pdns.Zones.List(context.Background())
-zone, err := pdns.Zones.Get(context.Background(), "example.com")
-export, err := pdns.Zones.Export(context.Background(), "example.com")
-zone, err := pdns.Zones.AddNative(context.Background(), "example.com", true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
-zone, err := pdns.Zones.Add(context.Background(), &powerdns.Zone{})
-err := pdns.Zones.Change(context.Background(), "example.com", &zone)
-err := pdns.Zones.Delete(context.Background(), "example.com")
+ctx := context.Background()
+
+zones, err := pdns.Zones.List(ctx)
+zone, err := pdns.Zones.Get(ctx, "example.com")
+export, err := pdns.Zones.Export(ctx, "example.com")
+zone, err := pdns.Zones.AddNative(ctx, "example.com", true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
+err := pdns.Zones.Change(ctx, "example.com", &zone)
+err := pdns.Zones.Delete(ctx, "example.com")
 ```
 
 ### Add/change/delete resource records
 
 ```go
-err := pdns.Records.Add(context.Background(), "example.com", "www.example.com", powerdns.RRTypeAAAA, 60, []string{"::1"})
-err := pdns.Records.Change(context.Background(), "example.com", "www.example.com", powerdns.RRTypeAAAA, 3600, []string{"::1"})
-err := pdns.Records.Delete(context.Background(), "example.com", "www.example.com", powerdns.RRTypeA)
+err := pdns.Records.Add(ctx, "example.com", "www.example.com", powerdns.RRTypeAAAA, 60, []string{"::1"})
+err := pdns.Records.Change(ctx, "example.com", "www.example.com", powerdns.RRTypeAAAA, 3600, []string{"::1"})
+err := pdns.Records.Delete(ctx, "example.com", "www.example.com", powerdns.RRTypeA)
 ```
 
 ### Request server information and statistics
 
 ```go
-statistics, err := pdns.Statistics.List(context.Background())
-servers, err := pdns.Servers.List(context.Background())
-server, err := pdns.Servers.Get(context.Background(), "localhost")
+statistics, err := pdns.Statistics.List(ctx)
+servers, err := pdns.Servers.List(ctx)
+server, err := pdns.Servers.Get(ctx, "localhost")
 ```
 
 ### Handle DNSSEC cryptographic material
 
 ```go
-cryptokeys, err := pdns.Cryptokeys.List(context.Background())
-cryptokey, err := pdns.Cryptokeys.Get(context.Background(), "example.com", "1337")
-err := pdns.Cryptokeys.Delete(context.Background(), "example.com", "1337")
+cryptokeys, err := pdns.Cryptokeys.List(ctx)
+cryptokey, err := pdns.Cryptokeys.Get(ctx, "example.com", "1337")
+err := pdns.Cryptokeys.Delete(ctx, "example.com", "1337")
 ```
 
 ### More examples
