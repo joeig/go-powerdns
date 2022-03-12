@@ -10,7 +10,7 @@ import (
 )
 
 func registerCryptokeysMockResponder(testDomain string) {
-	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/cryptokeys",
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain)+"/cryptokeys",
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
@@ -47,7 +47,7 @@ func registerCryptokeysMockResponder(testDomain string) {
 }
 
 func registerCryptokeyMockResponder(testDomain string, id uint64) {
-	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/cryptokeys/"+cryptokeyIDToString(id),
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain)+"/cryptokeys/"+cryptokeyIDToString(id),
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
@@ -67,7 +67,7 @@ func registerCryptokeyMockResponder(testDomain string, id uint64) {
 		},
 	)
 
-	httpmock.RegisterResponder("DELETE", fmt.Sprintf("%s/zones/%s/cryptokeys/%s", generateTestAPIVHostURL(), testDomain, cryptokeyIDToString(id)),
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("%s/zones/%s/cryptokeys/%s", generateTestAPIVHostURL(), makeDomainCanonical(testDomain), cryptokeyIDToString(id)),
 		func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get("X-Api-Key") == testAPIKey {
 				return httpmock.NewStringResponse(http.StatusNoContent, ""), nil
@@ -160,7 +160,7 @@ func TestDeleteCryptokey(t *testing.T) {
 
 	id := cryptokeys[0].ID
 	registerCryptokeyMockResponder(testDomain, *id)
-	if p.Cryptokeys.Delete(context.Background(), testDomain, *id) != nil {
+	if err = p.Cryptokeys.Delete(context.Background(), testDomain, *id); err != nil {
 		t.Errorf("%s", err)
 	}
 }

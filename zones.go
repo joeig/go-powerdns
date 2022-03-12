@@ -84,7 +84,7 @@ func (z *ZonesService) List(ctx context.Context) ([]Zone, error) {
 
 // Get returns a certain Zone for a given domain
 func (z *ZonesService) Get(ctx context.Context, domain string) (*Zone, error) {
-	req, err := z.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, nil)
+	req, err := z.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, makeDomainCanonical(domain)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ func (z *ZonesService) Change(ctx context.Context, domain string, zone *Zone) er
 		zone.Nsec3Param = nil
 	}
 
-	req, err := z.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, zone)
+	req, err := z.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, makeDomainCanonical(domain)), nil, zone)
 	if err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func (z *ZonesService) Change(ctx context.Context, domain string, zone *Zone) er
 
 // Delete removes a certain Zone for a given domain
 func (z *ZonesService) Delete(ctx context.Context, domain string) error {
-	req, err := z.client.newRequest(ctx, "DELETE", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, trimDomain(domain)), nil, nil)
+	req, err := z.client.newRequest(ctx, "DELETE", fmt.Sprintf("servers/%s/zones/%s", z.client.VHost, makeDomainCanonical(domain)), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -191,7 +191,7 @@ func (z *ZonesService) Delete(ctx context.Context, domain string) error {
 
 // Notify sends a DNS notify packet to all slaves
 func (z *ZonesService) Notify(ctx context.Context, domain string) (*NotifyResult, error) {
-	req, err := z.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/zones/%s/notify", z.client.VHost, trimDomain(domain)), nil, nil)
+	req, err := z.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/zones/%s/notify", z.client.VHost, makeDomainCanonical(domain)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +203,7 @@ func (z *ZonesService) Notify(ctx context.Context, domain string) (*NotifyResult
 
 // Export returns a BIND-like Zone file
 func (z *ZonesService) Export(ctx context.Context, domain string) (Export, error) {
-	req, err := z.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s/export", z.client.VHost, trimDomain(domain)), nil, nil)
+	req, err := z.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s/export", z.client.VHost, makeDomainCanonical(domain)), nil, nil)
 	if err != nil {
 		return "", err
 	}

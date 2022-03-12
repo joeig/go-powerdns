@@ -78,7 +78,7 @@ func registerZonesMockResponder() {
 }
 
 func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
-	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain),
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
@@ -207,7 +207,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 		},
 	)
 
-	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain),
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
@@ -222,7 +222,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 		},
 	)
 
-	httpmock.RegisterResponder("DELETE", generateTestAPIVHostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("DELETE", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain),
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
@@ -237,7 +237,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 		},
 	)
 
-	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+testDomain+"/notify",
+	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain)+"/notify",
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
@@ -252,7 +252,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 		},
 	)
 
-	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+testDomain+"/export",
+	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain)+"/export",
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil

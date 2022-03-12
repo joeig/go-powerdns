@@ -55,7 +55,7 @@ func validateCNAMEContent(content string) error {
 }
 
 func registerRecordMockResponder(testDomain string) {
-	httpmock.RegisterResponder("PATCH", generateTestAPIVHostURL()+"/zones/"+testDomain,
+	httpmock.RegisterResponder("PATCH", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain),
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
