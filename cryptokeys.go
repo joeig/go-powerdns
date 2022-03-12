@@ -28,7 +28,7 @@ func cryptokeyIDToString(id uint64) string {
 
 // List retrieves a list of Cryptokeys that belong to a Zone
 func (c *CryptokeysService) List(ctx context.Context, domain string) ([]Cryptokey, error) {
-	req, err := c.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s/cryptokeys", c.client.VHost, trimDomain(domain)), nil, nil)
+	req, err := c.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s/cryptokeys", c.client.VHost, makeDomainCanonical(domain)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (c *CryptokeysService) List(ctx context.Context, domain string) ([]Cryptoke
 
 // Get returns a certain Cryptokey instance of a given Zone
 func (c *CryptokeysService) Get(ctx context.Context, domain string, id uint64) (*Cryptokey, error) {
-	req, err := c.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s/cryptokeys/%s", c.client.VHost, trimDomain(domain), cryptokeyIDToString(id)), nil, nil)
+	req, err := c.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/zones/%s/cryptokeys/%s", c.client.VHost, makeDomainCanonical(domain), cryptokeyIDToString(id)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (c *CryptokeysService) Get(ctx context.Context, domain string, id uint64) (
 
 // Delete removes a given Cryptokey
 func (c *CryptokeysService) Delete(ctx context.Context, domain string, id uint64) error {
-	req, err := c.client.newRequest(ctx, "DELETE", fmt.Sprintf("servers/%s/zones/%s/cryptokeys/%s", c.client.VHost, trimDomain(domain), cryptokeyIDToString(id)), nil, nil)
+	req, err := c.client.newRequest(ctx, "DELETE", fmt.Sprintf("servers/%s/zones/%s/cryptokeys/%s", c.client.VHost, makeDomainCanonical(domain), cryptokeyIDToString(id)), nil, nil)
 	if err != nil {
 		return err
 	}
