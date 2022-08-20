@@ -1,34 +1,16 @@
 ---
-version: '3.3'
+version: '3.8'
 
 services:
-  mariadb:
-    image: mariadb:10.3
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: powerdns
-      MYSQL_USER: powerdns
-      MYSQL_PASSWORD: powerdns
-
   powerdns:
-    depends_on:
-      - mariadb
-    image: psitrax/powerdns:v4.4
+    image: powerdns/pdns-auth-44:4.4.3
     ports:
       - "8053:53"
       - "8053:53/udp"
       - "8080:80"
-    links:
-      - mariadb
     volumes:
       - ./scripts/init_docker_fixtures.sh:/init_docker_fixtures.sh:ro
     restart: always
-    environment:
-      MYSQL_HOST: mariadb
-      MYSQL_DB: powerdns
-      MYSQL_USER: powerdns
-      MYSQL_PASS: powerdns
     command: [
       "--webserver=yes",
       "--webserver-address=0.0.0.0",
@@ -42,6 +24,5 @@ services:
       "--log-dns-queries=yes",
       "--log-dns-details=yes",
       "--query-logging=yes",
-      "--default-soa-edit=INCEPTION-INCREMENT",
-      "--gmysql-dnssec=yes"
+      "--default-soa-edit=INCEPTION-INCREMENT"
     ]
