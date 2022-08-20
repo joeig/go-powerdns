@@ -83,8 +83,9 @@ PowerDNS ("API v1") with `--webserver=yes --api=yes --api-key=apipw --api-readon
 
 * 4.4
 * 4.5
+* 4.6
 
-Version 4.1, 4.2 and 4.3 may work, but are [end-of-life](https://repo.powerdns.com/).
+Version 4.1, 4.2 and 4.3 may be working, but are [end-of-life](https://repo.powerdns.com/).
 Be aware there are major differences between 3.x, 4.0 and 4.1.
 
 #### Tested Go versions
@@ -112,8 +113,8 @@ This API client has not been completed yet, so feel free to contribute. The [Ope
 Start a PowerDNS authoritative server including a generic SQLite3 backend, DNSSEC support and some fixtures using Docker compose:
 
 ```bash
-docker-compose -f docker-compose-v4.5.yml up
-docker-compose -f docker-compose-v4.5.yml exec powerdns sh init_docker_fixtures.sh
+docker-compose -f docker-compose-v4.6.yml up
+docker-compose -f docker-compose-v4.6.yml exec powerdns sh init_docker_fixtures.sh
 ```
 
 It's also possible to target mocks against this server:
