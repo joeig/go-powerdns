@@ -1,6 +1,7 @@
 # PowerDNS 4.x API bindings for Golang
 
-This community project provides bindings for the currently latest version of PowerDNS Authoritative Server.
+This community project provides bindings for PowerDNS Authoritative Server.
+It's not associated with the official PowerDNS product itself.
 
 [![Build Status](https://github.com/joeig/go-powerdns/workflows/Tests/badge.svg)](https://github.com/joeig/go-powerdns/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/joeig/go-powerdns)](https://goreportcard.com/report/github.com/joeig/go-powerdns)
@@ -76,10 +77,24 @@ See [examples](https://github.com/joeig/go-powerdns/tree/master/examples).
 
 ### Requirements
 
-- PowerDNS 4.x ("API v1")
-  - `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`
-  - Note that API v1 is actively maintained. There are major differences between 3.x, 4.0 and 4.1 and this client works only with 4.1 to 4.4.
-- Tested with Go version 1.16/1.17/1.18, according to [Go's version support policy](https://golang.org/doc/devel/release.html#policy) (should work with other minor releases as well)
+#### Tested PowerDNS versions
+
+PowerDNS 4.x ("API v1") with `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`
+
+* 4.1
+* 4.2
+* 4.3
+* 4.4
+
+Be aware there are major differences between 3.x, 4.0 and 4.1.
+
+#### Tested Go versions
+
+In accordance with [Go's version support policy](https://golang.org/doc/devel/release.html#policy), this module is tested with the following Go releases:
+
+* 1.16
+* 1.17
+* 1.18
 
 ### Install from source
 
