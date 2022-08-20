@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -172,7 +171,7 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 			_ = json.NewDecoder(resp.Body).Decode(&apiError)
 			message = apiError.Message
 		} else {
-			messageBytes, _ := ioutil.ReadAll(resp.Body)
+			messageBytes, _ := io.ReadAll(resp.Body)
 			message = string(messageBytes)
 		}
 
