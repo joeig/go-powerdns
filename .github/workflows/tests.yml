@@ -12,11 +12,10 @@ jobs:
           go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
-      - name: GolangCI-Lint
-        run: |
-          curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.21.0
-          $(go env GOPATH)/bin/golangci-lint --version
-          $(go env GOPATH)/bin/golangci-lint run
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.48
       - name: Staticcheck
         run: |
           GO111MODULE=off go get -u honnef.co/go/tools/cmd/staticcheck
