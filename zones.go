@@ -3,7 +3,7 @@ package powerdns
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 )
 
 // ZonesService handles communication with the zones related methods of the Client API
@@ -213,6 +213,6 @@ func (z *ZonesService) Export(ctx context.Context, domain string) (Export, error
 		return "", err
 	}
 
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyBytes, _ := io.ReadAll(resp.Body)
 	return Export(bodyBytes), nil
 }
