@@ -79,13 +79,11 @@ See [examples](https://github.com/joeig/go-powerdns/tree/master/examples).
 
 #### Tested PowerDNS versions
 
-PowerDNS 4.x ("API v1") with `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`
+PowerDNS ("API v1") with `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`:
 
-* 4.1
-* 4.2
-* 4.3
 * 4.4
 
+Version 4.1, 4.2 and 4.3 may work, but are [end-of-life](https://repo.powerdns.com/).
 Be aware there are major differences between 3.x, 4.0 and 4.1.
 
 #### Tested Go versions
