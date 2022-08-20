@@ -1,7 +1,5 @@
 #!/bin/sh
 
-apk --no-cache add boost-program_options
-
 DOM="example.com"
 
 pdnsutil create-zone "${DOM}"
