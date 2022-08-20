@@ -92,9 +92,9 @@ Be aware there are major differences between 3.x, 4.0 and 4.1.
 
 In accordance with [Go's version support policy](https://golang.org/doc/devel/release.html#policy), this module is tested with the following Go releases:
 
-* 1.16
 * 1.17
 * 1.18
+* 1.19
 
 ### Install from source
 
