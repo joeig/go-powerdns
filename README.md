@@ -73,52 +73,49 @@ err := pdns.Cryptokeys.Delete(ctx, "example.com", "1337")
 
 See [examples](https://github.com/joeig/go-powerdns/tree/master/examples).
 
+### Documentation
+
+See [pkg.go.dev](https://pkg.go.dev/github.com/joeig/go-powerdns/v3) for a full reference.
+
 ## Setup
 
 ### Requirements
 
 #### Tested PowerDNS versions
 
-PowerDNS ("API v1") with `--webserver=yes --api=yes --api-key=apipw --api-readonly=no`:
+Supported versions of PowerDNS Authoritative Server ("API v1"):
 
 * 4.4
 * 4.5
 * 4.6
 
-Version 4.1, 4.2 and 4.3 may be working, but are [end-of-life](https://repo.powerdns.com/).
-Be aware there are major differences between 3.x, 4.0 and 4.1.
+Version 4.1, 4.2 and 4.3 are probably working fine, but are officially [end-of-life](https://repo.powerdns.com/).
+Be aware that there are breaking changes in "API v1" between PowerDNS 3.x, 4.0 and 4.1.
 
 #### Tested Go versions
 
-In accordance with [Go's version support policy](https://golang.org/doc/devel/release.html#policy), this module is tested with the following Go releases:
+In accordance with [Go's version support policy](https://golang.org/doc/devel/release.html#policy), this module is being tested with the following Go releases:
 
 * 1.17
 * 1.18
 * 1.19
 
-### Install from source
-
-```bash
-go get -u github.com/joeig/go-powerdns
-```
-
-## Documentation
-
-See [GoDoc](https://godoc.org/github.com/joeig/go-powerdns).
-
 ## Contribution
 
-This API client has not been completed yet, so feel free to contribute. The [OpenAPI specification](https://github.com/PowerDNS/pdns/blob/master/docs/http-api/swagger/authoritative-api-swagger.yaml) might be a good reference.
+This API client has not been completed yet, so feel free to contribute.
+The [OpenAPI specification](https://github.com/PowerDNS/pdns/blob/master/docs/http-api/swagger/authoritative-api-swagger.yaml) is a good reference.
 
-Start a PowerDNS authoritative server including a generic SQLite3 backend, DNSSEC support and some fixtures using Docker compose:
+You can use Docker Compose to launch a PowerDNS authoritative server including a generic SQLite3 backend, DNSSEC support and some optional fixtures:
 
 ```bash
 docker-compose -f docker-compose-v4.6.yml up
 docker-compose -f docker-compose-v4.6.yml exec powerdns sh init_docker_fixtures.sh
 ```
 
-It's also possible to target mocks against this server:
+It's also possible to target mocks against this server, or any other PowerDNS instance which is running on `http://localhost:8080`.
 
 ```bash
 make test-without-mocks
 ```
+
+The mocks assume there is a vHost/Server ID called `localhost` and API key `apipw`.
