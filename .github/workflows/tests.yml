@@ -1,7 +1,9 @@
 ---
 name: Tests
 on: [push, pull_request]
+
 jobs:
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -12,14 +14,17 @@ jobs:
           go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
+      - name: Check formatting
+        run: make check-fmt
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.48
       - name: Staticcheck
         run: |
-          GO111MODULE=off go get -u honnef.co/go/tools/cmd/staticcheck
+          go install honnef.co/go/tools/cmd/staticcheck@latest
           $(go env GOPATH)/bin/staticcheck ./...
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -33,26 +38,29 @@ jobs:
           go-version: ${{ matrix.goVer }}
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
-      - name: Make
-        run: make
-      - name: Convert coverage to lcov
+      - name: Run test suite
+        run: make test
+      - name: Display coverage
+        run: make coverage
+      - name: Convert coverage to lcov for Coveralls
         uses: jandelgado/gcov2lcov-action@v1.0.9
         with:
           infile: ./coverage.out
           outfile: ./coverage.lcov
-      - name: Coveralls Parallel
+      - name: Report to Coveralls
         uses: coverallsapp/github-action@1.1.3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
           flag-name: run-go${{ matrix.goVer }}
           path-to-lcov: ./coverage.lcov
+
   finish:
     name: Finish
     runs-on: ubuntu-latest
     needs: test
     steps:
-    - name: Coveralls Finished
+    - name: Finish Coveralls
       uses: coverallsapp/github-action@1.1.3
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
