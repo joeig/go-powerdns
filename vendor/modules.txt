@@ -1,3 +1,0 @@
-# github.com/jarcoal/httpmock v1.0.4
-## explicit; go 1.7
-github.com/jarcoal/httpmock
