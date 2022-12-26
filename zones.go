@@ -39,6 +39,11 @@ type NotifyResult struct {
 	Result *string `json:"result,omitempty"`
 }
 
+// AxfrRetrieveResult structure with JSON API metadata
+type AxfrRetrieveResult struct {
+	Result *string `json:"result,omitempty"`
+}
+
 // Export string type
 type Export string
 
@@ -199,6 +204,18 @@ func (z *ZonesService) Notify(ctx context.Context, domain string) (*NotifyResult
 	notifyResult := &NotifyResult{}
 	_, err = z.client.do(req, notifyResult)
 	return notifyResult, err
+}
+
+// AxfrRetrieve requests a axfr transfer from the master to requesting slave
+func (z *ZonesService) AxfrRetrieve(ctx context.Context, domain string) (*AxfrRetrieveResult, error) {
+	req, err := z.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/zones/%s/axfr-retrieve", z.client.VHost, makeDomainCanonical(domain)), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	AxfrRetrieveResult := &AxfrRetrieveResult{}
+	_, err = z.client.do(req, AxfrRetrieveResult)
+	return AxfrRetrieveResult, err
 }
 
 // Export returns a BIND-like Zone file
