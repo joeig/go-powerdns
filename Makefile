@@ -19,7 +19,7 @@ coverage:
 	$(GOCOVER) -func=./coverage.out
 
 check-fmt:
-	$(GOFMT) -d ${GOFILES}
+	@$(GOFMT) -l ${GOFILES}
 
 fmt:
 	$(GOFMT) -w ${GOFILES}

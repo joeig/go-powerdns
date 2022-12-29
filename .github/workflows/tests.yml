@@ -15,7 +15,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
       - name: Check formatting
-        run: make check-fmt
+        run: test -z $(make check-fmt)
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -60,8 +60,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-    - name: Finish Coveralls
-      uses: coverallsapp/github-action@1.1.3
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        parallel-finished: true
+      - name: Finish Coveralls
+        uses: coverallsapp/github-action@1.1.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
