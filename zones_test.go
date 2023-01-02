@@ -636,12 +636,12 @@ func TestAxfrRetrieve(t *testing.T) {
 	registerZoneMockResponder(testDomain, MasterZoneKind)
 
 	p := initialisePowerDNSTestClient()
-	AxfrRetrieveResult, err := p.Zones.AxfrRetrieve(context.Background(), testDomain)
+	axfrRetrieveResult, err := p.Zones.AxfrRetrieve(context.Background(), testDomain)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if *AxfrRetrieveResult.Result != "Added retrieval request for '"+makeDomainCanonical(testDomain)+"' from master 127.0.0.1" {
-		t.Error("result: Added retrieval request for '" + makeDomainCanonical(testDomain) + "' from master 127.0.0.1" + "-got-" + *AxfrRetrieveResult.Result)
+	if *axfrRetrieveResult.Result != "Added retrieval request for '"+makeDomainCanonical(testDomain)+"' from master 127.0.0.1" {
+		t.Error("Wrong result: %q", *axfrRetrieveResult.Result)
 	}
 }
 

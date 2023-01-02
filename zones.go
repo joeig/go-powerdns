@@ -213,9 +213,9 @@ func (z *ZonesService) AxfrRetrieve(ctx context.Context, domain string) (*AxfrRe
 		return nil, err
 	}
 
-	AxfrRetrieveResult := &AxfrRetrieveResult{}
-	_, err = z.client.do(req, AxfrRetrieveResult)
-	return AxfrRetrieveResult, err
+	axfrRetrieveResult := &AxfrRetrieveResult{}
+	_, err = z.client.do(req, axfrRetrieveResult)
+	return axfrRetrieveResult, err
 }
 
 // Export returns a BIND-like Zone file
