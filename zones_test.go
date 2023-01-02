@@ -648,7 +648,7 @@ func TestAxfrRetrieve(t *testing.T) {
 		t.Errorf("%s", err)
 	}
 	if *axfrRetrieveResult.Result != "Added retrieval request for '"+makeDomainCanonical(testDomain)+"' from master 127.0.0.1" {
-		t.Error("result: Added retrieval request for '" + makeDomainCanonical(testDomain) + "' from master 127.0.0.1" + "-got-" + *AxfrRetrieveResult.Result)
+		t.Error("Wrong result: %q", *axfrRetrieveResult.Result)
 	}
 }
 
