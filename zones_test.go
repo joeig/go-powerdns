@@ -285,13 +285,6 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
 			}
 
-			acceptHeader := req.Header.Get("Accept")
-
-			if acceptHeader != "" && acceptHeader != "text/html" {
-				log.Print("Accept type must be text/html")
-				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
-			}
-
 			return httpmock.NewStringResponse(http.StatusOK, "{\"result\": \"Added retrieval request for '"+makeDomainCanonical(testDomain)+"' from master 127.0.0.1\"}"), nil
 		},
 	)
