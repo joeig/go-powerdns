@@ -263,13 +263,6 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
 			}
 
-			acceptHeader := req.Header.Get("Accept")
-
-			if acceptHeader != "" && acceptHeader != "text/html" {
-				log.Print("Accept type must be text/html")
-				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
-			}
-
 			return httpmock.NewStringResponse(http.StatusOK, makeDomainCanonical(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+makeDomainCanonical(testDomain)+" 1 10800 3600 604800 3600"), nil
 		},
 	)
