@@ -273,6 +273,22 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 			return httpmock.NewStringResponse(http.StatusOK, makeDomainCanonical(testDomain)+"	3600	SOA	a.misconfigured.powerdns.server. hostmaster."+makeDomainCanonical(testDomain)+" 1 10800 3600 604800 3600"), nil
 		},
 	)
+
+	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain)+"/axfr-retrieve",
+		func(req *http.Request) (*http.Response, error) {
+			if res := verifyAPIKey(req); res != nil {
+				return res, nil
+			}
+
+			if req.Body != nil {
+				log.Print("Request body is not nil")
+				return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
+			}
+
+			return httpmock.NewStringResponse(http.StatusOK, "{\"result\": \"Added retrieval request for '"+makeDomainCanonical(testDomain)+"' from master 127.0.0.1\"}"), nil
+		},
+	)
+
 }
 
 func TestListZones(t *testing.T) {
@@ -607,6 +623,30 @@ func TestExportError(t *testing.T) {
 	}
 	p.Port = "x"
 	if _, err := p.Zones.Export(context.Background(), testDomain); err == nil {
+		t.Error("error is nil")
+	}
+}
+
+func TestAxfrRetrieve(t *testing.T) {
+	testDomain := generateTestZone(true)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	registerZoneMockResponder(testDomain, MasterZoneKind)
+	p := initialisePowerDNSTestClient()
+	axfrRetrieveResult, err := p.Zones.AxfrRetrieve(context.Background(), testDomain)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if *axfrRetrieveResult.Result != "Added retrieval request for '"+makeDomainCanonical(testDomain)+"' from master 127.0.0.1" {
+		t.Errorf("Wrong result: %q", *axfrRetrieveResult.Result)
+	}
+}
+
+func TestAxfrRetrieveError(t *testing.T) {
+	testDomain := generateTestZone(false)
+	p := initialisePowerDNSTestClient()
+	p.Port = "x"
+	if _, err := p.Zones.AxfrRetrieve(context.Background(), testDomain); err == nil {
 		t.Error("error is nil")
 	}
 }
