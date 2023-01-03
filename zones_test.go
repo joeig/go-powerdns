@@ -628,13 +628,10 @@ func TestExportError(t *testing.T) {
 }
 
 func TestAxfrRetrieve(t *testing.T) {
-
 	testDomain := generateTestZone(true)
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerZoneMockResponder(testDomain, MasterZoneKind)
-
 	p := initialisePowerDNSTestClient()
 	axfrRetrieveResult, err := p.Zones.AxfrRetrieve(context.Background(), testDomain)
 	if err != nil {
@@ -644,7 +641,6 @@ func TestAxfrRetrieve(t *testing.T) {
 		t.Errorf("Wrong result: %q", *axfrRetrieveResult.Result)
 	}
 }
-
 
 func TestAxfrRetrieveError(t *testing.T) {
 	testDomain := generateTestZone(false)
