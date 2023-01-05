@@ -5,7 +5,7 @@ GOFMT=gofmt
 GOFILES=$(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 .DEFAULT_GOAL := all
-.PHONY: all test test-without-mocks coverage check-fmt fmt
+.PHONY: all test test-without-mocks coverage check-fmt check-fmt-list fmt
 
 all: check-fmt test coverage
 
@@ -19,6 +19,9 @@ coverage:
 	$(GOCOVER) -func=./coverage.out
 
 check-fmt:
+	@$(GOFMT) -d ${GOFILES}
+
+check-fmt-list:
 	@$(GOFMT) -l ${GOFILES}
 
 fmt:
