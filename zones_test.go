@@ -456,6 +456,7 @@ func TestAddZone(t *testing.T) {
 		SOAEdit:     String("foo"),
 		SOAEditAPI:  String("foo"),
 		APIRectify:  Bool(true),
+		Catalog:     String("test.catalog"),
 		Nameservers: []string{"ns.foo.tld."},
 	}
 
