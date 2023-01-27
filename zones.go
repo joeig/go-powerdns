@@ -70,6 +70,10 @@ const (
 	MasterZoneKind ZoneKind = "Master"
 	// SlaveZoneKind sets the zone's kind to slave
 	SlaveZoneKind ZoneKind = "Slave"
+	// ProducerZoneKind sets the zone's kind to producer
+	ProducerZoneKind ZoneKind = "Producer"
+	// ConsumerZoneKind sets the zone's kind to consumer
+	ConsumerZoneKind ZoneKind = "Consumer"
 )
 
 // List retrieves a list of Zones
