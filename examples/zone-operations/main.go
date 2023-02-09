@@ -4,16 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/joeig/go-powerdns/v3"
 	"log"
 	"math/rand"
-	"time"
-
-	"github.com/joeig/go-powerdns/v3"
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	domain := fmt.Sprintf("%d.example.com.", rand.Int())
 	pdns := powerdns.NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
 	ctx := context.Background()

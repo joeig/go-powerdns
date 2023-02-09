@@ -4,19 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/jarcoal/httpmock"
 	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/jarcoal/httpmock"
 )
 
 func generateTestZone(autoAddZone bool) string {
-	rand.Seed(time.Now().UnixNano())
 	domain := fmt.Sprintf("test-%d.com", rand.Int())
 
 	if httpmock.Disabled() && autoAddZone {
