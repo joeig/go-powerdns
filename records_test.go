@@ -4,19 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/jarcoal/httpmock"
 	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/jarcoal/httpmock"
 )
 
 func generateTestRecord(client *Client, domain string, autoAddRecord bool) string {
-	rand.Seed(time.Now().UnixNano())
 	name := fmt.Sprintf("test-%d.%s", rand.Int(), domain)
 
 	if httpmock.Disabled() && autoAddRecord {
