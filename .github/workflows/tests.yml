@@ -44,3 +44,8 @@ jobs:
         run: make test
       - name: Display coverage
         run: make coverage
+      - name: Check test coverage threshold
+        id: coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          config: ./.github/testcoverage.yml
