@@ -5,7 +5,6 @@ It's not associated with the official PowerDNS product itself.
 
 [![Build Status](https://github.com/joeig/go-powerdns/workflows/Tests/badge.svg)](https://github.com/joeig/go-powerdns/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/joeig/go-powerdns)](https://goreportcard.com/report/github.com/joeig/go-powerdns)
-[![Coverage Status](https://coveralls.io/repos/github/joeig/go-powerdns/badge.svg?branch=master)](https://coveralls.io/github/joeig/go-powerdns?branch=master)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/joeig/go-powerdns/v3)](https://pkg.go.dev/github.com/joeig/go-powerdns/v3)
 
 ## Features
