@@ -29,7 +29,7 @@ type Zone struct {
 	SOAEditAPI       *string   `json:"soa_edit_api,omitempty"`
 	APIRectify       *bool     `json:"api_rectify,omitempty"`
 	Zone             *string   `json:"zone,omitempty"`
-	Catalog          *string   `json:"catalog.omitempty"`
+	Catalog          *string   `json:"catalog,omitempty"`
 	Account          *string   `json:"account,omitempty"`
 	Nameservers      []string  `json:"nameservers,omitempty"`
 	MasterTSIGKeyIDs []string  `json:"master_tsig_key_ids,omitempty"`
