@@ -51,6 +51,7 @@ err := pdns.Zones.Delete(ctx, "example.com")
 err := pdns.Records.Add(ctx, "example.com", "www.example.com", powerdns.RRTypeAAAA, 60, []string{"::1"})
 err := pdns.Records.Change(ctx, "example.com", "www.example.com", powerdns.RRTypeAAAA, 3600, []string{"::1"})
 err := pdns.Records.Delete(ctx, "example.com", "www.example.com", powerdns.RRTypeA)
+records, err := pdns.Records.Get(ctx, "example.com", "www.example.com", powerdns.RRTypePtr(powerdns.RRTypeA))
 ```
 
 ### Request server information and statistics
