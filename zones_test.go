@@ -13,12 +13,30 @@ import (
 	"testing"
 )
 
-func generateTestZone(autoAddZone bool) string {
+func generateNativeZone(autoAddZone bool) string {
 	domain := fmt.Sprintf("test-%d.com", rand.Int())
 
 	if httpmock.Disabled() && autoAddZone {
 		pdns := initialisePowerDNSTestClient()
 		zone, err := pdns.Zones.AddNative(context.Background(), domain, true, "", false, "", "", true, []string{"ns.foo.tld."})
+		if err != nil {
+			fmt.Printf("Error creating %s\n", domain)
+			fmt.Printf("%v\n", err)
+			fmt.Printf("%v\n", zone)
+		} else {
+			fmt.Printf("Created domain %s\n", domain)
+		}
+	}
+
+	return domain
+}
+
+func generateSlaveZone(autoAddZone bool) string {
+	domain := fmt.Sprintf("test-%d.com", rand.Int())
+
+	if httpmock.Disabled() && autoAddZone {
+		pdns := initialisePowerDNSTestClient()
+		zone, err := pdns.Zones.AddSlave(context.Background(), domain, []string{"127.0.0.1"})
 		if err != nil {
 			fmt.Printf("Error creating %s\n", domain)
 			fmt.Printf("%v\n", err)
@@ -312,7 +330,7 @@ func TestListZonesError(t *testing.T) {
 }
 
 func TestGetZone(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -329,7 +347,7 @@ func TestGetZone(t *testing.T) {
 }
 
 func TestGetZonesError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Zones.Get(context.Background(), testDomain); err == nil {
@@ -338,7 +356,7 @@ func TestGetZonesError(t *testing.T) {
 }
 
 func TestAddNativeZoneWithDNSSec(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -355,7 +373,7 @@ func TestAddNativeZoneWithDNSSec(t *testing.T) {
 }
 
 func TestAddNativeZoneWithoutDNSSec(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -373,7 +391,7 @@ func TestAddNativeZoneWithoutDNSSec(t *testing.T) {
 }
 
 func TestAddNativeZoneError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Zones.AddNative(context.Background(), testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
@@ -382,7 +400,7 @@ func TestAddNativeZoneError(t *testing.T) {
 }
 
 func TestAddMasterZoneWithDNSSec(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -399,7 +417,7 @@ func TestAddMasterZoneWithDNSSec(t *testing.T) {
 }
 
 func TestAddMasterZoneWithoutDNSSec(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -417,7 +435,7 @@ func TestAddMasterZoneWithoutDNSSec(t *testing.T) {
 }
 
 func TestAddMasterZoneError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Zones.AddMaster(context.Background(), testDomain, true, "", false, "foo", "foo", true, []string{"ns.foo.tld."}); err == nil {
@@ -426,7 +444,7 @@ func TestAddMasterZoneError(t *testing.T) {
 }
 
 func TestAddSlaveZone(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -443,7 +461,7 @@ func TestAddSlaveZone(t *testing.T) {
 }
 
 func TestAddSlaveZoneError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Zones.AddSlave(context.Background(), testDomain, []string{"ns5.foo.tld."}); err == nil {
@@ -452,7 +470,7 @@ func TestAddSlaveZoneError(t *testing.T) {
 }
 
 func TestAddZone(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -483,7 +501,7 @@ func TestAddZone(t *testing.T) {
 }
 
 func TestAddZoneError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 
@@ -497,7 +515,7 @@ func TestAddZoneError(t *testing.T) {
 }
 
 func TestChangeZoneWithDNSSec(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -518,7 +536,7 @@ func TestChangeZoneWithDNSSec(t *testing.T) {
 }
 
 func TestChangeZoneWithoutDNSSec(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -539,7 +557,7 @@ func TestChangeZoneWithoutDNSSec(t *testing.T) {
 }
 
 func TestChangeZoneError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if err := p.Zones.Change(context.Background(), testDomain, &Zone{Nameservers: []string{"ns23.foo.tld."}}); err == nil {
@@ -548,7 +566,7 @@ func TestChangeZoneError(t *testing.T) {
 }
 
 func TestDeleteZone(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -561,7 +579,7 @@ func TestDeleteZone(t *testing.T) {
 }
 
 func TestDeleteZoneError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if err := p.Zones.Delete(context.Background(), testDomain); err == nil {
@@ -570,7 +588,7 @@ func TestDeleteZoneError(t *testing.T) {
 }
 
 func TestNotify(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -587,7 +605,7 @@ func TestNotify(t *testing.T) {
 }
 
 func TestNotifyError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Zones.Notify(context.Background(), testDomain); err == nil {
@@ -596,7 +614,7 @@ func TestNotifyError(t *testing.T) {
 }
 
 func TestExport(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -613,7 +631,7 @@ func TestExport(t *testing.T) {
 }
 
 func TestExportError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Hostname = "invalid"
 	if _, err := p.Zones.Export(context.Background(), testDomain); err == nil {
@@ -626,10 +644,10 @@ func TestExportError(t *testing.T) {
 }
 
 func TestAxfrRetrieve(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateSlaveZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	registerZoneMockResponder(testDomain, MasterZoneKind)
+	registerZoneMockResponder(testDomain, SlaveZoneKind)
 	p := initialisePowerDNSTestClient()
 	axfrRetrieveResult, err := p.Zones.AxfrRetrieve(context.Background(), testDomain)
 	if err != nil {
@@ -641,7 +659,7 @@ func TestAxfrRetrieve(t *testing.T) {
 }
 
 func TestAxfrRetrieveError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Zones.AxfrRetrieve(context.Background(), testDomain); err == nil {

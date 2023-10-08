@@ -225,7 +225,7 @@ func registerRecordMockResponder(testDomain, testRecord string) {
 }
 
 func TestAddRecord(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -245,7 +245,7 @@ func TestAddRecord(t *testing.T) {
 func TestAddRecordError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false, testRecordTXT)
 	if err := p.Records.Add(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err == nil {
 		t.Error("error is nil")
@@ -253,7 +253,7 @@ func TestAddRecordError(t *testing.T) {
 }
 
 func TestChangeRecord(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -269,7 +269,7 @@ func TestChangeRecord(t *testing.T) {
 func TestChangeRecordError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false, testRecordTXT)
 	if err := p.Records.Change(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err == nil {
 		t.Error("error is nil")
@@ -277,7 +277,7 @@ func TestChangeRecordError(t *testing.T) {
 }
 
 func TestDeleteRecord(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -293,7 +293,7 @@ func TestDeleteRecord(t *testing.T) {
 func TestDeleteRecordError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false, testRecordTXT)
 	if err := p.Records.Delete(context.Background(), testDomain, testRecordName, RRTypeTXT); err == nil {
 		t.Error("error is nil")
@@ -361,7 +361,7 @@ func TestFixRRset(t *testing.T) {
 }
 
 func TestGetRecord(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -480,7 +480,7 @@ func TestGetRecord(t *testing.T) {
 func TestGetRecordError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false, testRecordTXT)
 	if _, err := p.Records.Get(context.Background(), testDomain, testRecordName, RRTypePtr(RRTypeTXT)); err == nil {
 		t.Error("error is nil")
@@ -488,7 +488,7 @@ func TestGetRecordError(t *testing.T) {
 }
 
 func TestPatchRRSets(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
