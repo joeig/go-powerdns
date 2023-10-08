@@ -86,9 +86,9 @@ See [pkg.go.dev](https://pkg.go.dev/github.com/joeig/go-powerdns/v3) for a full 
 
 Supported versions of PowerDNS Authoritative Server ("API v1"):
 
-* 4.5
 * 4.6
 * 4.7
+* 4.8
 
 Version 4.1, 4.2 and 4.3 are probably working fine, but are officially [end-of-life](https://repo.powerdns.com/).
 Be aware that there are breaking changes in "API v1" between PowerDNS 3.x, 4.0 and 4.1.
@@ -108,8 +108,8 @@ The [OpenAPI specification](https://github.com/PowerDNS/pdns/blob/master/docs/ht
 You can use Docker Compose to launch a PowerDNS authoritative server including a generic SQLite3 backend, DNSSEC support and some optional fixtures:
 
 ```bash
-docker-compose -f docker-compose-v4.7.yml up
-docker-compose -f docker-compose-v4.7.yml exec powerdns sh init_docker_fixtures.sh
+docker-compose -f docker-compose-v4.8.yml up
+docker-compose -f docker-compose-v4.8.yml exec powerdns sh init_docker_fixtures.sh
 ```
 
 It's also possible to target mocks against this server, or any other PowerDNS instance which is running on `http://localhost:8080`.
