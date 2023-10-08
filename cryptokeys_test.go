@@ -84,7 +84,7 @@ func TestConvertCryptokeyIDToString(t *testing.T) {
 }
 
 func TestListCryptokeys(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerCryptokeysMockResponder(testDomain)
@@ -102,7 +102,7 @@ func TestListCryptokeys(t *testing.T) {
 }
 
 func TestListCryptokeysError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Cryptokeys.List(context.Background(), testDomain); err == nil {
@@ -111,7 +111,7 @@ func TestListCryptokeysError(t *testing.T) {
 }
 
 func TestGetCryptokey(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -137,7 +137,7 @@ func TestGetCryptokey(t *testing.T) {
 }
 
 func TestGetCryptokeyError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Cryptokeys.Get(context.Background(), testDomain, uint64(0)); err == nil {
@@ -146,7 +146,7 @@ func TestGetCryptokeyError(t *testing.T) {
 }
 
 func TestDeleteCryptokey(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -166,7 +166,7 @@ func TestDeleteCryptokey(t *testing.T) {
 }
 
 func TestDeleteCryptokeyError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if err := p.Cryptokeys.Delete(context.Background(), testDomain, uint64(0)); err == nil {

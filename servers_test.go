@@ -118,7 +118,7 @@ func TestGetServerError(t *testing.T) {
 }
 
 func TestCacheFlush(t *testing.T) {
-	testDomain := generateTestZone(true)
+	testDomain := generateNativeZone(true)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -135,7 +135,7 @@ func TestCacheFlush(t *testing.T) {
 }
 
 func TestCacheFlushResultError(t *testing.T) {
-	testDomain := generateTestZone(false)
+	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
 	if _, err := p.Servers.CacheFlush(context.Background(), testVHost, testDomain); err == nil {
