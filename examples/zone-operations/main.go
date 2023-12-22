@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/joeig/go-powerdns/v3"
 	"log"
 	"math/rand"
+
+	"github.com/joeig/go-powerdns/v3"
 )
 
 func main() {
@@ -41,10 +42,17 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
+	// Create a TSIG Record
+	exampleKey, err := pdns.TSIGKey.Create(ctx, "examplekey", "hmac-sha256", "")
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
 	// Change a zone
 	zoneChangeSet := &powerdns.Zone{
-		Account: powerdns.String("test"),
-		DNSsec:  powerdns.Bool(true),
+		Account:          powerdns.String("test"),
+		DNSsec:           powerdns.Bool(true),
+		MasterTSIGKeyIDs: []string{*exampleKey.ID},
 	}
 
 	if err := pdns.Zones.Change(ctx, domain, zoneChangeSet); err != nil {

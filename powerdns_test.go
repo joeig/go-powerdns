@@ -63,7 +63,7 @@ func registerDoMockResponder() {
 
 func TestNewClient(t *testing.T) {
 	t.Run("TestValidURL", func(t *testing.T) {
-		tmpl := &Client{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient, service{}, nil, nil, nil, nil, nil, nil}
+		tmpl := &Client{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient, service{}, nil, nil, nil, nil, nil, nil, nil}
 		p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient)
 		if p.Hostname != tmpl.Hostname {
 			t.Error("NewClient returns invalid Client object")
