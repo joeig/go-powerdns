@@ -34,6 +34,7 @@ type Client struct {
 	Servers    *ServersService
 	Statistics *StatisticsService
 	Zones      *ZonesService
+	TSIGKey    *TSIGKeyService
 }
 
 // logFatalf makes log.Fatalf testable
@@ -67,6 +68,7 @@ func NewClient(baseURL string, vHost string, headers map[string]string, httpClie
 	c.Servers = (*ServersService)(&c.common)
 	c.Statistics = (*StatisticsService)(&c.common)
 	c.Zones = (*ZonesService)(&c.common)
+	c.TSIGKey = (*TSIGKeyService)(&c.common)
 
 	return c
 }
