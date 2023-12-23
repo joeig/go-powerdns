@@ -22,7 +22,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.51.1
+          version: v1.55.2
       - name: Staticcheck
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
