@@ -36,7 +36,7 @@ var (
 	}
 )
 
-func registerTSIGKeyMockReponder(tsigKeys *[]TSIGKey) {
+func registerTSIGKeyMockResponder(tsigKeys *[]TSIGKey) {
 
 	httpmock.RegisterResponder(http.MethodGet, generateTestAPIVHostURL()+"/tsigkeys",
 		func(req *http.Request) (*http.Response, error) {
@@ -133,7 +133,7 @@ func TestCreateTSIGKey(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
-	registerTSIGKeyMockReponder(&[]TSIGKey{
+	registerTSIGKeyMockResponder(&[]TSIGKey{
 		serverKey1,
 	})
 
@@ -193,7 +193,7 @@ func TestPatchTSIGKey(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
-	registerTSIGKeyMockReponder(&[]TSIGKey{
+	registerTSIGKeyMockResponder(&[]TSIGKey{
 		serverKey1,
 		serverKeyPatch,
 	})
@@ -245,7 +245,7 @@ func TestTSIGKeyErrorNewRequests(t *testing.T) {
 
 	p := initialisePowerDNSTestClient()
 	p.Port = "x"
-	registerTSIGKeyMockReponder(&[]TSIGKey{})
+	registerTSIGKeyMockResponder(&[]TSIGKey{})
 
 	t.Run("Test Get invalid request", func(t *testing.T) {
 		_, err := p.TSIGKey.Get(context.Background(), "thiskeydoesnotexist.")
@@ -289,7 +289,7 @@ func TestGetTSIGKey(t *testing.T) {
 		serverKey2,
 	}
 
-	registerTSIGKeyMockReponder(serverTSIGKeys)
+	registerTSIGKeyMockResponder(serverTSIGKeys)
 
 	t.Run("Test Get", func(t *testing.T) {
 		_, err := p.TSIGKey.Get(context.Background(), "testkeyonserver.")
@@ -317,7 +317,7 @@ func TestDeleteTSIGKey(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
-	registerTSIGKeyMockReponder(&[]TSIGKey{
+	registerTSIGKeyMockResponder(&[]TSIGKey{
 		serverKey1,
 		serverKey2,
 	})
