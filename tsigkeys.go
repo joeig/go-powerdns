@@ -18,7 +18,7 @@ type TSIGKey struct {
 	Type      *string `json:"type,omitempty"`
 }
 
-// List retrieves a list of TSIG
+// List retrieves a list of TSIGKeys
 func (t *TSIGKeyService) List(ctx context.Context) ([]TSIGKey, error) {
 	req, err := t.client.newRequest(ctx, http.MethodGet, fmt.Sprintf("servers/%s/tsigkeys", t.client.VHost), nil, nil)
 	if err != nil {
@@ -30,7 +30,7 @@ func (t *TSIGKeyService) List(ctx context.Context) ([]TSIGKey, error) {
 	return tsigkeys, err
 }
 
-// Get returns a certain TSIG
+// Get returns a certain TSIGKeys
 func (t *TSIGKeyService) Get(ctx context.Context, id string) (*TSIGKey, error) {
 	req, err := t.client.newRequest(ctx, http.MethodGet, fmt.Sprintf("servers/%s/tsigkeys/%s", t.client.VHost, id), nil, nil)
 	if err != nil {
@@ -42,12 +42,12 @@ func (t *TSIGKeyService) Get(ctx context.Context, id string) (*TSIGKey, error) {
 	return &tsigkey, err
 }
 
-// Create a new TSIG Key setting empty string for secret will generate it
-func (t *TSIGKeyService) Create(ctx context.Context, name, algorithm, secret string) (*TSIGKey, error) {
+// Create a new TSIG Key setting empty string for key will generate it
+func (t *TSIGKeyService) Create(ctx context.Context, name, algorithm, key string) (*TSIGKey, error) {
 	reqTsigkey := TSIGKey{
 		Name:      &name,
 		Algorithm: &algorithm,
-		Key:       &secret,
+		Key:       &key,
 	}
 
 	req, err := t.client.newRequest(ctx, http.MethodPost, fmt.Sprintf("servers/%s/tsigkeys", t.client.VHost), nil, reqTsigkey)
@@ -60,15 +60,15 @@ func (t *TSIGKeyService) Create(ctx context.Context, name, algorithm, secret str
 	return &respTsigkey, err
 }
 
-func (t *TSIGKeyService) Change(ctx context.Context, id string, newTsig TSIGKey) (*TSIGKey, error) {
-	req, err := t.client.newRequest(ctx, http.MethodPut, fmt.Sprintf("servers/%s/tsigkeys/%s", t.client.VHost, id), nil, newTsig)
+func (t *TSIGKeyService) Change(ctx context.Context, id string, newKey TSIGKey) (*TSIGKey, error) {
+	req, err := t.client.newRequest(ctx, http.MethodPut, fmt.Sprintf("servers/%s/tsigkeys/%s", t.client.VHost, id), nil, newKey)
 	if err != nil {
 		return nil, err
 	}
-	respTsigkey := TSIGKey{}
-	_, err = t.client.do(req, &respTsigkey)
+	responseKey := TSIGKey{}
+	_, err = t.client.do(req, &responseKey)
 
-	return &respTsigkey, err
+	return &responseKey, err
 }
 
 func (t *TSIGKeyService) Delete(ctx context.Context, id string) error {
