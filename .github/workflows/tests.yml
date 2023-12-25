@@ -46,7 +46,7 @@ jobs:
         run: make coverage
       - name: Check test coverage threshold
         id: coverage
-        uses: vladopajic/go-test-coverage@v2.8.1
+        uses: vladopajic/go-test-coverage@v2.8.2
         with:
           config: ./.github/testcoverage.yml
   test-without-mocks:
