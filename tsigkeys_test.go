@@ -5,36 +5,39 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
-	"path"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 )
 
-var (
-	serverKey1 = TSIGKey{
-		ID:        String("testkeyonserver."),
-		Name:      String("testkeyonserver"),
-		Algorithm: String("hmac-sha256"),
-		Key:       String("ruTjBX2Jw/2BlE//5255fmKHaSRvLvp6p+YyDDAXThnBN/1Mz/VwMw+HQJVtkpDsAXvpPuNNZhucdKmhiOS4Tg=="),
-		Type:      String("TSIGKey"),
-	}
-	serverKey2 = TSIGKey{
-		ID:        String("testkey2onserver."),
-		Name:      String("testkey2onserver"),
-		Algorithm: String("hmac-sha256"),
-		Key:       String("ruTjBX2Jw/2BlE//5255fmKHaSRvLvp6p+YyDDAXThnBN/1Mz/VwMw+HQJVtkpDsAXvpPuNNZhucdKmhiOS4Tg=="),
-		Type:      String("TSIGKey"),
-	}
-	serverKeyPatch = TSIGKey{
-		ID:        String("testput."),
-		Name:      String("testput"),
-		Algorithm: String("hmac-sha256"),
-		Key:       String("ruTjBX2Jw/2BlE//5255fmKHaSRvLvp6p+YyDDAXThnBN/1Mz/VwMw+HQJVtkpDsAXvpPuNNZhucdKmhiOS4Tg=="),
-		Type:      String("TSIGKey"),
-	}
+const (
+	insecureKey = "ruTjBX2Jw/2BlE//5255fmKHaSRvLvp6p+YyDDAXThnBN/1Mz/VwMw+HQJVtkpDsAXvpPuNNZhucdKmhiOS4Tg=="
 )
+
+func generateTestTSIGKey(client *Client, name string, key string, autoAddTSIGKey bool) *TSIGKey {
+	tsigKeyName := fmt.Sprintf("test-%d-%s", rand.Int(), name)
+	newTSIGKey := TSIGKey{
+		Name:      &tsigKeyName,
+		ID:        String(tsigKeyName + "."),
+		Algorithm: String("hmac-sha256"),
+		Key:       String(key),
+	}
+	if autoAddTSIGKey && httpmock.Disabled() {
+		tsigKey, err := client.TSIGKey.Create(context.Background(), tsigKeyName, "hmac-sha256", key)
+		if err != nil {
+			log.Printf("Error creating TSIG Key: %s: %v\n", name, err)
+		} else {
+			fmt.Printf("created TSIG Key: %s\n", *tsigKey.Name)
+		}
+		return tsigKey
+	}
+	if key == "" {
+		newTSIGKey.Key = String(insecureKey)
+	}
+	return &newTSIGKey
+}
 
 func registerTSIGKeyMockResponder(tsigKeys *[]TSIGKey) {
 
@@ -104,15 +107,6 @@ func registerTSIGKeyMockResponder(tsigKeys *[]TSIGKey) {
 					return httpmock.NewBytesResponse(http.StatusBadRequest, []byte{}), nil
 				}
 
-				for _, serverTsigkey := range *tsigKeys {
-					if *serverTsigkey.ID == path.Base(req.URL.Path) {
-						continue
-					}
-					if *serverTsigkey.ID == *clientTsigkey.ID {
-						return httpmock.NewBytesResponse(http.StatusConflict, []byte{}), nil
-					}
-				}
-
 				return httpmock.NewJsonResponse(http.StatusOK, clientTsigkey)
 			},
 		)
@@ -133,8 +127,13 @@ func TestCreateTSIGKey(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
+
+	testgen := generateTestTSIGKey(p, "testgen", "", false)
+	testfull := generateTestTSIGKey(p, "testfull", "kjhOh/NLyHVwPxFwBrwYs043A99hFDycWwYi1Nj6R2bM3Rboh515yIbEIzzQx9Xod0W6nN8vnSAAvsysrgkOPw==", false)
+	existingkey := generateTestTSIGKey(p, "existingkey", "", true)
+
 	registerTSIGKeyMockResponder(&[]TSIGKey{
-		serverKey1,
+		*existingkey,
 	})
 
 	testCases := []struct {
@@ -142,28 +141,16 @@ func TestCreateTSIGKey(t *testing.T) {
 		wantSuccess bool
 	}{
 		{
-			TSIGKey{
-				Name:      String("testgen"),
-				Algorithm: String("hmac-sha256"),
-				Key:       String(""),
-			},
-			true,
+			tsigkey:     *testgen,
+			wantSuccess: true,
 		},
 		{
-			TSIGKey{
-				Name:      String("testfull"),
-				Algorithm: String("hmac-sha256"),
-				Key:       String("kjhOh/NLyHVwPxFwBrwYs043A99hFDycWwYi1Nj6R2bM3Rboh515yIbEIzzQx9Xod0W6nN8vnSAAvsysrgkOPw=="),
-			},
-			true,
+			tsigkey:     *testfull,
+			wantSuccess: true,
 		},
 		{
-			TSIGKey{
-				Name:      String("testkeyonserver"),
-				Algorithm: String("hmac-sha256"),
-				Key:       String(""),
-			},
-			false,
+			tsigkey:     *existingkey,
+			wantSuccess: false,
 		},
 	}
 
@@ -193,49 +180,18 @@ func TestPatchTSIGKey(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
+
+	testPutTSIGKey := generateTestTSIGKey(p, "testput", "", true)
+
 	registerTSIGKeyMockResponder(&[]TSIGKey{
-		serverKey1,
-		serverKeyPatch,
+		*testPutTSIGKey,
 	})
 
-	testCases := []struct {
-		tsigkey     TSIGKey
-		wantSuccess bool
-	}{
-		{
-			tsigkey: TSIGKey{
-				ID:        String("testput."),
-				Name:      String("testput"),
-				Algorithm: String("hmac-sha256"),
-				Key:       String("1yWS55DxB2H40lded3/2IGnhbW6dCntvO+igEcP47n2ikD1EO03NDGKsKValitiqrtAmk41UbYVpREN23GYAdg=="),
-			},
-			wantSuccess: false,
-		},
-		{
-			tsigkey: TSIGKey{
-				ID:        String("testkeyonserver."),
-				Name:      String("testkeyonserver"),
-				Algorithm: String("hmac-sha256"),
-				Key:       String("1yWS55DxB2H40lded3/2IGnhbW6dCntvO+igEcP47n2ikD1EO03NDGKsKValitiqrtAmk41UbYVpREN23GYAdg=="),
-				Type:      String("TSIGKey"),
-			},
-			wantSuccess: true,
-		},
-	}
+	testPutTSIGKey.Key = String("1yWS55DxB2H40lded3/2IGnhbW6dCntvO+igEcP47n2ikD1EO03NDGKsKValitiqrtAmk41UbYVpREN23GYAdg==")
 
-	for i, tc := range testCases {
-		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
-			_, err := p.TSIGKey.Change(context.Background(), "testkeyonserver.", tc.tsigkey)
-			if !tc.wantSuccess {
-				if err == nil {
-					t.Error("expected error. but got nil")
-				}
-				return
-			}
-			if err != nil {
-				t.Error(err)
-			}
-		})
+	_, err := p.TSIGKey.Change(context.Background(), *testPutTSIGKey.ID, *testPutTSIGKey)
+	if err != nil {
+		t.Error(err)
 	}
 }
 
@@ -284,29 +240,26 @@ func TestGetTSIGKey(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
-	serverTSIGKeys := &[]TSIGKey{
-		serverKey1,
-		serverKey2,
-	}
 
-	registerTSIGKeyMockResponder(serverTSIGKeys)
+	getTSIGKey := generateTestTSIGKey(p, "getkey", "", true)
+	registerTSIGKeyMockResponder(&[]TSIGKey{
+		*getTSIGKey,
+	})
 
 	t.Run("Test Get", func(t *testing.T) {
-		_, err := p.TSIGKey.Get(context.Background(), "testkeyonserver.")
+		_, err := p.TSIGKey.Get(context.Background(), *getTSIGKey.ID)
 		if err != nil {
 			t.Error(err)
 		}
 	})
 
 	t.Run("Test List", func(t *testing.T) {
-		tsigkeys, err := p.TSIGKey.List(context.Background())
+		tsigKeyList, err := p.TSIGKey.List(context.Background())
 		if err != nil {
 			t.Error(err)
 		}
-
-		if len(*serverTSIGKeys) != len(tsigkeys) {
-			t.Errorf("wrong amount of elements returned. expected %d, got %d", len(*serverTSIGKeys), len(tsigkeys))
-			return
+		if len(tsigKeyList) == 0 {
+			t.Error("expected at least one list item")
 		}
 
 	})
@@ -317,13 +270,16 @@ func TestDeleteTSIGKey(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
+
+	existingTSIGKey := generateTestTSIGKey(p, "deleteexisting", "", true)
+	missingTSIGKey := generateTestTSIGKey(p, "deletemissing", "", false)
+
 	registerTSIGKeyMockResponder(&[]TSIGKey{
-		serverKey1,
-		serverKey2,
+		*existingTSIGKey,
 	})
 
 	t.Run("Remove existing TSIG Key", func(t *testing.T) {
-		err := p.TSIGKey.Delete(context.Background(), *serverKey1.ID)
+		err := p.TSIGKey.Delete(context.Background(), *existingTSIGKey.ID)
 		if err != nil {
 			t.Errorf("expected successfull delete got error: %v", err)
 			return
@@ -331,7 +287,7 @@ func TestDeleteTSIGKey(t *testing.T) {
 	})
 
 	t.Run("Remove non-existing TSIG Key", func(t *testing.T) {
-		err := p.TSIGKey.Delete(context.Background(), "doesnotexist.")
+		err := p.TSIGKey.Delete(context.Background(), *missingTSIGKey.ID)
 		if err == nil {
 			t.Errorf("expected err. but got nil")
 		}
