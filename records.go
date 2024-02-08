@@ -165,19 +165,30 @@ const (
 	RRTypeWKS RRType = "WKS"
 )
 
+// Define a function to create a comment option
+func WithComments(comments ...Comment) func(*RRset) {
+	return func(r *RRset) {
+		r.Comments = append(r.Comments, comments...)
+	}
+}
+
 // Add creates a new resource record
-func (r *RecordsService) Add(ctx context.Context, domain string, name string, recordType RRType, ttl uint32, content []string) error {
-	return r.Change(ctx, domain, name, recordType, ttl, content)
+func (r *RecordsService) Add(ctx context.Context, domain string, name string, recordType RRType, ttl uint32, content []string, options ...func(*RRset)) error {
+	return r.Change(ctx, domain, name, recordType, ttl, content, options...)
 }
 
 // Change replaces an existing resource record
-func (r *RecordsService) Change(ctx context.Context, domain string, name string, recordType RRType, ttl uint32, content []string) error {
+func (r *RecordsService) Change(ctx context.Context, domain string, name string, recordType RRType, ttl uint32, content []string, options ...func(*RRset)) error {
+
 	rrset := new(RRset)
 	rrset.Name = &name
 	rrset.Type = &recordType
 	rrset.TTL = &ttl
 	rrset.ChangeType = ChangeTypePtr(ChangeTypeReplace)
 	rrset.Records = make([]Record, 0)
+	for _, opt := range options {
+		opt(rrset)
+	}
 
 	for _, c := range content {
 		r := Record{Content: String(c), Disabled: Bool(false), SetPTR: Bool(false)}
