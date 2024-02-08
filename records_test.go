@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -139,7 +140,6 @@ func registerRecordMockResponder(testDomain, testRecord string) {
 	)
 	httpmock.RegisterResponder(http.MethodGet, generateTestAPIVHostURL()+"/zones/"+testDomainCanonical+"?rrset_name="+testRecordCanonical+"&rrset_type=TXT",
 		func(req *http.Request) (*http.Response, error) {
-
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
@@ -165,7 +165,6 @@ func registerRecordMockResponder(testDomain, testRecord string) {
 	)
 	httpmock.RegisterResponder(http.MethodGet, generateTestAPIVHostURL()+"/zones/"+testDomainCanonical+"?rrset_name="+testRecordCanonical,
 		func(req *http.Request) (*http.Response, error) {
-
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
@@ -211,7 +210,6 @@ func registerRecordMockResponder(testDomain, testRecord string) {
 	)
 	httpmock.RegisterResponder(http.MethodGet, generateTestAPIVHostURL()+"/zones/"+testDomainCanonical+"?rrset_name="+makeDomainCanonical(testRecord+"notfound"),
 		func(req *http.Request) (*http.Response, error) {
-
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
 			}
@@ -223,6 +221,35 @@ func registerRecordMockResponder(testDomain, testRecord string) {
 			return httpmock.NewJsonResponse(http.StatusOK, zoneMock)
 		},
 	)
+}
+
+func TestWithComments(t *testing.T) {
+	now := uint64(time.Now().Unix())
+	rrset := &RRset{}
+	comment1 := Comment{
+		Content:    String("Example comment 1"),
+		Account:    String("example account 1"),
+		ModifiedAt: Uint64(now),
+	}
+	comment2 := Comment{
+		Content:    String("Example comment 2"),
+		Account:    String("example account 2"),
+		ModifiedAt: Uint64(now + 1),
+	}
+
+	withCommentsFunc := WithComments(comment1, comment2)
+	withCommentsFunc(rrset)
+	if len(rrset.Comments) != 2 {
+		t.Errorf("Expected 2 comments, got %d", len(rrset.Comments))
+	}
+
+	if !reflect.DeepEqual(rrset.Comments[0], comment1) {
+		t.Errorf("Expected first comment to be %v, got %v", comment1, rrset.Comments[0])
+	}
+
+	if !reflect.DeepEqual(rrset.Comments[1], comment2) {
+		t.Errorf("Expected second comment to be %v, got %v", comment2, rrset.Comments[1])
+	}
 }
 
 func TestAddRecord(t *testing.T) {
@@ -462,7 +489,6 @@ func TestGetRecord(t *testing.T) {
 
 	for n, tc := range testCases {
 		t.Run(fmt.Sprintf("TestCase%d - %s", n, tc.testDesc), func(t *testing.T) {
-
 			fmt.Println("Get ", tc.testRecordName)
 			rrsets, err := p.Records.Get(context.Background(), testDomain, tc.testRecordName, tc.testRecordType)
 			if err != nil {
@@ -520,8 +546,10 @@ func TestPatchRRSets(t *testing.T) {
 
 	rrSets := RRsets{}
 	rrSetName := makeDomainCanonical(testRecordName)
-	rrSets.Sets = []RRset{{Name: &rrSetName, Type: RRTypePtr(RRTypeTXT),
-		ChangeType: ChangeTypePtr(ChangeTypeDelete)}}
+	rrSets.Sets = []RRset{{
+		Name: &rrSetName, Type: RRTypePtr(RRTypeTXT),
+		ChangeType: ChangeTypePtr(ChangeTypeDelete),
+	}}
 
 	if err := p.Records.Patch(context.Background(), testDomain, &rrSets); err != nil {
 		t.Errorf("%s", err)
