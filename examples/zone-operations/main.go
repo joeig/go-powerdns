@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/joeig/go-powerdns/v3"
 )
@@ -29,6 +30,16 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 	if err := pdns.Records.Change(ctx, domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeA, 42, []string{"127.0.0.10"}); err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	// update the existing record with a comment
+	comment := powerdns.Comment{
+		Content:    powerdns.String("Example comment"),
+		Account:    powerdns.String("example account"),
+		ModifiedAt: powerdns.Uint64(uint64(time.Now().Unix())),
+	}
+	if err := pdns.Records.Change(ctx, domain, fmt.Sprintf("www.%s", domain), powerdns.RRTypeA, 42, []string{"127.0.0.10"}, powerdns.WithComments(comment)); err != nil {
 		log.Fatalf("%v", err)
 	}
 
