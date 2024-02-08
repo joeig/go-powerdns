@@ -165,7 +165,7 @@ const (
 	RRTypeWKS RRType = "WKS"
 )
 
-// Define a function to create a comment option
+// WithComments defines a function to create a comment option for Add and Change methods
 func WithComments(comments ...Comment) func(*RRset) {
 	return func(r *RRset) {
 		r.Comments = append(r.Comments, comments...)
@@ -179,7 +179,6 @@ func (r *RecordsService) Add(ctx context.Context, domain string, name string, re
 
 // Change replaces an existing resource record
 func (r *RecordsService) Change(ctx context.Context, domain string, name string, recordType RRType, ttl uint32, content []string, options ...func(*RRset)) error {
-
 	rrset := new(RRset)
 	rrset.Name = &name
 	rrset.Type = &recordType
@@ -261,7 +260,6 @@ func (r *RecordsService) prepareRRSet(rrSet *RRset) *RRsets {
 }
 
 func (r *RecordsService) patchRRSet(ctx context.Context, domain string, rrSets *RRsets) error {
-
 	req, err := r.client.newRequest(ctx, "PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, makeDomainCanonical(domain)), nil, &rrSets)
 	if err != nil {
 		return err
