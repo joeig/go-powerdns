@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jarcoal/httpmock"
 )
@@ -262,6 +263,25 @@ func TestChangeRecord(t *testing.T) {
 	testRecordName := generateTestRecord(p, testDomain, true, testRecordTXT)
 	registerRecordMockResponder(testDomain, testRecordName)
 	if err := p.Records.Change(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err != nil {
+		t.Errorf("%s", err)
+	}
+}
+
+func TestChangeRecordComment(t *testing.T) {
+	comment := Comment{
+		Content:    String("Example comment"),
+		Account:    String("example account"),
+		ModifiedAt: Uint64(uint64(time.Now().Unix())),
+	}
+	testDomain := generateNativeZone(true)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	p := initialisePowerDNSTestClient()
+	testRecordName := generateTestRecord(p, testDomain, true, testRecordTXT)
+	registerRecordMockResponder(testDomain, testRecordName)
+	if err := p.Records.Change(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}, WithComments(comment)); err != nil {
 		t.Errorf("%s", err)
 	}
 }
