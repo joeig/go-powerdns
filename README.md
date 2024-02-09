@@ -84,7 +84,7 @@ err := pdns.TSIGKey.Delete(ctx, "examplekey.")
 
 ### More examples
 
-See [examples](https://github.com/joeig/go-powerdns/tree/master/examples).
+There are several examples on [pkg.go.dev](https://pkg.go.dev/github.com/joeig/go-powerdns/v3#pkg-examples).
 
 ### Documentation
 
