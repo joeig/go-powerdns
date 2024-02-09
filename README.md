@@ -109,8 +109,8 @@ Be aware that there are breaking changes in "API v1" between PowerDNS 3.x, 4.0 a
 
 In accordance with [Go's version support policy](https://golang.org/doc/devel/release.html#policy), this module is being tested with the following Go releases:
 
-* 1.20
 * 1.21
+* 1.22
 
 ## Contribution
 
