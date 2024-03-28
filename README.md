@@ -17,6 +17,16 @@ It's not associated with the official PowerDNS product itself.
 
 For more features, consult our [documentation](https://pkg.go.dev/github.com/joeig/go-powerdns/v3).
 
+## Setup
+
+```shell
+go get -u github.com/joeig/go-powerdns/v3
+```
+
+```go
+import "github.com/joeig/go-powerdns/v3"
+```
+
 ## Usage
 
 ### Initialize the handle
