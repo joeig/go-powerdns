@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.goVer }}
-      - run: go test -v -coverprofile="coverage.out" .
+      - run: go test -v -coverprofile="coverage.out" ./...
       - run: go tool cover -func="coverage.out"
       - uses: vladopajic/go-test-coverage@v2.8.1
         with:
@@ -44,4 +44,4 @@ jobs:
         with:
           go-version-file: "go.mod"
       - uses: actions/checkout@v4
-      - run: GONOMOCKS=1 go test -v .
+      - run: GONOMOCKS=1 go test -v ./...
