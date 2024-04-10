@@ -20,4 +20,4 @@ jobs:
         with:
           go-version-file: "go.mod"
       - run: go install honnef.co/go/tools/cmd/staticcheck@latest
-      - run: $(go env GOPATH)/bin/staticcheck ./
+      - run: $(go env GOPATH)/bin/staticcheck ./...
