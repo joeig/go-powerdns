@@ -1,0 +1,47 @@
+---
+name: test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+concurrency:
+  group: "${{ github.workflow }}-$${{ github.pull_request.number || github.run_id }}"
+  cancel-in-progress: true
+jobs:
+  test-with-mocks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goVer:
+          - "1.21"
+          - "1.22"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.goVer }}
+      - run: go test -v -coverprofile="coverage.out" .
+      - run: go tool cover -func="coverage.out"
+      - uses: vladopajic/go-test-coverage@v2.8.1
+        with:
+          config: ".github/testcoverage.yml"
+  test-without-mocks:
+    runs-on: ubuntu-latest
+    services:
+      pdns-auth:
+        image: powerdns/pdns-auth-48:latest
+        ports:
+          - "8080:8081"
+        env:
+          PDNS_AUTH_API_KEY: apipw
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+      - uses: actions/checkout@v4
+      - run: GONOMOCKS=1 go test -v .

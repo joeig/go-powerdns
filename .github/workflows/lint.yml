@@ -1,0 +1,24 @@
+---
+name: lint
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+concurrency:
+  group: "${{ github.workflow }}-$${{ github.pull_request.number || github.run_id }}"
+  cancel-in-progress: true
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+      - run: |
+          gofmt -d .
+          test -z $(gofmt -l .)
