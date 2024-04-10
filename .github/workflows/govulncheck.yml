@@ -1,0 +1,23 @@
+---
+name: govulncheck
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "21 7 * * 5"
+  workflow_dispatch:
+concurrency:
+  group: "${{ github.workflow }}-$${{ github.pull_request.number || github.run_id }}"
+  cancel-in-progress: true
+jobs:
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: golang/govulncheck-action@v1
+        with:
+          go-version-file: "go.mod"
+          go-package: ./...
