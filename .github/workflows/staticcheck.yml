@@ -19,5 +19,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
+          check-latest: true
       - run: go install honnef.co/go/tools/cmd/staticcheck@latest
       - run: $(go env GOPATH)/bin/staticcheck ./...
