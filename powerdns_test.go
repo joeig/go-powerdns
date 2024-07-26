@@ -35,7 +35,7 @@ func initialisePowerDNSTestClient() *Client {
 }
 
 func registerDoMockResponder() {
-	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/doesntExist", generateTestAPIURL()),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/doesnt-exist", generateTestAPIURL()),
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
 				return res, nil
@@ -43,6 +43,7 @@ func registerDoMockResponder() {
 			return httpmock.NewStringResponse(http.StatusNotFound, "Not Found"), nil
 		},
 	)
+
 	httpmock.RegisterResponder("GET", fmt.Sprintf("%s/servers/localhost", generateTestAPIURL()),
 		func(req *http.Request) (*http.Response, error) {
 			return verifyAPIKey(req), nil
@@ -109,7 +110,7 @@ func TestDo(t *testing.T) {
 
 	t.Run("TestStringErrorResponse", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers/doesntExist", nil, nil)
+		req, _ := p.newRequest(context.Background(), "GET", "servers/doesnt-exist", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("err is nil")
 		}
@@ -124,7 +125,17 @@ func TestDo(t *testing.T) {
 	})
 	t.Run("TestErrorHandling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers/doesntExist", nil, nil)
+		req, _ := p.newRequest(context.Background(), "GET", "servers/doesnt-exist", nil, nil)
+		_, err := p.do(req, nil)
+		wantResultBeforePowerDNSAuth49 := "Not Found"
+		wantResultFromPowerDNSAuth49 := "Method Not Allowed"
+		if err.Error() != wantResultBeforePowerDNSAuth49 && err.Error() != wantResultFromPowerDNSAuth49 {
+			t.Error("Error response does not result into an error with correct message.", err.Error())
+		}
+	})
+	t.Run("TestJSONErrorHandling", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
+		req, _ := p.newRequest(context.Background(), "GET", "server", nil, nil)
 		_, err := p.do(req, nil)
 		wantResultBeforePowerDNSAuth49 := "Not Found"
 		wantResultFromPowerDNSAuth49 := "Method Not Allowed"
