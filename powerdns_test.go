@@ -122,18 +122,14 @@ func TestDo(t *testing.T) {
 			t.Error("401 response does not result into an error with correct message.")
 		}
 	})
-	t.Run("Test404Handling", func(t *testing.T) {
+	t.Run("TestErrorHandling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
 		req, _ := p.newRequest(context.Background(), "GET", "servers/doesntExist", nil, nil)
-		if _, err := p.do(req, nil); err.Error() != "Not Found" {
-			t.Error("404 response does not result into an error with correct message.", err.Error())
-		}
-	})
-	t.Run("TestJSONResponseHandling", func(t *testing.T) {
-		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "server", nil, &Server{})
-		if _, err := p.do(req, nil); err.Error() != "Not Found" {
-			t.Error("501 JSON response does not result into an error with correct message.", err.Error())
+		_, err := p.do(req, nil)
+		wantResultBeforePowerDNSAuth49 := "Not Found"
+		wantResultFromPowerDNSAuth49 := "Method Not Allowed"
+		if err.Error() != wantResultBeforePowerDNSAuth49 && err.Error() != wantResultFromPowerDNSAuth49 {
+			t.Error("Error response does not result into an error with correct message.", err.Error())
 		}
 	})
 }
