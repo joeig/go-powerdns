@@ -32,9 +32,15 @@ jobs:
           config: ".github/testcoverage.yml"
   test-without-mocks:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pdns-auth-image:
+          - powerdns/pdns-auth-47:latest
+          - powerdns/pdns-auth-48:latest
+          - powerdns/pdns-auth-49:latest
     services:
       pdns-auth:
-        image: powerdns/pdns-auth-49:latest
+        image: "${{ matrix.pdns-auth-image }}"
         ports:
           - "8080:8081"
         env:
