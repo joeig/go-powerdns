@@ -645,6 +645,8 @@ func TestExportError(t *testing.T) {
 
 func TestAxfrRetrieve(t *testing.T) {
 	testDomain := generateSlaveZone(true)
+	wantResultBeforePowerDNSAuth49 := "Added retrieval request for '" + makeDomainCanonical(testDomain) + "' from master 127.0.0.1"
+	wantResultFromPowerDNSAuth49 := "Added retrieval request for '" + makeDomainCanonical(testDomain) + "' from primary 127.0.0.1"
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerZoneMockResponder(testDomain, SlaveZoneKind)
@@ -653,7 +655,7 @@ func TestAxfrRetrieve(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if *axfrRetrieveResult.Result != "Added retrieval request for '"+makeDomainCanonical(testDomain)+"' from master 127.0.0.1" {
+	if *axfrRetrieveResult.Result != wantResultBeforePowerDNSAuth49 && *axfrRetrieveResult.Result != wantResultFromPowerDNSAuth49 {
 		t.Errorf("Wrong result: %q", *axfrRetrieveResult.Result)
 	}
 }
