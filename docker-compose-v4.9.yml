@@ -3,7 +3,7 @@ version: '3.8'
 
 services:
   powerdns:
-    image: powerdns/pdns-auth-46:latest
+    image: powerdns/pdns-auth-49:latest
     ports:
       - "8053:53"
       - "8053:53/udp"
