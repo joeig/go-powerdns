@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       pdns-auth:
-        image: powerdns/pdns-auth-48:latest
+        image: powerdns/pdns-auth-49:latest
         ports:
           - "8080:8081"
         env:
