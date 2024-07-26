@@ -9,10 +9,10 @@ It's not associated with the official PowerDNS product itself.
 
 ## Features
 
-* Zone handling
-* Resource record handling
-* Server statistics gathering
-* DNSSEC handling
+* Conveniently manage zones, resource records, DNSSEC, server statistics and more.
+* It works entirely with the Go standard library and can easily be customized.[^1]
+
+[^1]: There is a dependency for `github.com/jarcoal/httpmock`, which is used by the test suite.
 
 For more features, consult our [documentation](https://pkg.go.dev/github.com/joeig/go-powerdns/v3).
 
@@ -32,20 +32,25 @@ import "github.com/joeig/go-powerdns/v3"
 
 ```go
 import (
-  "context"
-  "github.com/joeig/go-powerdns/v3"
+	"github.com/joeig/go-powerdns/v3"
+	"context"
 )
 
+// Let's say
+// * PowerDNS Authoritative Server is listening on `http://localhost:80`,
+// * the virtual host is `localhost` and
+// * the API password is `apipw`.
 pdns := powerdns.NewClient("http://localhost:80", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
-```
 
-Assuming that the server is listening on http://localhost:80 for virtual host `localhost`, the API password is `apipw` and you want to edit the domain `example.com`.
+// All API interactions support a Go context, which allow you to pass cancellation signals and deadlines.
+// If you don't need a context, `context.Background()` would be the right choice for the following examples.
+// If you want to learn more about how context helps you to build reliable APIs, see: https://go.dev/blog/context
+ctx := context.Background()
+```
 
 ### Get/add/change/delete zones
 
 ```go
-ctx := context.Background()
-
 zones, err := pdns.Zones.List(ctx)
 zone, err := pdns.Zones.Get(ctx, "example.com")
 export, err := pdns.Zones.Export(ctx, "example.com")
@@ -83,9 +88,7 @@ err := pdns.Cryptokeys.Delete(ctx, "example.com", "1337")
 
 ```go
 tsigkey, err := pdns.TSIGKey.Create(ctx, "examplekey", "hmac-sha256", "")
-tsigkey, err := pdns.TSIGKey.Change(ctx, "examplekey.", powerdns.TSIGKey{
-	Key: powerdns.String("newkey"),
-})
+tsigkey, err := pdns.TSIGKey.Change(ctx, "examplekey.", powerdns.TSIGKey{Key: powerdns.String("newkey")})
 tsigkeys, err := pdns.TSIGKey.List(ctx)
 tsigkey, err := pdns.TSIGKey.Get(ctx, "examplekey.")
 err := pdns.TSIGKey.Delete(ctx, "examplekey.")

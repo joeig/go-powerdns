@@ -16,7 +16,16 @@ func ExampleNewClient() {
 
 func Example() {
 	domain := fmt.Sprintf("%d.example.com.", rand.Int())
+
+	// Let's say
+	// * PowerDNS Authoritative Server is listening on `http://localhost:80`,
+	// * the virtual host is `localhost` and
+	// * the API password is `apipw`.
 	pdns := powerdns.NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+
+	// All API interactions support a Go context, which allow you to pass cancellation signals and deadlines.
+	// If you don't need a context, `context.Background()` would be the right choice for the following examples.
+	// If you want to learn more about how context helps you to build reliable APIs, see: https://go.dev/blog/context
 	ctx := context.Background()
 
 	// Create a native zone
