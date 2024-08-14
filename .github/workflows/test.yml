@@ -17,8 +17,8 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - "1.21"
           - "1.22"
+          - "1.23"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -35,8 +35,8 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - "1.21"
           - "1.22"
+          - "1.23"
         pdns-auth-image:
           - powerdns/pdns-auth-47:latest
           - powerdns/pdns-auth-48:latest
