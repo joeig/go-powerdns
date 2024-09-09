@@ -27,7 +27,7 @@ jobs:
           check-latest: true
       - run: go test -v -coverprofile="coverage.out" ./...
       - run: go tool cover -func="coverage.out"
-      - uses: vladopajic/go-test-coverage@v2.8.1
+      - uses: vladopajic/go-test-coverage@v2.10.2
         with:
           config: ".github/testcoverage.yml"
   test-without-mocks:
