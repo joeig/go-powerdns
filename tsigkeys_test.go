@@ -12,9 +12,7 @@ import (
 	"github.com/jarcoal/httpmock"
 )
 
-const (
-	insecureKey = "ruTjBX2Jw/2BlE//5255fmKHaSRvLvp6p+YyDDAXThnBN/1Mz/VwMw+HQJVtkpDsAXvpPuNNZhucdKmhiOS4Tg=="
-)
+const insecureKey = "ruTjBX2Jw/2BlE//5255fmKHaSRvLvp6p+YyDDAXThnBN/1Mz/VwMw+HQJVtkpDsAXvpPuNNZhucdKmhiOS4Tg=="
 
 func generateTestTSIGKey(client *Client, name string, key string, autoAddTSIGKey bool) *TSIGKey {
 	tsigKeyName := fmt.Sprintf("test-%d-%s", rand.Int(), name)
@@ -25,7 +23,7 @@ func generateTestTSIGKey(client *Client, name string, key string, autoAddTSIGKey
 		Key:       String(key),
 	}
 	if autoAddTSIGKey && httpmock.Disabled() {
-		tsigKey, err := client.TSIGKey.Create(context.Background(), tsigKeyName, "hmac-sha256", key)
+		tsigKey, err := client.TSIGKeys.Create(context.Background(), tsigKeyName, "hmac-sha256", key)
 		if err != nil {
 			log.Printf("Error creating TSIG Key: %s: %v\n", name, err)
 		} else {
@@ -40,7 +38,6 @@ func generateTestTSIGKey(client *Client, name string, key string, autoAddTSIGKey
 }
 
 func registerTSIGKeyMockResponder(tsigKeys *[]TSIGKey) {
-
 	httpmock.RegisterResponder(http.MethodGet, generateTestAPIVHostURL()+"/tsigkeys",
 		func(req *http.Request) (*http.Response, error) {
 			if res := verifyAPIKey(req); res != nil {
@@ -80,7 +77,6 @@ func registerTSIGKeyMockResponder(tsigKeys *[]TSIGKey) {
 	)
 
 	for _, tsigkey := range *tsigKeys {
-
 		httpmock.RegisterResponder(http.MethodGet, generateTestAPIVHostURL()+"/tsigkeys/"+*tsigkey.ID,
 			func(req *http.Request) (*http.Response, error) {
 				if res := verifyAPIKey(req); res != nil {
@@ -110,6 +106,7 @@ func registerTSIGKeyMockResponder(tsigKeys *[]TSIGKey) {
 				return httpmock.NewJsonResponse(http.StatusOK, clientTsigkey)
 			},
 		)
+
 		httpmock.RegisterResponder(http.MethodDelete, generateTestAPIVHostURL()+"/tsigkeys/"+*tsigkey.ID,
 			func(req *http.Request) (*http.Response, error) {
 				if res := verifyAPIKey(req); res != nil {
@@ -156,7 +153,7 @@ func TestCreateTSIGKey(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
-			respTSIGKey, err := p.TSIGKey.Create(context.Background(), *tc.tsigkey.Name, *tc.tsigkey.Algorithm, *tc.tsigkey.Key)
+			respTSIGKey, err := p.TSIGKeys.Create(context.Background(), *tc.tsigkey.Name, *tc.tsigkey.Algorithm, *tc.tsigkey.Key)
 			if !tc.wantSuccess {
 				if err == nil {
 					t.Error("no error on duplicate key")
@@ -189,7 +186,7 @@ func TestPatchTSIGKey(t *testing.T) {
 
 	testPutTSIGKey.Key = String("1yWS55DxB2H40lded3/2IGnhbW6dCntvO+igEcP47n2ikD1EO03NDGKsKValitiqrtAmk41UbYVpREN23GYAdg==")
 
-	_, err := p.TSIGKey.Change(context.Background(), *testPutTSIGKey.ID, *testPutTSIGKey)
+	_, err := p.TSIGKeys.Change(context.Background(), *testPutTSIGKey.ID, *testPutTSIGKey)
 	if err != nil {
 		t.Error(err)
 	}
@@ -204,31 +201,31 @@ func TestTSIGKeyErrorNewRequests(t *testing.T) {
 	registerTSIGKeyMockResponder(&[]TSIGKey{})
 
 	t.Run("Test Get invalid request", func(t *testing.T) {
-		_, err := p.TSIGKey.Get(context.Background(), "thiskeydoesnotexist.")
+		_, err := p.TSIGKeys.Get(context.Background(), "thiskeydoesnotexist.")
 		if err == nil {
 			t.Error("error is nil")
 		}
 	})
 	t.Run("Test List invalid request", func(t *testing.T) {
-		_, err := p.TSIGKey.List(context.Background())
+		_, err := p.TSIGKeys.List(context.Background())
 		if err == nil {
 			t.Error("error is nil")
 		}
 	})
 	t.Run("Test Create invalid request", func(t *testing.T) {
-		_, err := p.TSIGKey.Create(context.Background(), "test", "hmac-sha256", "")
+		_, err := p.TSIGKeys.Create(context.Background(), "test", "hmac-sha256", "")
 		if err == nil {
 			t.Error("error is nil")
 		}
 	})
 	t.Run("Test Change invalid request", func(t *testing.T) {
-		_, err := p.TSIGKey.Change(context.Background(), "test", TSIGKey{})
+		_, err := p.TSIGKeys.Change(context.Background(), "test", TSIGKey{})
 		if err == nil {
 			t.Error("error is nil")
 		}
 	})
 	t.Run("Test Delete invalid request", func(t *testing.T) {
-		err := p.TSIGKey.Delete(context.Background(), "test")
+		err := p.TSIGKeys.Delete(context.Background(), "test")
 		if err == nil {
 			t.Error("error is nil")
 		}
@@ -247,14 +244,14 @@ func TestGetTSIGKey(t *testing.T) {
 	})
 
 	t.Run("Test Get", func(t *testing.T) {
-		_, err := p.TSIGKey.Get(context.Background(), *getTSIGKey.ID)
+		_, err := p.TSIGKeys.Get(context.Background(), *getTSIGKey.ID)
 		if err != nil {
 			t.Error(err)
 		}
 	})
 
 	t.Run("Test List", func(t *testing.T) {
-		tsigKeyList, err := p.TSIGKey.List(context.Background())
+		tsigKeyList, err := p.TSIGKeys.List(context.Background())
 		if err != nil {
 			t.Error(err)
 		}
@@ -279,7 +276,7 @@ func TestDeleteTSIGKey(t *testing.T) {
 	})
 
 	t.Run("Remove existing TSIG Key", func(t *testing.T) {
-		err := p.TSIGKey.Delete(context.Background(), *existingTSIGKey.ID)
+		err := p.TSIGKeys.Delete(context.Background(), *existingTSIGKey.ID)
 		if err != nil {
 			t.Errorf("expected successfull delete got error: %v", err)
 			return
@@ -287,7 +284,7 @@ func TestDeleteTSIGKey(t *testing.T) {
 	})
 
 	t.Run("Remove non-existing TSIG Key", func(t *testing.T) {
-		err := p.TSIGKey.Delete(context.Background(), *missingTSIGKey.ID)
+		err := p.TSIGKeys.Delete(context.Background(), *missingTSIGKey.ID)
 		if err == nil {
 			t.Errorf("expected err. but got nil")
 		}
