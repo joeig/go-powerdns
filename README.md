@@ -9,7 +9,14 @@ It's not associated with the official PowerDNS product itself.
 
 ## Features
 
-* Conveniently manage zones, resource records, DNSSEC, server statistics and more.
+* Conveniently manage
+  * zones
+  * resource records
+  * cryptokeys
+  * TSIG keys
+  * servers
+  * statistics
+  * configuration
 * It works entirely with the Go standard library and can easily be customized.[^1]
 
 [^1]: There is a dependency for `github.com/jarcoal/httpmock`, which is used by the test suite.
@@ -47,6 +54,10 @@ pdns := powerdns.New("http://localhost:80", "localhost", powerdns.WithAPIKey("ap
 // If you want to learn more about how context helps you to build reliable APIs, see: https://go.dev/blog/context
 ctx := context.Background()
 ```
+
+#### Migrating `NewClient` to `New`
+
+See the [release notes for v3.13.0](https://github.com/joeig/go-powerdns/releases/tag/v3.13.0).
 
 ### Get/add/change/delete zones
 
