@@ -66,7 +66,7 @@ func Example() {
 	}
 
 	// Create a TSIG Record
-	exampleKey, err := pdns.TSIGKey.Create(ctx, "examplekey", "hmac-sha256", "")
+	exampleKey, err := pdns.TSIGKeys.Create(ctx, "examplekey", "hmac-sha256", "")
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

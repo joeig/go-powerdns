@@ -95,14 +95,14 @@ cryptokey, err := pdns.Cryptokeys.Get(ctx, "example.com", "1337")
 err := pdns.Cryptokeys.Delete(ctx, "example.com", "1337")
 ```
 
-### Create/change/delete tsigkeys
+### Create/change/delete TSIG keys
 
 ```go
-tsigkey, err := pdns.TSIGKey.Create(ctx, "examplekey", "hmac-sha256", "")
-tsigkey, err := pdns.TSIGKey.Change(ctx, "examplekey.", powerdns.TSIGKey{Key: powerdns.String("newkey")})
-tsigkeys, err := pdns.TSIGKey.List(ctx)
-tsigkey, err := pdns.TSIGKey.Get(ctx, "examplekey.")
-err := pdns.TSIGKey.Delete(ctx, "examplekey.")
+tsigkey, err := pdns.TSIGKeys.Create(ctx, "examplekey", "hmac-sha256", "")
+tsigkey, err := pdns.TSIGKeys.Change(ctx, "examplekey.", powerdns.TSIGKey{Key: powerdns.String("newkey")})
+tsigkeys, err := pdns.TSIGKeys.List(ctx)
+tsigkey, err := pdns.TSIGKeys.Get(ctx, "examplekey.")
+err := pdns.TSIGKeys.Delete(ctx, "examplekey.")
 ```
 
 ### More examples
