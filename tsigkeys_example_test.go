@@ -16,7 +16,7 @@ var (
 )
 
 func ExampleTSIGKeyService_Create() {
-	pdns := powerdns.NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
 	ctx := context.Background()
 
 	_, err := pdns.TSIGKey.Create(ctx, *exampleTSIGKey.Name, *exampleTSIGKey.Algorithm, "")
@@ -27,7 +27,7 @@ func ExampleTSIGKeyService_Create() {
 }
 
 func ExampleTSIGKeyService_List() {
-	pdns := powerdns.NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
 	ctx := context.Background()
 
 	if _, err := pdns.TSIGKey.List(ctx); err != nil {
@@ -36,7 +36,7 @@ func ExampleTSIGKeyService_List() {
 }
 
 func ExampleTSIGKeyService_Get() {
-	pdns := powerdns.NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
 	ctx := context.Background()
 
 	if _, err := pdns.TSIGKey.Get(ctx, *exampleTSIGKey.ID); err != nil {
@@ -45,7 +45,7 @@ func ExampleTSIGKeyService_Get() {
 }
 
 func ExampleTSIGKeyService_Change() {
-	pdns := powerdns.NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
 	ctx := context.Background()
 
 	if _, err := pdns.TSIGKey.Change(ctx, *exampleTSIGKey.ID, exampleTSIGKey); err != nil {
@@ -54,7 +54,7 @@ func ExampleTSIGKeyService_Change() {
 }
 
 func ExampleTSIGKeyService_Delete() {
-	pdns := powerdns.NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
 	ctx := context.Background()
 
 	if err := pdns.TSIGKey.Delete(ctx, *exampleTSIGKey.ID); err != nil {
