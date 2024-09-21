@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func ExampleNewClient() {
+func ExampleNew() {
 	_ = powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKey("apipw"))
 }
 
