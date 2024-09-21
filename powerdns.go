@@ -29,14 +29,10 @@ func WithHTTPClient(httpClient *http.Client) NewOption {
 	}
 }
 
-// WithAPIKeyHeader is an option for New to set the API key header.
-func WithAPIKeyHeader(key string) NewOption {
+// WithAPIKey is an option for New to set the API key.
+func WithAPIKey(key string) NewOption {
 	return func(client *Client) {
-		if client.Headers == nil {
-			client.Headers = map[string]string{}
-		}
-
-		client.Headers["X-API-Key"] = key
+		client.apiKey = &key
 	}
 }
 
@@ -53,6 +49,7 @@ type Client struct {
 	Headers  map[string]string
 
 	httpClient *http.Client
+	apiKey     *string
 
 	common service // Reuse a single struct instead of allocating one for each service on the heap
 
@@ -174,11 +171,16 @@ func (p *Client) newRequest(ctx context.Context, method string, path string, que
 		return nil, err
 	}
 
+	req.Header.Set("User-Agent", "go-powerdns")
+
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Accept", "application/json")
 	}
-	req.Header.Set("User-Agent", "go-powerdns")
+
+	if p.apiKey != nil {
+		req.Header.Set("X-API-Key", *p.apiKey)
+	}
 
 	for key, value := range p.Headers {
 		req.Header.Set(key, value)

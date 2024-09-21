@@ -8,7 +8,7 @@ import (
 )
 
 func ExampleZonesService_AddNative() {
-	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKey("apipw"))
 	ctx := context.Background()
 
 	zone, err := pdns.Zones.AddNative(ctx, "example.com.", false, "", false, "", "", true, []string{"localhost."})
@@ -20,7 +20,7 @@ func ExampleZonesService_AddNative() {
 }
 
 func ExampleZonesService_Change() {
-	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKey("apipw"))
 	ctx := context.Background()
 	zoneChangeSet := &powerdns.Zone{
 		Account: powerdns.String("test"),
@@ -33,7 +33,7 @@ func ExampleZonesService_Change() {
 }
 
 func ExampleZonesService_Get() {
-	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKey("apipw"))
 	ctx := context.Background()
 
 	zone, err := pdns.Zones.Get(ctx, "example.com.")
