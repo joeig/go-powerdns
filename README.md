@@ -39,8 +39,8 @@ import (
 // Let's say
 // * PowerDNS Authoritative Server is listening on `http://localhost:80`,
 // * the virtual host is `localhost` and
-// * the API password is `apipw`.
-pdns := powerdns.NewClient("http://localhost:80", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+// * the API key is `apipw`.
+pdns := powerdns.New("http://localhost:80", "localhost", powerdns.WithAPIKey("apipw"))
 
 // All API interactions support a Go context, which allow you to pass cancellation signals and deadlines.
 // If you don't need a context, `context.Background()` would be the right choice for the following examples.

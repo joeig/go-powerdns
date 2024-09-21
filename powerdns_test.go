@@ -3,6 +3,7 @@ package powerdns
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/http"
 	"net/url"
 	"testing"
@@ -31,7 +32,7 @@ func verifyAPIKey(req *http.Request) *http.Response {
 	return nil
 }
 func initialisePowerDNSTestClient() *Client {
-	return NewClient(testBaseURL, testVHost, map[string]string{"X-API-Key": testAPIKey}, nil)
+	return New(testBaseURL, testVHost, WithAPIKeyHeader(testAPIKey))
 }
 
 func registerDoMockResponder() {
@@ -62,12 +63,111 @@ func registerDoMockResponder() {
 	)
 }
 
+func TestWithHeaders(t *testing.T) {
+	p := &Client{}
+	withHeaders := WithHeaders(map[string]string{"X-Test-Header": "Blafasel"})
+	withHeaders(p)
+	if !maps.Equal(p.Headers, map[string]string{"X-Test-Header": "Blafasel"}) {
+		t.Error("Unexpected header")
+	}
+}
+
+func TestWithHttpClient(t *testing.T) {
+	p := &Client{}
+	httpClient := &http.Client{}
+	withHTTPClient := WithHTTPClient(httpClient)
+	withHTTPClient(p)
+	if p.httpClient != httpClient {
+		t.Error("Unexpected HTTP client")
+	}
+}
+
+func TestWithAPIKeyHeader(t *testing.T) {
+	p := &Client{}
+	withAPIKeyHeader := WithAPIKeyHeader("apipw")
+	withAPIKeyHeader(p)
+	if !maps.Equal(p.Headers, map[string]string{"X-API-Key": "apipw"}) {
+		t.Error("Unexpected API key header")
+	}
+}
+
 func TestNewClient(t *testing.T) {
-	t.Run("TestValidURL", func(t *testing.T) {
-		tmpl := &Client{"http", "localhost", "8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient, service{}, nil, nil, nil, nil, nil, nil, nil}
-		p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient)
-		if p.Hostname != tmpl.Hostname {
-			t.Error("NewClient returns invalid Client object")
+	t.Run("TestMinimalConstructor", func(t *testing.T) {
+		p := NewClient("http://localhost:8080", "localhost", nil, nil)
+		if p.Scheme != "http" {
+			t.Error("NewClient returns invalid scheme")
+		}
+		if p.Hostname != "localhost" {
+			t.Error("NewClient returns invalid hostname")
+		}
+		if p.Port != "8080" {
+			t.Error("NewClient returns invalid port")
+		}
+		if p.VHost != "localhost" {
+			t.Error("NewClient returns invalid vHost")
+		}
+		if !maps.Equal(p.Headers, map[string]string{}) {
+			t.Error("NewClient returns invalid headers")
+		}
+		if p.httpClient != http.DefaultClient {
+			t.Error("NewClient returns invalid HTTP client")
+		}
+		if p.common.client != p {
+			t.Error("NewClient returns invalid common client")
+		}
+	})
+
+	t.Run("TestCustomHeaders", func(t *testing.T) {
+		p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
+		if !maps.Equal(p.Headers, map[string]string{"X-API-Key": "apipw"}) {
+			t.Error("NewClient returns invalid headers")
+		}
+	})
+
+	t.Run("TestCustomHTTPClient", func(t *testing.T) {
+		httpClient := &http.Client{}
+		p := NewClient("http://localhost:8080", "localhost", nil, httpClient)
+		if p.httpClient != httpClient {
+			t.Error("NewClient returns invalid HTTP Client")
+		}
+	})
+}
+
+func TestNew(t *testing.T) {
+	t.Run("TestNoOptions", func(t *testing.T) {
+		p := New("http://localhost:8080", "localhost")
+		if p.Scheme != "http" {
+			t.Error("New returns invalid scheme")
+		}
+		if p.Hostname != "localhost" {
+			t.Error("New returns invalid hostname")
+		}
+		if p.Port != "8080" {
+			t.Error("New returns invalid port")
+		}
+		if p.VHost != "localhost" {
+			t.Error("New returns invalid vHost")
+		}
+		if !maps.Equal(p.Headers, map[string]string{}) {
+			t.Error("New returns invalid headers")
+		}
+		if p.httpClient != http.DefaultClient {
+			t.Error("New returns invalid HTTP client")
+		}
+		if p.common.client != p {
+			t.Error("New returns invalid common client")
+		}
+	})
+
+	t.Run("TestOptionInvocation", func(t *testing.T) {
+		testOptionInvocationCount := 0
+		testOption := func(client *Client) {
+			testOptionInvocationCount++
+		}
+		_ = New("http://localhost:8080", "localhost", testOption, testOption)
+
+		if testOptionInvocationCount != 2 {
+			t.Error("New does not call all options")
 		}
 	})
 
@@ -85,7 +185,7 @@ func TestNewClient(t *testing.T) {
 			}
 		}
 
-		_ = NewClient("http://1.2:foo", "localhost", map[string]string{"X-API-Key": "apipw"}, http.DefaultClient)
+		_ = New("http://1.2:foo", "localhost")
 
 		if len(errors) < 1 {
 			t.Error("NewClient does not exit with fatal error")

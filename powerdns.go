@@ -12,6 +12,34 @@ import (
 	"strings"
 )
 
+// NewOption is a functional option for New.
+type NewOption func(*Client)
+
+// WithHeaders is an option for New to set HTTP client headers.
+func WithHeaders(headers map[string]string) NewOption {
+	return func(client *Client) {
+		client.Headers = headers
+	}
+}
+
+// WithHTTPClient is an option for New to set an HTTP client.
+func WithHTTPClient(httpClient *http.Client) NewOption {
+	return func(client *Client) {
+		client.httpClient = httpClient
+	}
+}
+
+// WithAPIKeyHeader is an option for New to set the API key header.
+func WithAPIKeyHeader(key string) NewOption {
+	return func(client *Client) {
+		if client.Headers == nil {
+			client.Headers = map[string]string{}
+		}
+
+		client.Headers["X-API-Key"] = key
+	}
+}
+
 type service struct {
 	client *Client
 }
@@ -40,37 +68,48 @@ type Client struct {
 // logFatalf makes log.Fatalf testable
 var logFatalf = log.Fatalf
 
-// NewClient initializes a new client instance
+// NewClient initializes a new client instance.
+// Deprecated: Use New with functional options instead.
+// NewClient will be removed with the next major version.
 func NewClient(baseURL string, vHost string, headers map[string]string, httpClient *http.Client) *Client {
+	selectedHttpClient := httpClient
+	if httpClient == nil {
+		selectedHttpClient = http.DefaultClient
+	}
+
+	return New(baseURL, vHost, WithHeaders(headers), WithHTTPClient(selectedHttpClient))
+}
+
+// New initializes a new client instance.
+func New(baseURL string, vHost string, options ...NewOption) *Client {
 	scheme, hostname, port, err := parseBaseURL(baseURL)
 	if err != nil {
 		logFatalf("%s is not a valid url: %v", baseURL, err)
 	}
 
-	c := &Client{
+	client := &Client{
 		Scheme:     scheme,
 		Hostname:   hostname,
 		Port:       port,
 		VHost:      parseVHost(vHost),
-		Headers:    headers,
-		httpClient: httpClient,
+		httpClient: http.DefaultClient,
 	}
 
-	if c.httpClient == nil {
-		c.httpClient = http.DefaultClient
+	client.common.client = client
+
+	client.Config = (*ConfigService)(&client.common)
+	client.Cryptokeys = (*CryptokeysService)(&client.common)
+	client.Records = (*RecordsService)(&client.common)
+	client.Servers = (*ServersService)(&client.common)
+	client.Statistics = (*StatisticsService)(&client.common)
+	client.Zones = (*ZonesService)(&client.common)
+	client.TSIGKey = (*TSIGKeyService)(&client.common)
+
+	for _, option := range options {
+		option(client)
 	}
 
-	c.common.client = c
-
-	c.Config = (*ConfigService)(&c.common)
-	c.Cryptokeys = (*CryptokeysService)(&c.common)
-	c.Records = (*RecordsService)(&c.common)
-	c.Servers = (*ServersService)(&c.common)
-	c.Statistics = (*StatisticsService)(&c.common)
-	c.Zones = (*ZonesService)(&c.common)
-	c.TSIGKey = (*TSIGKeyService)(&c.common)
-
-	return c
+	return client
 }
 
 func parseBaseURL(baseURL string) (string, string, string, error) {
