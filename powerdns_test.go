@@ -32,7 +32,7 @@ func verifyAPIKey(req *http.Request) *http.Response {
 	return nil
 }
 func initialisePowerDNSTestClient() *Client {
-	return New(testBaseURL, testVHost, WithAPIKeyHeader(testAPIKey))
+	return New(testBaseURL, testVHost, WithAPIKey(testAPIKey))
 }
 
 func registerDoMockResponder() {
@@ -65,9 +65,9 @@ func registerDoMockResponder() {
 
 func TestWithHeaders(t *testing.T) {
 	p := &Client{}
-	withHeaders := WithHeaders(map[string]string{"X-Test-Header": "Blafasel"})
+	withHeaders := WithHeaders(map[string]string{"X-Test-Header": "test-header"})
 	withHeaders(p)
-	if !maps.Equal(p.Headers, map[string]string{"X-Test-Header": "Blafasel"}) {
+	if !maps.Equal(p.Headers, map[string]string{"X-Test-Header": "test-header"}) {
 		t.Error("Unexpected header")
 	}
 }
@@ -82,12 +82,12 @@ func TestWithHttpClient(t *testing.T) {
 	}
 }
 
-func TestWithAPIKeyHeader(t *testing.T) {
+func TestWithAPIKey(t *testing.T) {
 	p := &Client{}
-	withAPIKeyHeader := WithAPIKeyHeader("apipw")
-	withAPIKeyHeader(p)
-	if !maps.Equal(p.Headers, map[string]string{"X-API-Key": "apipw"}) {
-		t.Error("Unexpected API key header")
+	withAPIKey := WithAPIKey("apipw")
+	withAPIKey(p)
+	if *p.apiKey != "apipw" {
+		t.Error("Unexpected API key")
 	}
 }
 
@@ -194,11 +194,56 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewRequest(t *testing.T) {
-	p := initialisePowerDNSTestClient()
-
 	t.Run("TestValidRequest", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
 		if _, err := p.newRequest(context.Background(), "GET", "servers", nil, nil); err != nil {
 			t.Error("error is not nil")
+		}
+	})
+
+	t.Run("TestUserAgentHeader", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
+		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		if req.Header.Get("User-Agent") != "go-powerdns" {
+			t.Error("Unexpected user agent header")
+		}
+	})
+
+	t.Run("TestContentTypeHeaderWithoutBody", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
+		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		if req.Header.Get("Content-Type") != "" {
+			t.Error("Unexpected content type header")
+		}
+		if req.Header.Get("Accept") != "" {
+			t.Error("Unexpected accept header")
+		}
+	})
+
+	t.Run("TestContentTypeHeaderWithBody", func(t *testing.T) {
+		p := initialisePowerDNSTestClient()
+		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, "test-body")
+		if req.Header.Get("Content-Type") != "application/json" {
+			t.Error("Unexpected content type header")
+		}
+		if req.Header.Get("Accept") != "application/json" {
+			t.Error("Unexpected accept header")
+		}
+	})
+
+	t.Run("TestAPIKeyHeader", func(t *testing.T) {
+		p := New(testBaseURL, testVHost, WithAPIKey("test-key"))
+		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		if req.Header.Get("X-API-Key") != "test-key" {
+			t.Error("Unexpected API key header")
+		}
+	})
+
+	t.Run("TestCustomHeaders", func(t *testing.T) {
+		p := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
+		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		if req.Header.Get("X-Test-Header") != "test-header" {
+			t.Error("Unexpected API key header")
 		}
 	})
 }
@@ -216,8 +261,7 @@ func TestDo(t *testing.T) {
 		}
 	})
 	t.Run("Test401Handling", func(t *testing.T) {
-		p := initialisePowerDNSTestClient()
-		p.Headers = nil
+		p := New(testBaseURL, testVHost)
 		req, _ := p.newRequest(context.Background(), "GET", "servers/localhost", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Unauthorized" {
 			t.Error("401 response does not result into an error with correct message.")

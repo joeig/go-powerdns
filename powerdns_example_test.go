@@ -11,7 +11,7 @@ import (
 )
 
 func ExampleNewClient() {
-	_ = powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
+	_ = powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKey("apipw"))
 }
 
 func Example() {
@@ -21,7 +21,7 @@ func Example() {
 	// * PowerDNS Authoritative Server is listening on `http://localhost:80`,
 	// * the virtual host is `localhost` and
 	// * the API key is `apipw`.
-	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKeyHeader("apipw"))
+	pdns := powerdns.New("http://localhost:8080", "localhost", powerdns.WithAPIKey("apipw"))
 
 	// All API interactions support a Go context, which allow you to pass cancellation signals and deadlines.
 	// If you don't need a context, `context.Background()` would be the right choice for the following examples.
