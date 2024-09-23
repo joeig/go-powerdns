@@ -9,15 +9,17 @@ It's not associated with the official PowerDNS product itself.
 
 ## Features
 
-* Conveniently manage
-  * zones
-  * resource records
-  * cryptokeys
-  * TSIG keys
-  * servers
-  * statistics
-  * configuration
-* It works entirely with the Go standard library and can easily be customized.[^1]
+Conveniently manage
+
+* [zones](https://github.com/joeig/go-powerdns?tab=readme-ov-file#getaddchangedelete-zones)
+* [resource records](https://github.com/joeig/go-powerdns?tab=readme-ov-file#addchangedelete-resource-records)
+* [cryptokeys](https://github.com/joeig/go-powerdns?tab=readme-ov-file#handle-dnssec-cryptographic-material) (DNSSEC)
+* [TSIG keys](https://github.com/joeig/go-powerdns?tab=readme-ov-file#createchangedelete-tsig-keys)
+* [servers](https://pkg.go.dev/github.com/joeig/go-powerdns/v3#ServersService)
+* [statistics](https://github.com/joeig/go-powerdns?tab=readme-ov-file#request-server-information-and-statistics)
+* [configuration](https://pkg.go.dev/github.com/joeig/go-powerdns/v3#ConfigService)
+
+It works entirely with the Go standard library and can easily be customized.[^1]
 
 [^1]: There is a dependency for `github.com/jarcoal/httpmock`, which is used by the test suite.
 
