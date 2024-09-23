@@ -4,7 +4,7 @@ This community project provides bindings for PowerDNS Authoritative Server.
 It's not associated with the official PowerDNS product itself.
 
 [![Test coverage](https://img.shields.io/badge/coverage-100%25-success)](https://github.com/joeig/go-powerdns/tree/master/.github/testcoverage.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/joeig/go-powerdns)](https://goreportcard.com/report/github.com/joeig/go-powerdns)
+[![Go Report Card](https://goreportcard.com/badge/github.com/joeig/go-powerdns/v3)](https://goreportcard.com/report/github.com/joeig/go-powerdns/v3)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/joeig/go-powerdns/v3)](https://pkg.go.dev/github.com/joeig/go-powerdns/v3)
 
 ## Features
