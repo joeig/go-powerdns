@@ -278,7 +278,7 @@ func TestDeleteTSIGKey(t *testing.T) {
 	t.Run("Remove existing TSIG Key", func(t *testing.T) {
 		err := p.TSIGKeys.Delete(context.Background(), *existingTSIGKey.ID)
 		if err != nil {
-			t.Errorf("expected successfull delete got error: %v", err)
+			t.Errorf("expected successful delete got error: %v", err)
 			return
 		}
 	})
