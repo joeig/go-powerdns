@@ -57,9 +57,9 @@ pdns := powerdns.New("http://localhost:80", "localhost", powerdns.WithAPIKey("ap
 ctx := context.Background()
 ```
 
-#### Migrating `NewClient` to `New`
+#### Migrate `NewClient` to `New`
 
-See the [release notes for v3.13.0](https://github.com/joeig/go-powerdns/releases/tag/v3.13.0).
+If you have used `NewClient` before and want to migrate to `New`, please see the [release notes for v3.13.0](https://github.com/joeig/go-powerdns/releases/tag/v3.13.0).
 
 ### Get/add/change/delete zones
 
