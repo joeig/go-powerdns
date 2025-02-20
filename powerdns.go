@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -113,24 +115,29 @@ func New(baseURL string, vHost string, options ...NewOption) *Client {
 }
 
 func parseBaseURL(baseURL string) (string, string, string, error) {
-	u, err := url.Parse(baseURL)
+	parsedURL, err := url.Parse(baseURL)
 	if err != nil {
 		return "", "", "", err
 	}
-	hp := strings.Split(u.Host, ":")
-	hostname := hp[0]
-	var port string
-	if len(hp) > 1 {
-		port = hp[1]
-	} else {
-		if u.Scheme == "https" {
-			port = "443"
-		} else {
-			port = "80"
+
+	hostname, port, err := net.SplitHostPort(parsedURL.Host)
+	if err != nil {
+		var addrError *net.AddrError
+		if errors.As(err, &addrError) && addrError.Err == "missing port in address" {
+			fallbackPort := "443"
+			if parsedURL.Scheme == "http" {
+				fallbackPort = "80"
+			}
+
+			parsedURL.Host = fmt.Sprintf("%s:%s", parsedURL.Host, fallbackPort)
+
+			return parseBaseURL(parsedURL.String())
 		}
+
+		return "", "", "", err
 	}
 
-	return u.Scheme, hostname, port, nil
+	return parsedURL.Scheme, hostname, port, nil
 }
 
 func parseVHost(vHost string) string {
