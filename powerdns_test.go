@@ -299,9 +299,15 @@ func TestParseBaseURL(t *testing.T) {
 	}{
 		{"https://example.com", "https", "example.com", "443", false},
 		{"http://example.com", "http", "example.com", "80", false},
+		{"https://example.com", "https", "example.com", "443", false},
 		{"https://example.com:8080", "https", "example.com", "8080", false},
 		{"http://example.com:8080", "http", "example.com", "8080", false},
-		{"http%%%foo", "http", "", "", true},
+		{"http://[fd06:4c9a:99b0::1]:8080", "http", "fd06:4c9a:99b0::1", "8080", false},
+		{"http://[fd06:4c9a:99b0::1]", "http", "fd06:4c9a:99b0::1", "80", false},
+		{"http://[127.1.2.3]:8080", "http", "127.1.2.3", "8080", false},
+		{"http://[127.1.2.3]", "http", "127.1.2.3", "80", false},
+		{"http%%%foo", "", "", "", true},
+		{"http://::8080", "", "", "", true},
 	}
 
 	for i, tc := range testCases {
