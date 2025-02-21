@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 )
 
@@ -147,17 +148,17 @@ func parseVHost(vHost string) string {
 	return vHost
 }
 
-func generateAPIURL(scheme, hostname, port, path string, query *url.Values) url.URL {
-	u := url.URL{}
-	u.Scheme = scheme
-	u.Host = fmt.Sprintf("%s:%s", hostname, port)
-	u.Path = fmt.Sprintf("/api/v1/%s", path)
+func generateAPIURL(scheme, hostname, port, pathFragment string, query *url.Values) url.URL {
+	newURL := url.URL{}
+	newURL.Scheme = scheme
+	newURL.Host = net.JoinHostPort(hostname, port)
+	newURL.Path = path.Join("/api/v1/", pathFragment)
 
 	if query != nil {
-		u.RawQuery = query.Encode()
+		newURL.RawQuery = query.Encode()
 	}
 
-	return u
+	return newURL
 }
 
 func trimDomain(domain string) string {
@@ -168,14 +169,14 @@ func makeDomainCanonical(domain string) string {
 	return fmt.Sprintf("%s.", trimDomain(domain))
 }
 
-func (p *Client) newRequest(ctx context.Context, method string, path string, query *url.Values, body interface{}) (*http.Request, error) {
+func (p *Client) newRequest(ctx context.Context, method string, pathFragment string, query *url.Values, body interface{}) (*http.Request, error) {
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
 		_ = json.NewEncoder(buf).Encode(body)
 	}
 
-	apiURL := generateAPIURL(p.Scheme, p.Hostname, p.Port, path, query)
+	apiURL := generateAPIURL(p.Scheme, p.Hostname, p.Port, pathFragment, query)
 	req, err := http.NewRequestWithContext(ctx, method, apiURL.String(), buf)
 	if err != nil {
 		return nil, err

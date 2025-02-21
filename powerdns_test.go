@@ -299,7 +299,6 @@ func TestParseBaseURL(t *testing.T) {
 	}{
 		{"https://example.com", "https", "example.com", "443", false},
 		{"http://example.com", "http", "example.com", "80", false},
-		{"https://example.com", "https", "example.com", "443", false},
 		{"https://example.com:8080", "https", "example.com", "8080", false},
 		{"http://example.com:8080", "http", "example.com", "8080", false},
 		{"http://[fd06:4c9a:99b0::1]:8080", "http", "fd06:4c9a:99b0::1", "8080", false},
@@ -355,12 +354,30 @@ func TestParseVHost(t *testing.T) {
 }
 
 func TestGenerateAPIURL(t *testing.T) {
-	tmpl := "https://localhost:8080/api/v1/foo?a=b"
-	query := url.Values{}
-	query.Add("a", "b")
-	g := generateAPIURL("https", "localhost", "8080", "foo", &query)
-	if tmpl != g.String() {
-		t.Errorf("Template does not match generated API URL: %s", g.String())
+	testQuery := &url.Values{}
+	testQuery.Add("a", "b")
+	testCases := []struct {
+		scheme   string
+		hostname string
+		port     string
+		path     string
+		query    *url.Values
+		wantURL  string
+	}{
+		{"https", "localhost", "8080", "foo", testQuery, "https://localhost:8080/api/v1/foo?a=b"},
+		{"http", "localhost", "8080", "foo", testQuery, "http://localhost:8080/api/v1/foo?a=b"},
+		{"http", "localhost", "1337", "foo", testQuery, "http://localhost:1337/api/v1/foo?a=b"},
+		{"https", "127.1.2.3", "8080", "foo", testQuery, "https://127.1.2.3:8080/api/v1/foo?a=b"},
+		{"https", "fd06:4c9a:99b0::1", "8080", "foo", testQuery, "https://[fd06:4c9a:99b0::1]:8080/api/v1/foo?a=b"},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
+			newURL := generateAPIURL(tc.scheme, tc.hostname, tc.port, tc.path, tc.query)
+			if tc.wantURL != newURL.String() {
+				t.Errorf("generateAPIURL returned an invalid value: %q", newURL.String())
+			}
+		})
 	}
 }
 
