@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func generateNativeZone(autoAddZone bool) string {
@@ -156,7 +157,9 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 			}
 
 			var zoneMock Zone
-			if zoneKind == NativeZoneKind || zoneKind == MasterZoneKind {
+
+			switch zoneKind {
+			case NativeZoneKind, MasterZoneKind:
 				zoneMock = Zone{
 					ID:   String(makeDomainCanonical(testDomain)),
 					Name: String(makeDomainCanonical(testDomain)),
@@ -197,7 +200,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 					APIRectify:  Bool(true),
 					Account:     String(""),
 				}
-			} else if zoneKind == SlaveZoneKind {
+			case SlaveZoneKind:
 				zoneMock = Zone{
 					ID:          String(makeDomainCanonical(testDomain)),
 					Name:        String(makeDomainCanonical(testDomain)),
@@ -214,7 +217,7 @@ func registerZoneMockResponder(testDomain string, zoneKind ZoneKind) {
 					APIRectify:  Bool(true),
 					Account:     String(""),
 				}
-			} else {
+			default:
 				return httpmock.NewStringResponse(http.StatusUnprocessableEntity, "Unprocessable Entity"), nil
 			}
 
