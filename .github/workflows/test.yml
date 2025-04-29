@@ -11,6 +11,8 @@ on:
 concurrency:
   group: "${{ github.workflow }}-$${{ github.pull_request.number || github.run_id }}"
   cancel-in-progress: true
+permissions:
+  contents: read
 jobs:
   test-with-mocks:
     runs-on: ubuntu-latest
