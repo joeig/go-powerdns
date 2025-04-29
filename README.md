@@ -18,6 +18,7 @@ Conveniently manage
 * [TSIG keys](https://github.com/joeig/go-powerdns?tab=readme-ov-file#createchangedelete-tsig-keys)
 * [servers](https://pkg.go.dev/github.com/joeig/go-powerdns/v3#ServersService)
 * [statistics](https://github.com/joeig/go-powerdns?tab=readme-ov-file#request-server-information-and-statistics)
+* [metadata](https://pkg.go.dev/github.com/joeig/go-powerdns/v3#MetadataService)
 * [configuration](https://pkg.go.dev/github.com/joeig/go-powerdns/v3#ConfigService)
 
 It works entirely with the Go standard library and can easily be customized.[^1]

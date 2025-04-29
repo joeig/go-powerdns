@@ -58,6 +58,7 @@ type Client struct {
 
 	Config     *ConfigService
 	Cryptokeys *CryptokeysService
+	Metadata   *MetadataService
 	Records    *RecordsService
 	Servers    *ServersService
 	Statistics *StatisticsService
@@ -101,6 +102,7 @@ func New(baseURL string, vHost string, options ...NewOption) *Client {
 
 	client.Config = (*ConfigService)(&client.common)
 	client.Cryptokeys = (*CryptokeysService)(&client.common)
+	client.Metadata = (*MetadataService)(&client.common)
 	client.Records = (*RecordsService)(&client.common)
 	client.Servers = (*ServersService)(&client.common)
 	client.Statistics = (*StatisticsService)(&client.common)
