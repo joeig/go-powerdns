@@ -2,8 +2,8 @@ package powerdns
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"path"
 )
 
 // TSIGKeysService handles communication with the tsigs related methods of the Client API
@@ -20,7 +20,7 @@ type TSIGKey struct {
 
 // List retrieves a list of TSIGKeys
 func (t *TSIGKeysService) List(ctx context.Context) ([]TSIGKey, error) {
-	req, err := t.client.newRequest(ctx, http.MethodGet, fmt.Sprintf("servers/%s/tsigkeys", t.client.VHost), nil, nil)
+	req, err := t.client.newRequest(ctx, http.MethodGet, path.Join("servers", t.client.VHost, "tsigkeys"), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (t *TSIGKeysService) List(ctx context.Context) ([]TSIGKey, error) {
 
 // Get returns a certain TSIGKeys
 func (t *TSIGKeysService) Get(ctx context.Context, id string) (*TSIGKey, error) {
-	req, err := t.client.newRequest(ctx, http.MethodGet, fmt.Sprintf("servers/%s/tsigkeys/%s", t.client.VHost, id), nil, nil)
+	req, err := t.client.newRequest(ctx, http.MethodGet, path.Join("servers", t.client.VHost, "tsigkeys", id), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (t *TSIGKeysService) Create(ctx context.Context, name, algorithm, key strin
 		Key:       &key,
 	}
 
-	req, err := t.client.newRequest(ctx, http.MethodPost, fmt.Sprintf("servers/%s/tsigkeys", t.client.VHost), nil, reqTsigkey)
+	req, err := t.client.newRequest(ctx, http.MethodPost, path.Join("servers", t.client.VHost, "tsigkeys"), nil, reqTsigkey)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (t *TSIGKeysService) Create(ctx context.Context, name, algorithm, key strin
 }
 
 func (t *TSIGKeysService) Change(ctx context.Context, id string, newKey TSIGKey) (*TSIGKey, error) {
-	req, err := t.client.newRequest(ctx, http.MethodPut, fmt.Sprintf("servers/%s/tsigkeys/%s", t.client.VHost, id), nil, newKey)
+	req, err := t.client.newRequest(ctx, http.MethodPut, path.Join("servers", t.client.VHost, "tsigkeys", id), nil, newKey)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (t *TSIGKeysService) Change(ctx context.Context, id string, newKey TSIGKey)
 }
 
 func (t *TSIGKeysService) Delete(ctx context.Context, id string) error {
-	req, err := t.client.newRequest(ctx, http.MethodDelete, fmt.Sprintf("servers/%s/tsigkeys/%s", t.client.VHost, id), nil, nil)
+	req, err := t.client.newRequest(ctx, http.MethodDelete, path.Join("servers", t.client.VHost, "tsigkeys", id), nil, nil)
 	if err != nil {
 		return err
 	}

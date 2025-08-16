@@ -2,8 +2,8 @@ package powerdns
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"path"
 )
 
 // MetadataService handles communication with the metadata-related methods of the Client API
@@ -84,7 +84,7 @@ type Metadata struct {
 
 // List retrieves all metadata for a zone
 func (m *MetadataService) List(ctx context.Context, domain string) ([]Metadata, error) {
-	req, err := m.client.newRequest(ctx, http.MethodGet, fmt.Sprintf("servers/%s/zones/%s/metadata", m.client.VHost, makeDomainCanonical(domain)), nil, nil)
+	req, err := m.client.newRequest(ctx, http.MethodGet, path.Join("servers", m.client.VHost, "zones", makeDomainCanonical(domain), "metadata"), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (m *MetadataService) Create(ctx context.Context, domain string, kind Metada
 		Metadata: values,
 	}
 
-	req, err := m.client.newRequest(ctx, http.MethodPost, fmt.Sprintf("servers/%s/zones/%s/metadata", m.client.VHost, makeDomainCanonical(domain)), nil, metadata)
+	req, err := m.client.newRequest(ctx, http.MethodPost, path.Join("servers", m.client.VHost, "zones", makeDomainCanonical(domain), "metadata"), nil, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (m *MetadataService) Create(ctx context.Context, domain string, kind Metada
 
 // Get retrieves a specific metadata kind for a zone
 func (m *MetadataService) Get(ctx context.Context, domain string, kind MetadataKind) (*Metadata, error) {
-	req, err := m.client.newRequest(ctx, http.MethodGet, fmt.Sprintf("servers/%s/zones/%s/metadata/%s", m.client.VHost, makeDomainCanonical(domain), kind), nil, nil)
+	req, err := m.client.newRequest(ctx, http.MethodGet, path.Join("servers", m.client.VHost, "zones", makeDomainCanonical(domain), "metadata", string(kind)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (m *MetadataService) Set(ctx context.Context, domain string, kind MetadataK
 		Metadata: values,
 	}
 
-	req, err := m.client.newRequest(ctx, http.MethodPut, fmt.Sprintf("servers/%s/zones/%s/metadata/%s", m.client.VHost, makeDomainCanonical(domain), kind), nil, metadata)
+	req, err := m.client.newRequest(ctx, http.MethodPut, path.Join("servers", m.client.VHost, "zones", makeDomainCanonical(domain), "metadata", string(kind)), nil, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (m *MetadataService) Set(ctx context.Context, domain string, kind MetadataK
 
 // Delete removes a metadata kind from a zone
 func (m *MetadataService) Delete(ctx context.Context, domain string, kind MetadataKind) error {
-	req, err := m.client.newRequest(ctx, http.MethodDelete, fmt.Sprintf("servers/%s/zones/%s/metadata/%s", m.client.VHost, makeDomainCanonical(domain), kind), nil, nil)
+	req, err := m.client.newRequest(ctx, http.MethodDelete, path.Join("servers", m.client.VHost, "zones", makeDomainCanonical(domain), "metadata", string(kind)), nil, nil)
 	if err != nil {
 		return err
 	}

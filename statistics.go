@@ -2,8 +2,8 @@ package powerdns
 
 import (
 	"context"
-	"fmt"
 	"net/url"
+	"path"
 )
 
 // StatisticsService handles communication with the statistics related methods of the Client API
@@ -23,7 +23,7 @@ type Statistic struct {
 
 // List retrieves a list of Statistics
 func (s *StatisticsService) List(ctx context.Context) ([]Statistic, error) {
-	req, err := s.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/statistics", s.client.VHost), nil, nil)
+	req, err := s.client.newRequest(ctx, "GET", path.Join("servers", s.client.VHost, "statistics"), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *StatisticsService) List(ctx context.Context) ([]Statistic, error) {
 func (s *StatisticsService) Get(ctx context.Context, statisticName string) ([]Statistic, error) {
 	query := url.Values{}
 	query.Add("statistic", statisticName)
-	req, err := s.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/statistics", s.client.VHost), &query, nil)
+	req, err := s.client.newRequest(ctx, "GET", path.Join("servers", s.client.VHost, "statistics"), &query, nil)
 	if err != nil {
 		return nil, err
 	}
