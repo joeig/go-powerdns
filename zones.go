@@ -3,6 +3,7 @@ package powerdns
 import (
 	"context"
 	"io"
+	"net/http"
 	"path"
 )
 
@@ -83,7 +84,7 @@ const (
 
 // List retrieves a list of Zones
 func (z *ZonesService) List(ctx context.Context) ([]Zone, error) {
-	req, err := z.client.newRequest(ctx, "GET", path.Join("servers", z.client.VHost, "zones"), nil, nil)
+	req, err := z.client.newRequest(ctx, http.MethodGet, path.Join("servers", z.client.VHost, "zones"), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +96,7 @@ func (z *ZonesService) List(ctx context.Context) ([]Zone, error) {
 
 // Get returns a certain Zone for a given domain
 func (z *ZonesService) Get(ctx context.Context, domain string) (*Zone, error) {
-	req, err := z.client.newRequest(ctx, "GET", path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain)), nil, nil)
+	req, err := z.client.newRequest(ctx, http.MethodGet, path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +161,7 @@ func (z *ZonesService) postZone(ctx context.Context, zone *Zone) (*Zone, error) 
 	zone.Name = String(makeDomainCanonical(*zone.Name))
 	zone.Type = ZoneTypePtr(ZoneZoneType)
 
-	req, err := z.client.newRequest(ctx, "POST", path.Join("servers", z.client.VHost, "zones"), nil, zone)
+	req, err := z.client.newRequest(ctx, http.MethodPost, path.Join("servers", z.client.VHost, "zones"), nil, zone)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +181,7 @@ func (z *ZonesService) Change(ctx context.Context, domain string, zone *Zone) er
 		zone.Nsec3Param = nil
 	}
 
-	req, err := z.client.newRequest(ctx, "PUT", path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain)), nil, zone)
+	req, err := z.client.newRequest(ctx, http.MethodPut, path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain)), nil, zone)
 	if err != nil {
 		return err
 	}
@@ -191,7 +192,7 @@ func (z *ZonesService) Change(ctx context.Context, domain string, zone *Zone) er
 
 // Delete removes a certain Zone for a given domain
 func (z *ZonesService) Delete(ctx context.Context, domain string) error {
-	req, err := z.client.newRequest(ctx, "DELETE", path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain)), nil, nil)
+	req, err := z.client.newRequest(ctx, http.MethodDelete, path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain)), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -202,7 +203,7 @@ func (z *ZonesService) Delete(ctx context.Context, domain string) error {
 
 // Notify sends a DNS notify packet to all slaves
 func (z *ZonesService) Notify(ctx context.Context, domain string) (*NotifyResult, error) {
-	req, err := z.client.newRequest(ctx, "PUT", path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain), "notify"), nil, nil)
+	req, err := z.client.newRequest(ctx, http.MethodPut, path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain), "notify"), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +215,7 @@ func (z *ZonesService) Notify(ctx context.Context, domain string) (*NotifyResult
 
 // AxfrRetrieve requests a axfr transfer from the master to requesting slave
 func (z *ZonesService) AxfrRetrieve(ctx context.Context, domain string) (*AxfrRetrieveResult, error) {
-	req, err := z.client.newRequest(ctx, "PUT", path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain), "axfr-retrieve"), nil, nil)
+	req, err := z.client.newRequest(ctx, http.MethodPut, path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain), "axfr-retrieve"), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +227,7 @@ func (z *ZonesService) AxfrRetrieve(ctx context.Context, domain string) (*AxfrRe
 
 // Export returns a BIND-like Zone file
 func (z *ZonesService) Export(ctx context.Context, domain string) (Export, error) {
-	req, err := z.client.newRequest(ctx, "GET", path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain), "export"), nil, nil)
+	req, err := z.client.newRequest(ctx, http.MethodGet, path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain), "export"), nil, nil)
 	if err != nil {
 		return "", err
 	}

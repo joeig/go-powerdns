@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"context"
+	"net/http"
 	"path"
 )
 
@@ -17,7 +18,7 @@ type ConfigSetting struct {
 
 // List retrieves a list of ConfigSettings
 func (c *ConfigService) List(ctx context.Context) ([]ConfigSetting, error) {
-	req, err := c.client.newRequest(ctx, "GET", path.Join("servers", c.client.VHost, "config"), nil, nil)
+	req, err := c.client.newRequest(ctx, http.MethodGet, path.Join("servers", c.client.VHost, "config"), nil, nil)
 	if err != nil {
 		return nil, err
 	}
