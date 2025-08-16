@@ -1,7 +1,5 @@
 package powerdns
 
-import "fmt"
-
 // Error structure with JSON API metadata
 type Error struct {
 	StatusCode int    `json:"-"`
@@ -10,5 +8,5 @@ type Error struct {
 }
 
 func (e Error) Error() string {
-	return fmt.Sprintf("%v", e.Message)
+	return e.Message
 }

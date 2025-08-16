@@ -1,3 +1,5 @@
+// Package powerdns is a Go client library for the PowerDNS API.
+// It's a community project and not associated with the official PowerDNS product itself.
 package powerdns
 
 import (
@@ -7,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -63,31 +64,14 @@ type Client struct {
 	Servers    *ServersService
 	Statistics *StatisticsService
 	Zones      *ZonesService
-	// Deprecated: Use TSIGKeys instead. TSIGKey will be removed with the next major version.
-	TSIGKey  *TSIGKeysService
-	TSIGKeys *TSIGKeysService
-}
-
-// logFatalf makes log.Fatalf testable
-var logFatalf = log.Fatalf
-
-// NewClient initializes a new client instance.
-//
-// Deprecated: Use New with functional options instead. NewClient will be removed with the next major version.
-func NewClient(baseURL string, vHost string, headers map[string]string, httpClient *http.Client) *Client {
-	effectiveHttpClient := httpClient
-	if httpClient == nil {
-		effectiveHttpClient = http.DefaultClient
-	}
-
-	return New(baseURL, vHost, WithHeaders(headers), WithHTTPClient(effectiveHttpClient))
+	TSIGKeys   *TSIGKeysService
 }
 
 // New initializes a new client instance.
-func New(baseURL string, vHost string, options ...NewOption) *Client {
+func New(baseURL string, vHost string, options ...NewOption) (*Client, error) {
 	scheme, hostname, port, err := parseBaseURL(baseURL)
 	if err != nil {
-		logFatalf("%s is not a valid url: %v", baseURL, err)
+		return nil, fmt.Errorf("baseURL is not a valid url: %w", err)
 	}
 
 	client := &Client{
@@ -108,13 +92,12 @@ func New(baseURL string, vHost string, options ...NewOption) *Client {
 	client.Statistics = (*StatisticsService)(&client.common)
 	client.Zones = (*ZonesService)(&client.common)
 	client.TSIGKeys = (*TSIGKeysService)(&client.common)
-	client.TSIGKey = client.TSIGKeys
 
 	for _, option := range options {
 		option(client)
 	}
 
-	return client
+	return client, nil
 }
 
 func parseBaseURL(baseURL string) (string, string, string, error) {
@@ -222,7 +205,7 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		}()
 		var message string
 
-		if resp.Header.Get("Content-Type") == "application/json" {
+		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
 			apiError := new(Error)
 			_ = json.NewDecoder(resp.Body).Decode(&apiError)
 			message = apiError.Message
