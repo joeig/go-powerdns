@@ -65,9 +65,7 @@ type Client struct {
 	Servers    *ServersService
 	Statistics *StatisticsService
 	Zones      *ZonesService
-	// Deprecated: Use TSIGKeys instead. TSIGKey will be removed with the next major version.
-	TSIGKey  *TSIGKeysService
-	TSIGKeys *TSIGKeysService
+	TSIGKeys   *TSIGKeysService
 }
 
 // logFatalf makes log.Fatalf testable
@@ -98,7 +96,6 @@ func New(baseURL string, vHost string, options ...NewOption) *Client {
 	client.Statistics = (*StatisticsService)(&client.common)
 	client.Zones = (*ZonesService)(&client.common)
 	client.TSIGKeys = (*TSIGKeysService)(&client.common)
-	client.TSIGKey = client.TSIGKeys
 
 	for _, option := range options {
 		option(client)
