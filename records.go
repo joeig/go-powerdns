@@ -184,14 +184,13 @@ func (r *RecordsService) Change(ctx context.Context, domain string, name string,
 	rrset.Type = &recordType
 	rrset.TTL = &ttl
 	rrset.ChangeType = ChangeTypePtr(ChangeTypeReplace)
-	rrset.Records = make([]Record, 0)
+	rrset.Records = make([]Record, len(content))
 	for _, opt := range options {
 		opt(rrset)
 	}
 
-	for _, c := range content {
-		r := Record{Content: String(c), Disabled: Bool(false), SetPTR: Bool(false)}
-		rrset.Records = append(rrset.Records, r)
+	for i, c := range content {
+		rrset.Records[i] = Record{Content: String(c), Disabled: Bool(false), SetPTR: Bool(false)}
 	}
 
 	payload := r.prepareRRSet(rrset)
