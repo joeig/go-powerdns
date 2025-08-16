@@ -73,18 +73,6 @@ type Client struct {
 // logFatalf makes log.Fatalf testable
 var logFatalf = log.Fatalf
 
-// NewClient initializes a new client instance.
-//
-// Deprecated: Use New with functional options instead. NewClient will be removed with the next major version.
-func NewClient(baseURL string, vHost string, headers map[string]string, httpClient *http.Client) *Client {
-	effectiveHttpClient := httpClient
-	if httpClient == nil {
-		effectiveHttpClient = http.DefaultClient
-	}
-
-	return New(baseURL, vHost, WithHeaders(headers), WithHTTPClient(effectiveHttpClient))
-}
-
 // New initializes a new client instance.
 func New(baseURL string, vHost string, options ...NewOption) *Client {
 	scheme, hostname, port, err := parseBaseURL(baseURL)
