@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -68,14 +67,11 @@ type Client struct {
 	TSIGKeys   *TSIGKeysService
 }
 
-// logFatalf makes log.Fatalf testable
-var logFatalf = log.Fatalf
-
 // New initializes a new client instance.
-func New(baseURL string, vHost string, options ...NewOption) *Client {
+func New(baseURL string, vHost string, options ...NewOption) (*Client, error) {
 	scheme, hostname, port, err := parseBaseURL(baseURL)
 	if err != nil {
-		logFatalf("%s is not a valid url: %v", baseURL, err)
+		return nil, fmt.Errorf("baseURL is not a valid url: %w", err)
 	}
 
 	client := &Client{
@@ -101,7 +97,7 @@ func New(baseURL string, vHost string, options ...NewOption) *Client {
 		option(client)
 	}
 
-	return client
+	return client, nil
 }
 
 func parseBaseURL(baseURL string) (string, string, string, error) {
