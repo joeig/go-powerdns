@@ -91,48 +91,6 @@ func TestWithAPIKey(t *testing.T) {
 	}
 }
 
-func TestNewClient(t *testing.T) {
-	t.Run("TestMinimalConstructor", func(t *testing.T) {
-		p := NewClient("http://localhost:8080", "localhost", nil, nil)
-		if p.Scheme != "http" {
-			t.Error("NewClient returns invalid scheme")
-		}
-		if p.Hostname != "localhost" {
-			t.Error("NewClient returns invalid hostname")
-		}
-		if p.Port != "8080" {
-			t.Error("NewClient returns invalid port")
-		}
-		if p.VHost != "localhost" {
-			t.Error("NewClient returns invalid vHost")
-		}
-		if !maps.Equal(p.Headers, map[string]string{}) {
-			t.Error("NewClient returns invalid headers")
-		}
-		if p.httpClient != http.DefaultClient {
-			t.Error("NewClient returns invalid HTTP client")
-		}
-		if p.common.client != p {
-			t.Error("NewClient returns invalid common client")
-		}
-	})
-
-	t.Run("TestCustomHeaders", func(t *testing.T) {
-		p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
-		if !maps.Equal(p.Headers, map[string]string{"X-API-Key": "apipw"}) {
-			t.Error("NewClient returns invalid headers")
-		}
-	})
-
-	t.Run("TestCustomHTTPClient", func(t *testing.T) {
-		httpClient := &http.Client{}
-		p := NewClient("http://localhost:8080", "localhost", nil, httpClient)
-		if p.httpClient != httpClient {
-			t.Error("NewClient returns invalid HTTP Client")
-		}
-	})
-}
-
 func TestNew(t *testing.T) {
 	t.Run("TestNoOptions", func(t *testing.T) {
 		p := New("http://localhost:8080", "localhost")
