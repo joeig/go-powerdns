@@ -1,3 +1,5 @@
+// Package powerdns is a Go client library for the PowerDNS API.
+// It's a community project and not associated with the official PowerDNS product itself.
 package powerdns
 
 import (
