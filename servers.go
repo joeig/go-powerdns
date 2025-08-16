@@ -2,8 +2,8 @@ package powerdns
 
 import (
 	"context"
-	"fmt"
 	"net/url"
+	"path"
 )
 
 // ServersService handles communication with the servers related methods of the Client API
@@ -40,7 +40,7 @@ func (s *ServersService) List(ctx context.Context) ([]Server, error) {
 
 // Get returns a certain Server
 func (s *ServersService) Get(ctx context.Context, vHost string) (*Server, error) {
-	req, err := s.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s", vHost), nil, nil)
+	req, err := s.client.newRequest(ctx, "GET", path.Join("servers", vHost), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (s *ServersService) Get(ctx context.Context, vHost string) (*Server, error)
 func (s *ServersService) CacheFlush(ctx context.Context, vHost string, domain string) (*CacheFlushResult, error) {
 	query := url.Values{}
 	query.Add("domain", makeDomainCanonical(domain))
-	req, err := s.client.newRequest(ctx, "PUT", fmt.Sprintf("servers/%s/cache/flush", vHost), &query, nil)
+	req, err := s.client.newRequest(ctx, "PUT", path.Join("servers", vHost, "cache", "flush"), &query, nil)
 	if err != nil {
 		return nil, err
 	}

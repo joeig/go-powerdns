@@ -2,7 +2,7 @@ package powerdns
 
 import (
 	"context"
-	"fmt"
+	"path"
 )
 
 // ConfigService handles communication with the zones related methods of the Client API
@@ -17,7 +17,7 @@ type ConfigSetting struct {
 
 // List retrieves a list of ConfigSettings
 func (c *ConfigService) List(ctx context.Context) ([]ConfigSetting, error) {
-	req, err := c.client.newRequest(ctx, "GET", fmt.Sprintf("servers/%s/config", c.client.VHost), nil, nil)
+	req, err := c.client.newRequest(ctx, "GET", path.Join("servers", c.client.VHost, "config"), nil, nil)
 	if err != nil {
 		return nil, err
 	}

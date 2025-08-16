@@ -2,9 +2,9 @@ package powerdns
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 )
 
 // RecordsService handles communication with the records related methods of the Client API
@@ -217,7 +217,7 @@ func (r *RecordsService) Get(ctx context.Context, domain, name string, recordTyp
 		query.Add("rrset_type", string(*recordType))
 	}
 
-	req, err := r.client.newRequest(ctx, http.MethodGet, fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, makeDomainCanonical(domain)), query, nil)
+	req, err := r.client.newRequest(ctx, http.MethodGet, path.Join("servers", r.client.VHost, "zones", makeDomainCanonical(domain)), query, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +259,7 @@ func (r *RecordsService) prepareRRSet(rrSet *RRset) *RRsets {
 }
 
 func (r *RecordsService) patchRRSet(ctx context.Context, domain string, rrSets *RRsets) error {
-	req, err := r.client.newRequest(ctx, "PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, makeDomainCanonical(domain)), nil, &rrSets)
+	req, err := r.client.newRequest(ctx, "PATCH", path.Join("servers", r.client.VHost, "zones", makeDomainCanonical(domain)), nil, &rrSets)
 	if err != nil {
 		return err
 	}
