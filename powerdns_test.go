@@ -144,14 +144,14 @@ func TestNew(t *testing.T) {
 func TestNewRequest(t *testing.T) {
 	t.Run("TestValidRequest", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		if _, err := p.newRequest(context.Background(), "GET", "servers", nil, nil); err != nil {
+		if _, err := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil); err != nil {
 			t.Error("error is not nil")
 		}
 	})
 
 	t.Run("TestUserAgentHeader", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("User-Agent") != "go-powerdns" {
 			t.Error("Unexpected user agent header")
 		}
@@ -159,7 +159,7 @@ func TestNewRequest(t *testing.T) {
 
 	t.Run("TestContentTypeHeaderWithoutBody", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("Content-Type") != "" {
 			t.Error("Unexpected content type header")
 		}
@@ -170,7 +170,7 @@ func TestNewRequest(t *testing.T) {
 
 	t.Run("TestContentTypeHeaderWithBody", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, "test-body")
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, "test-body")
 		if req.Header.Get("Content-Type") != "application/json" {
 			t.Error("Unexpected content type header")
 		}
@@ -181,7 +181,7 @@ func TestNewRequest(t *testing.T) {
 
 	t.Run("TestAPIKeyHeader", func(t *testing.T) {
 		p, _ := New(testBaseURL, testVHost, WithAPIKey("test-key"))
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("X-API-Key") != "test-key" {
 			t.Error("Unexpected API key header")
 		}
@@ -189,7 +189,7 @@ func TestNewRequest(t *testing.T) {
 
 	t.Run("TestCustomHeaders", func(t *testing.T) {
 		p, _ := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("X-Test-Header") != "test-header" {
 			t.Error("Unexpected API key header")
 		}
@@ -203,21 +203,21 @@ func TestDo(t *testing.T) {
 
 	t.Run("TestStringErrorResponse", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers/doesnt-exist", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers/doesnt-exist", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("err is nil")
 		}
 	})
 	t.Run("Test401Handling", func(t *testing.T) {
 		p, _ := New(testBaseURL, testVHost)
-		req, _ := p.newRequest(context.Background(), "GET", "servers/localhost", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers/localhost", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Unauthorized" {
 			t.Error("401 response does not result into an error with correct message.")
 		}
 	})
 	t.Run("TestErrorHandling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers/doesnt-exist", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers/doesnt-exist", nil, nil)
 		_, err := p.do(req, nil)
 		wantResultBeforePowerDNSAuth49 := "Not Found"
 		wantResultFromPowerDNSAuth49 := "Method Not Allowed"
@@ -227,7 +227,7 @@ func TestDo(t *testing.T) {
 	})
 	t.Run("TestJSONErrorHandling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "server", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "server", nil, nil)
 		_, err := p.do(req, nil)
 		wantResultBeforePowerDNSAuth49 := "Not Found"
 		wantResultFromPowerDNSAuth49 := "Method Not Allowed"

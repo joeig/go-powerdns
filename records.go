@@ -259,7 +259,7 @@ func (r *RecordsService) prepareRRSet(rrSet *RRset) *RRsets {
 }
 
 func (r *RecordsService) patchRRSet(ctx context.Context, domain string, rrSets *RRsets) error {
-	req, err := r.client.newRequest(ctx, "PATCH", path.Join("servers", r.client.VHost, "zones", makeDomainCanonical(domain)), nil, &rrSets)
+	req, err := r.client.newRequest(ctx, http.MethodPatch, path.Join("servers", r.client.VHost, "zones", makeDomainCanonical(domain)), nil, &rrSets)
 	if err != nil {
 		return err
 	}

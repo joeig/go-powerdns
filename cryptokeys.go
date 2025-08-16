@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"context"
+	"net/http"
 	"path"
 	"strconv"
 )
@@ -28,7 +29,7 @@ func cryptokeyIDToString(id uint64) string {
 
 // List retrieves a list of Cryptokeys that belong to a Zone
 func (c *CryptokeysService) List(ctx context.Context, domain string) ([]Cryptokey, error) {
-	req, err := c.client.newRequest(ctx, "GET", path.Join("servers", c.client.VHost, "zones", makeDomainCanonical(domain), "cryptokeys"), nil, nil)
+	req, err := c.client.newRequest(ctx, http.MethodGet, path.Join("servers", c.client.VHost, "zones", makeDomainCanonical(domain), "cryptokeys"), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,7 @@ func (c *CryptokeysService) List(ctx context.Context, domain string) ([]Cryptoke
 
 // Get returns a certain Cryptokey instance of a given Zone
 func (c *CryptokeysService) Get(ctx context.Context, domain string, id uint64) (*Cryptokey, error) {
-	req, err := c.client.newRequest(ctx, "GET", path.Join("servers", c.client.VHost, "zones", makeDomainCanonical(domain), "cryptokeys", cryptokeyIDToString(id)), nil, nil)
+	req, err := c.client.newRequest(ctx, http.MethodGet, path.Join("servers", c.client.VHost, "zones", makeDomainCanonical(domain), "cryptokeys", cryptokeyIDToString(id)), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +53,7 @@ func (c *CryptokeysService) Get(ctx context.Context, domain string, id uint64) (
 
 // Delete removes a given Cryptokey
 func (c *CryptokeysService) Delete(ctx context.Context, domain string, id uint64) error {
-	req, err := c.client.newRequest(ctx, "DELETE", path.Join("servers", c.client.VHost, "zones", makeDomainCanonical(domain), "cryptokeys", cryptokeyIDToString(id)), nil, nil)
+	req, err := c.client.newRequest(ctx, http.MethodDelete, path.Join("servers", c.client.VHost, "zones", makeDomainCanonical(domain), "cryptokeys", cryptokeyIDToString(id)), nil, nil)
 	if err != nil {
 		return err
 	}

@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"context"
+	"net/http"
 	"net/url"
 	"path"
 )
@@ -28,7 +29,7 @@ type CacheFlushResult struct {
 
 // List retrieves a list of Servers
 func (s *ServersService) List(ctx context.Context) ([]Server, error) {
-	req, err := s.client.newRequest(ctx, "GET", "servers", nil, nil)
+	req, err := s.client.newRequest(ctx, http.MethodGet, "servers", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,7 @@ func (s *ServersService) List(ctx context.Context) ([]Server, error) {
 
 // Get returns a certain Server
 func (s *ServersService) Get(ctx context.Context, vHost string) (*Server, error) {
-	req, err := s.client.newRequest(ctx, "GET", path.Join("servers", vHost), nil, nil)
+	req, err := s.client.newRequest(ctx, http.MethodGet, path.Join("servers", vHost), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +55,7 @@ func (s *ServersService) Get(ctx context.Context, vHost string) (*Server, error)
 func (s *ServersService) CacheFlush(ctx context.Context, vHost string, domain string) (*CacheFlushResult, error) {
 	query := url.Values{}
 	query.Add("domain", makeDomainCanonical(domain))
-	req, err := s.client.newRequest(ctx, "PUT", path.Join("servers", vHost, "cache", "flush"), &query, nil)
+	req, err := s.client.newRequest(ctx, http.MethodPut, path.Join("servers", vHost, "cache", "flush"), &query, nil)
 	if err != nil {
 		return nil, err
 	}
