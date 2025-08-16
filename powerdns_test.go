@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"maps"
 	"net/http"
@@ -32,7 +33,8 @@ func verifyAPIKey(req *http.Request) *http.Response {
 	return nil
 }
 func initialisePowerDNSTestClient() *Client {
-	return New(testBaseURL, testVHost, WithAPIKey(testAPIKey))
+	client, _ := New(testBaseURL, testVHost, WithAPIKey(testAPIKey))
+	return client
 }
 
 func registerDoMockResponder() {
@@ -93,7 +95,7 @@ func TestWithAPIKey(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	t.Run("TestNoOptions", func(t *testing.T) {
-		p := New("http://localhost:8080", "localhost")
+		p, _ := New("http://localhost:8080", "localhost")
 		if p.Scheme != "http" {
 			t.Error("New returns invalid scheme")
 		}
@@ -122,7 +124,7 @@ func TestNew(t *testing.T) {
 		testOption := func(client *Client) {
 			testOptionInvocationCount++
 		}
-		_ = New("http://localhost:8080", "localhost", testOption, testOption)
+		_, _ = New("http://localhost:8080", "localhost", testOption, testOption)
 
 		if testOptionInvocationCount != 2 {
 			t.Error("New does not call all options")
@@ -130,23 +132,11 @@ func TestNew(t *testing.T) {
 	})
 
 	t.Run("TestInvalidURL", func(t *testing.T) {
-		originalLogFatalf := logFatalf
-		defer func() {
-			logFatalf = originalLogFatalf
-		}()
-		var errors []string
-		logFatalf = func(format string, args ...interface{}) {
-			if len(args) > 0 {
-				errors = append(errors, fmt.Sprintf(format, args))
-			} else {
-				errors = append(errors, format)
-			}
-		}
+		_, err := New("http://1.2:foo", "localhost")
 
-		_ = New("http://1.2:foo", "localhost")
-
-		if len(errors) < 1 {
-			t.Error("NewClient does not exit with fatal error")
+		var urlError *url.Error
+		if !errors.As(err, &urlError) {
+			t.Error("New does not exit with error")
 		}
 	})
 }
@@ -190,7 +180,7 @@ func TestNewRequest(t *testing.T) {
 	})
 
 	t.Run("TestAPIKeyHeader", func(t *testing.T) {
-		p := New(testBaseURL, testVHost, WithAPIKey("test-key"))
+		p, _ := New(testBaseURL, testVHost, WithAPIKey("test-key"))
 		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
 		if req.Header.Get("X-API-Key") != "test-key" {
 			t.Error("Unexpected API key header")
@@ -198,7 +188,7 @@ func TestNewRequest(t *testing.T) {
 	})
 
 	t.Run("TestCustomHeaders", func(t *testing.T) {
-		p := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
+		p, _ := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
 		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
 		if req.Header.Get("X-Test-Header") != "test-header" {
 			t.Error("Unexpected API key header")
@@ -219,7 +209,7 @@ func TestDo(t *testing.T) {
 		}
 	})
 	t.Run("Test401Handling", func(t *testing.T) {
-		p := New(testBaseURL, testVHost)
+		p, _ := New(testBaseURL, testVHost)
 		req, _ := p.newRequest(context.Background(), "GET", "servers/localhost", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Unauthorized" {
 			t.Error("401 response does not result into an error with correct message.")
