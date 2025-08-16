@@ -224,7 +224,7 @@ func (p *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		}()
 		var message string
 
-		if resp.Header.Get("Content-Type") == "application/json" {
+		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
 			apiError := new(Error)
 			_ = json.NewDecoder(resp.Body).Decode(&apiError)
 			message = apiError.Message
