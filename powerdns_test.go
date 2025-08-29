@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"maps"
 	"net/http"
@@ -32,7 +33,8 @@ func verifyAPIKey(req *http.Request) *http.Response {
 	return nil
 }
 func initialisePowerDNSTestClient() *Client {
-	return New(testBaseURL, testVHost, WithAPIKey(testAPIKey))
+	client, _ := New(testBaseURL, testVHost, WithAPIKey(testAPIKey))
+	return client
 }
 
 func registerDoMockResponder() {
@@ -91,51 +93,9 @@ func TestWithAPIKey(t *testing.T) {
 	}
 }
 
-func TestNewClient(t *testing.T) {
-	t.Run("TestMinimalConstructor", func(t *testing.T) {
-		p := NewClient("http://localhost:8080", "localhost", nil, nil)
-		if p.Scheme != "http" {
-			t.Error("NewClient returns invalid scheme")
-		}
-		if p.Hostname != "localhost" {
-			t.Error("NewClient returns invalid hostname")
-		}
-		if p.Port != "8080" {
-			t.Error("NewClient returns invalid port")
-		}
-		if p.VHost != "localhost" {
-			t.Error("NewClient returns invalid vHost")
-		}
-		if !maps.Equal(p.Headers, map[string]string{}) {
-			t.Error("NewClient returns invalid headers")
-		}
-		if p.httpClient != http.DefaultClient {
-			t.Error("NewClient returns invalid HTTP client")
-		}
-		if p.common.client != p {
-			t.Error("NewClient returns invalid common client")
-		}
-	})
-
-	t.Run("TestCustomHeaders", func(t *testing.T) {
-		p := NewClient("http://localhost:8080", "localhost", map[string]string{"X-API-Key": "apipw"}, nil)
-		if !maps.Equal(p.Headers, map[string]string{"X-API-Key": "apipw"}) {
-			t.Error("NewClient returns invalid headers")
-		}
-	})
-
-	t.Run("TestCustomHTTPClient", func(t *testing.T) {
-		httpClient := &http.Client{}
-		p := NewClient("http://localhost:8080", "localhost", nil, httpClient)
-		if p.httpClient != httpClient {
-			t.Error("NewClient returns invalid HTTP Client")
-		}
-	})
-}
-
 func TestNew(t *testing.T) {
 	t.Run("TestNoOptions", func(t *testing.T) {
-		p := New("http://localhost:8080", "localhost")
+		p, _ := New("http://localhost:8080", "localhost")
 		if p.Scheme != "http" {
 			t.Error("New returns invalid scheme")
 		}
@@ -164,7 +124,7 @@ func TestNew(t *testing.T) {
 		testOption := func(client *Client) {
 			testOptionInvocationCount++
 		}
-		_ = New("http://localhost:8080", "localhost", testOption, testOption)
+		_, _ = New("http://localhost:8080", "localhost", testOption, testOption)
 
 		if testOptionInvocationCount != 2 {
 			t.Error("New does not call all options")
@@ -172,23 +132,11 @@ func TestNew(t *testing.T) {
 	})
 
 	t.Run("TestInvalidURL", func(t *testing.T) {
-		originalLogFatalf := logFatalf
-		defer func() {
-			logFatalf = originalLogFatalf
-		}()
-		var errors []string
-		logFatalf = func(format string, args ...interface{}) {
-			if len(args) > 0 {
-				errors = append(errors, fmt.Sprintf(format, args))
-			} else {
-				errors = append(errors, format)
-			}
-		}
+		_, err := New("http://1.2:foo", "localhost")
 
-		_ = New("http://1.2:foo", "localhost")
-
-		if len(errors) < 1 {
-			t.Error("NewClient does not exit with fatal error")
+		var urlError *url.Error
+		if !errors.As(err, &urlError) {
+			t.Error("New does not exit with error")
 		}
 	})
 }
@@ -196,14 +144,14 @@ func TestNew(t *testing.T) {
 func TestNewRequest(t *testing.T) {
 	t.Run("TestValidRequest", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		if _, err := p.newRequest(context.Background(), "GET", "servers", nil, nil); err != nil {
+		if _, err := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil); err != nil {
 			t.Error("error is not nil")
 		}
 	})
 
 	t.Run("TestUserAgentHeader", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("User-Agent") != "go-powerdns" {
 			t.Error("Unexpected user agent header")
 		}
@@ -211,7 +159,7 @@ func TestNewRequest(t *testing.T) {
 
 	t.Run("TestContentTypeHeaderWithoutBody", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("Content-Type") != "" {
 			t.Error("Unexpected content type header")
 		}
@@ -222,7 +170,7 @@ func TestNewRequest(t *testing.T) {
 
 	t.Run("TestContentTypeHeaderWithBody", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, "test-body")
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, "test-body")
 		if req.Header.Get("Content-Type") != "application/json" {
 			t.Error("Unexpected content type header")
 		}
@@ -232,16 +180,16 @@ func TestNewRequest(t *testing.T) {
 	})
 
 	t.Run("TestAPIKeyHeader", func(t *testing.T) {
-		p := New(testBaseURL, testVHost, WithAPIKey("test-key"))
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		p, _ := New(testBaseURL, testVHost, WithAPIKey("test-key"))
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("X-API-Key") != "test-key" {
 			t.Error("Unexpected API key header")
 		}
 	})
 
 	t.Run("TestCustomHeaders", func(t *testing.T) {
-		p := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
-		req, _ := p.newRequest(context.Background(), "GET", "servers", nil, nil)
+		p, _ := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("X-Test-Header") != "test-header" {
 			t.Error("Unexpected API key header")
 		}
@@ -255,21 +203,21 @@ func TestDo(t *testing.T) {
 
 	t.Run("TestStringErrorResponse", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers/doesnt-exist", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers/doesnt-exist", nil, nil)
 		if _, err := p.do(req, nil); err == nil {
 			t.Error("err is nil")
 		}
 	})
 	t.Run("Test401Handling", func(t *testing.T) {
-		p := New(testBaseURL, testVHost)
-		req, _ := p.newRequest(context.Background(), "GET", "servers/localhost", nil, nil)
+		p, _ := New(testBaseURL, testVHost)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers/localhost", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Unauthorized" {
 			t.Error("401 response does not result into an error with correct message.")
 		}
 	})
 	t.Run("TestErrorHandling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "servers/doesnt-exist", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers/doesnt-exist", nil, nil)
 		_, err := p.do(req, nil)
 		wantResultBeforePowerDNSAuth49 := "Not Found"
 		wantResultFromPowerDNSAuth49 := "Method Not Allowed"
@@ -279,7 +227,7 @@ func TestDo(t *testing.T) {
 	})
 	t.Run("TestJSONErrorHandling", func(t *testing.T) {
 		p := initialisePowerDNSTestClient()
-		req, _ := p.newRequest(context.Background(), "GET", "server", nil, nil)
+		req, _ := p.newRequest(context.Background(), http.MethodGet, "server", nil, nil)
 		_, err := p.do(req, nil)
 		wantResultBeforePowerDNSAuth49 := "Not Found"
 		wantResultFromPowerDNSAuth49 := "Method Not Allowed"

@@ -2,9 +2,9 @@ package powerdns
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 )
 
 // RecordsService handles communication with the records related methods of the Client API
@@ -184,14 +184,13 @@ func (r *RecordsService) Change(ctx context.Context, domain string, name string,
 	rrset.Type = &recordType
 	rrset.TTL = &ttl
 	rrset.ChangeType = ChangeTypePtr(ChangeTypeReplace)
-	rrset.Records = make([]Record, 0)
+	rrset.Records = make([]Record, len(content))
 	for _, opt := range options {
 		opt(rrset)
 	}
 
-	for _, c := range content {
-		r := Record{Content: String(c), Disabled: Bool(false), SetPTR: Bool(false)}
-		rrset.Records = append(rrset.Records, r)
+	for i, c := range content {
+		rrset.Records[i] = Record{Content: String(c), Disabled: Bool(false), SetPTR: Bool(false)}
 	}
 
 	payload := r.prepareRRSet(rrset)
@@ -218,7 +217,7 @@ func (r *RecordsService) Get(ctx context.Context, domain, name string, recordTyp
 		query.Add("rrset_type", string(*recordType))
 	}
 
-	req, err := r.client.newRequest(ctx, http.MethodGet, fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, makeDomainCanonical(domain)), query, nil)
+	req, err := r.client.newRequest(ctx, http.MethodGet, path.Join("servers", r.client.VHost, "zones", makeDomainCanonical(domain)), query, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +259,7 @@ func (r *RecordsService) prepareRRSet(rrSet *RRset) *RRsets {
 }
 
 func (r *RecordsService) patchRRSet(ctx context.Context, domain string, rrSets *RRsets) error {
-	req, err := r.client.newRequest(ctx, "PATCH", fmt.Sprintf("servers/%s/zones/%s", r.client.VHost, makeDomainCanonical(domain)), nil, &rrSets)
+	req, err := r.client.newRequest(ctx, http.MethodPatch, path.Join("servers", r.client.VHost, "zones", makeDomainCanonical(domain)), nil, &rrSets)
 	if err != nil {
 		return err
 	}
