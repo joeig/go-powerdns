@@ -44,7 +44,7 @@ func TestListConfig(t *testing.T) {
 
 func TestListConfigError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Config.List(context.Background()); err == nil {
 		t.Error("error is nil")
 	}

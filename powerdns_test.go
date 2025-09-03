@@ -33,7 +33,7 @@ func verifyAPIKey(req *http.Request) *http.Response {
 	return nil
 }
 func initialisePowerDNSTestClient() *Client {
-	client, _ := New(testBaseURL, testVHost, WithAPIKey(testAPIKey))
+	client := New(testBaseURL, testVHost, WithAPIKey(testAPIKey))
 	return client
 }
 
@@ -95,15 +95,9 @@ func TestWithAPIKey(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	t.Run("TestNoOptions", func(t *testing.T) {
-		p, _ := New("http://localhost:8080", "localhost")
-		if p.Scheme != "http" {
-			t.Error("New returns invalid scheme")
-		}
-		if p.Hostname != "localhost" {
-			t.Error("New returns invalid hostname")
-		}
-		if p.Port != "8080" {
-			t.Error("New returns invalid port")
+		p := New("http://localhost:8080", "localhost")
+		if p.BaseURL != "http://localhost:8080" {
+			t.Error("New returns invalid base URL")
 		}
 		if p.VHost != "localhost" {
 			t.Error("New returns invalid vHost")
@@ -124,19 +118,10 @@ func TestNew(t *testing.T) {
 		testOption := func(client *Client) {
 			testOptionInvocationCount++
 		}
-		_, _ = New("http://localhost:8080", "localhost", testOption, testOption)
+		_ = New("http://localhost:8080", "localhost", testOption, testOption)
 
 		if testOptionInvocationCount != 2 {
 			t.Error("New does not call all options")
-		}
-	})
-
-	t.Run("TestInvalidURL", func(t *testing.T) {
-		_, err := New("http://1.2:foo", "localhost")
-
-		var urlError *url.Error
-		if !errors.As(err, &urlError) {
-			t.Error("New does not exit with error")
 		}
 	})
 }
@@ -180,7 +165,7 @@ func TestNewRequest(t *testing.T) {
 	})
 
 	t.Run("TestAPIKeyHeader", func(t *testing.T) {
-		p, _ := New(testBaseURL, testVHost, WithAPIKey("test-key"))
+		p := New(testBaseURL, testVHost, WithAPIKey("test-key"))
 		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("X-API-Key") != "test-key" {
 			t.Error("Unexpected API key header")
@@ -188,10 +173,18 @@ func TestNewRequest(t *testing.T) {
 	})
 
 	t.Run("TestCustomHeaders", func(t *testing.T) {
-		p, _ := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
+		p := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
 		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers", nil, nil)
 		if req.Header.Get("X-Test-Header") != "test-header" {
 			t.Error("Unexpected API key header")
+		}
+	})
+
+	t.Run("TestInvalidMethod", func(t *testing.T) {
+		p := New(testBaseURL, testVHost, WithHeaders(map[string]string{"X-Test-Header": "test-header"}))
+		_, err := p.newRequest(context.Background(), " ", "servers", nil, nil)
+		if err == nil {
+			t.Error("err expected")
 		}
 	})
 }
@@ -209,7 +202,7 @@ func TestDo(t *testing.T) {
 		}
 	})
 	t.Run("Test401Handling", func(t *testing.T) {
-		p, _ := New(testBaseURL, testVHost)
+		p := New(testBaseURL, testVHost)
 		req, _ := p.newRequest(context.Background(), http.MethodGet, "servers/localhost", nil, nil)
 		if _, err := p.do(req, nil); err.Error() != "Unauthorized" {
 			t.Error("401 response does not result into an error with correct message.")
@@ -237,52 +230,6 @@ func TestDo(t *testing.T) {
 	})
 }
 
-func TestParseBaseURL(t *testing.T) {
-	testCases := []struct {
-		baseURL      string
-		wantScheme   string
-		wantHostname string
-		wantPort     string
-		wantError    bool
-	}{
-		{"https://example.com", "https", "example.com", "443", false},
-		{"http://example.com", "http", "example.com", "80", false},
-		{"https://example.com:8080", "https", "example.com", "8080", false},
-		{"http://example.com:8080", "http", "example.com", "8080", false},
-		{"http://[fd06:4c9a:99b0::1]:8080", "http", "fd06:4c9a:99b0::1", "8080", false},
-		{"http://[fd06:4c9a:99b0::1]", "http", "fd06:4c9a:99b0::1", "80", false},
-		{"http://[127.1.2.3]:8080", "http", "127.1.2.3", "8080", false},
-		{"http://[127.1.2.3]", "http", "127.1.2.3", "80", false},
-		{"http%%%foo", "", "", "", true},
-		{"http://::8080", "", "", "", true},
-	}
-
-	for i, tc := range testCases {
-		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
-			scheme, hostname, port, err := parseBaseURL(tc.baseURL)
-
-			if err != nil && tc.wantError == true {
-				return
-			}
-			if err != nil && tc.wantError == false {
-				t.Error("Error was returned unexpectedly")
-			}
-			if err == nil && tc.wantError == true {
-				t.Error("No error was returned")
-			}
-			if scheme != tc.wantScheme {
-				t.Errorf("Scheme parsing failed: %s != %s", scheme, tc.wantScheme)
-			}
-			if hostname != tc.wantHostname {
-				t.Errorf("Hostname parsing failed: %s != %s", hostname, tc.wantHostname)
-			}
-			if port != tc.wantPort {
-				t.Errorf("Port parsing failed: %s != %s", port, tc.wantPort)
-			}
-		})
-	}
-}
-
 func TestParseVHost(t *testing.T) {
 	testCases := []struct {
 		vHost     string
@@ -305,25 +252,27 @@ func TestGenerateAPIURL(t *testing.T) {
 	testQuery := &url.Values{}
 	testQuery.Add("a", "b")
 	testCases := []struct {
-		scheme   string
-		hostname string
-		port     string
-		path     string
-		query    *url.Values
-		wantURL  string
+		baseURL string
+		path    string
+		query   *url.Values
+		wantURL string
+		wantErr *error
 	}{
-		{"https", "localhost", "8080", "foo", testQuery, "https://localhost:8080/api/v1/foo?a=b"},
-		{"http", "localhost", "8080", "foo", testQuery, "http://localhost:8080/api/v1/foo?a=b"},
-		{"http", "localhost", "1337", "foo", testQuery, "http://localhost:1337/api/v1/foo?a=b"},
-		{"https", "127.1.2.3", "8080", "foo", testQuery, "https://127.1.2.3:8080/api/v1/foo?a=b"},
-		{"https", "fd06:4c9a:99b0::1", "8080", "foo", testQuery, "https://[fd06:4c9a:99b0::1]:8080/api/v1/foo?a=b"},
+		{"https://localhost:8080", "foo", testQuery, "https://localhost:8080/api/v1/foo?a=b", nil},
+		{"http://localhost:8080", "foo", testQuery, "http://localhost:8080/api/v1/foo?a=b", nil},
+		{"http://localhost:1337", "foo", testQuery, "http://localhost:1337/api/v1/foo?a=b", nil},
+		{"https://127.1.2.3:8080", "foo", testQuery, "https://127.1.2.3:8080/api/v1/foo?a=b", nil},
+		{"https://[fd06:4c9a:99b0::1]:8080", "foo", testQuery, "https://[fd06:4c9a:99b0::1]:8080/api/v1/foo?a=b", nil},
 	}
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("TestCase%d", i), func(t *testing.T) {
-			newURL := generateAPIURL(tc.scheme, tc.hostname, tc.port, tc.path, tc.query)
+			newURL, err := generateAPIURL(tc.baseURL, tc.path, tc.query)
 			if tc.wantURL != newURL.String() {
 				t.Errorf("generateAPIURL returned an invalid value: %q", newURL.String())
+			}
+			if tc.wantErr != nil && errors.Is(err, *tc.wantErr) {
+				t.Errorf("generateAPIURL returned an invalid error: %q", err)
 			}
 		})
 	}

@@ -6,10 +6,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
 	"path"
@@ -46,11 +44,9 @@ type service struct {
 
 // Client configuration structure
 type Client struct {
-	Scheme   string
-	Hostname string
-	Port     string
-	VHost    string
-	Headers  map[string]string
+	BaseURL string
+	VHost   string
+	Headers map[string]string
 
 	httpClient *http.Client
 	apiKey     *string
@@ -68,16 +64,9 @@ type Client struct {
 }
 
 // New initializes a new client instance.
-func New(baseURL string, vHost string, options ...NewOption) (*Client, error) {
-	scheme, hostname, port, err := parseBaseURL(baseURL)
-	if err != nil {
-		return nil, fmt.Errorf("baseURL is not a valid url: %w", err)
-	}
-
+func New(baseURL string, vHost string, options ...NewOption) *Client {
 	client := &Client{
-		Scheme:     scheme,
-		Hostname:   hostname,
-		Port:       port,
+		BaseURL:    baseURL,
 		VHost:      parseVHost(vHost),
 		httpClient: http.DefaultClient,
 	}
@@ -97,33 +86,7 @@ func New(baseURL string, vHost string, options ...NewOption) (*Client, error) {
 		option(client)
 	}
 
-	return client, nil
-}
-
-func parseBaseURL(baseURL string) (string, string, string, error) {
-	parsedURL, err := url.Parse(baseURL)
-	if err != nil {
-		return "", "", "", err
-	}
-
-	hostname, port, err := net.SplitHostPort(parsedURL.Host)
-	if err != nil {
-		var addrError *net.AddrError
-		if errors.As(err, &addrError) && addrError.Err == "missing port in address" {
-			fallbackPort := "443"
-			if parsedURL.Scheme == "http" {
-				fallbackPort = "80"
-			}
-
-			parsedURL.Host = fmt.Sprintf("%s:%s", parsedURL.Host, fallbackPort)
-
-			return parseBaseURL(parsedURL.String())
-		}
-
-		return "", "", "", err
-	}
-
-	return parsedURL.Scheme, hostname, port, nil
+	return client
 }
 
 func parseVHost(vHost string) string {
@@ -133,17 +96,19 @@ func parseVHost(vHost string) string {
 	return vHost
 }
 
-func generateAPIURL(scheme, hostname, port, pathFragment string, query *url.Values) url.URL {
-	newURL := url.URL{}
-	newURL.Scheme = scheme
-	newURL.Host = net.JoinHostPort(hostname, port)
+func generateAPIURL(baseURL, pathFragment string, query *url.Values) (*url.URL, error) {
+	newURL, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, err
+	}
+
 	newURL.Path = path.Join("/api/v1/", pathFragment)
 
 	if query != nil {
 		newURL.RawQuery = query.Encode()
 	}
 
-	return newURL
+	return newURL, nil
 }
 
 func trimDomain(domain string) string {
@@ -161,7 +126,11 @@ func (p *Client) newRequest(ctx context.Context, method string, pathFragment str
 		_ = json.NewEncoder(buf).Encode(body)
 	}
 
-	apiURL := generateAPIURL(p.Scheme, p.Hostname, p.Port, pathFragment, query)
+	apiURL, err := generateAPIURL(p.BaseURL, pathFragment, query)
+	if err != nil {
+		return nil, err
+	}
+
 	req, err := http.NewRequestWithContext(ctx, method, apiURL.String(), buf)
 	if err != nil {
 		return nil, err

@@ -88,7 +88,7 @@ func TestListServers(t *testing.T) {
 
 func TestListServersError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Servers.List(context.Background()); err == nil {
 		t.Error("error is nil")
 	}
@@ -111,7 +111,7 @@ func TestGetServer(t *testing.T) {
 
 func TestGetServerError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Servers.Get(context.Background(), testVHost); err == nil {
 		t.Error("error is nil")
 	}
@@ -137,7 +137,7 @@ func TestCacheFlush(t *testing.T) {
 func TestCacheFlushResultError(t *testing.T) {
 	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Servers.CacheFlush(context.Background(), testVHost, testDomain); err == nil {
 		t.Error("error is nil")
 	}
