@@ -149,7 +149,7 @@ func TestListMetadata(t *testing.T) {
 func TestListMetadataError(t *testing.T) {
 	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Metadata.List(context.Background(), testDomain); err == nil {
 		t.Error("error is nil")
 	}
@@ -178,7 +178,7 @@ func TestCreateMetadata(t *testing.T) {
 func TestCreateMetadataError(t *testing.T) {
 	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Metadata.Create(context.Background(), testDomain, MetadataAllowAXFRFrom, []string{"192.168.0.1"}); err == nil {
 		t.Error("error is nil")
 	}
@@ -208,7 +208,7 @@ func TestGetMetadata(t *testing.T) {
 func TestGetMetadataError(t *testing.T) {
 	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Metadata.Get(context.Background(), testDomain, "ALLOW-AXFR-FROM"); err == nil {
 		t.Error("error is nil")
 	}
@@ -234,7 +234,7 @@ func TestSetMetadata(t *testing.T) {
 func TestSetMetadataError(t *testing.T) {
 	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Metadata.Set(context.Background(), testDomain, "ALLOW-AXFR-FROM", []string{"192.168.0.1"}); err == nil {
 		t.Error("error is nil")
 	}
@@ -257,7 +257,7 @@ func TestDeleteMetadata(t *testing.T) {
 func TestDeleteMetadataError(t *testing.T) {
 	testDomain := generateNativeZone(false)
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if err := p.Metadata.Delete(context.Background(), testDomain, "ALLOW-AXFR-FROM"); err == nil {
 		t.Error("error is nil")
 	}

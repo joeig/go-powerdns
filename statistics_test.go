@@ -48,7 +48,7 @@ func TestListStatistics(t *testing.T) {
 
 func TestListStatisticsError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Statistics.List(context.Background()); err == nil {
 		t.Error("error is nil")
 	}
@@ -71,7 +71,7 @@ func TestGetStatistics(t *testing.T) {
 
 func TestGetStatisticsError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	if _, err := p.Statistics.Get(context.Background(), "corrupt-packets"); err == nil {
 		t.Error("error is nil")
 	}

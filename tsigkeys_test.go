@@ -197,7 +197,7 @@ func TestTSIGKeyErrorNewRequests(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	registerTSIGKeyMockResponder(&[]TSIGKey{})
 
 	t.Run("Test Get invalid request", func(t *testing.T) {

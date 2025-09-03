@@ -272,7 +272,7 @@ func TestAddRecord(t *testing.T) {
 
 func TestAddRecordError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	testDomain := generateNativeZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false, testRecordTXT)
 	if err := p.Records.Add(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err == nil {
@@ -315,7 +315,7 @@ func TestChangeRecordComment(t *testing.T) {
 
 func TestChangeRecordError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	testDomain := generateNativeZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false, testRecordTXT)
 	if err := p.Records.Change(context.Background(), testDomain, testRecordName, RRTypeTXT, 300, []string{"\"bar\""}); err == nil {
@@ -339,7 +339,7 @@ func TestDeleteRecord(t *testing.T) {
 
 func TestDeleteRecordError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	testDomain := generateNativeZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false, testRecordTXT)
 	if err := p.Records.Delete(context.Background(), testDomain, testRecordName, RRTypeTXT); err == nil {
@@ -525,7 +525,7 @@ func TestGetRecord(t *testing.T) {
 
 func TestGetRecordError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
-	p.Port = "x"
+	p.BaseURL = "://"
 	testDomain := generateNativeZone(false)
 	testRecordName := generateTestRecord(p, testDomain, false, testRecordTXT)
 	if _, err := p.Records.Get(context.Background(), testDomain, testRecordName, RRTypePtr(RRTypeTXT)); err == nil {
