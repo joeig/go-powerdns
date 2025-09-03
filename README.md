@@ -1,6 +1,6 @@
-# PowerDNS 4.x API bindings for Golang
+# PowerDNS API client for Go (community project)
 
-This community project provides bindings for PowerDNS Authoritative Server.
+This community project provides an API client for PowerDNS Authoritative Server 4.x.
 It's not associated with the official PowerDNS product itself.
 
 [![Test coverage](https://img.shields.io/badge/coverage-100%25-success)](https://github.com/joeig/go-powerdns/blob/main/.github/testcoverage.yml)
