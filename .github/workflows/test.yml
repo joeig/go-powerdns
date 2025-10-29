@@ -40,7 +40,6 @@ jobs:
           - "1.24"
           - "1.25"
         pdns-auth-image:
-          - powerdns/pdns-auth-47:latest
           - powerdns/pdns-auth-48:latest
           - powerdns/pdns-auth-49:latest
           - powerdns/pdns-auth-50:latest
