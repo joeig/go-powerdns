@@ -125,7 +125,6 @@ See [pkg.go.dev](https://pkg.go.dev/github.com/joeig/go-powerdns/v3) for a full 
 
 Supported versions of PowerDNS Authoritative Server ("API v1"):
 
-* 4.7
 * 4.8
 * 4.9
 * 5.0
