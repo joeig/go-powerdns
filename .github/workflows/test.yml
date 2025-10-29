@@ -43,6 +43,7 @@ jobs:
           - powerdns/pdns-auth-47:latest
           - powerdns/pdns-auth-48:latest
           - powerdns/pdns-auth-49:latest
+          - powerdns/pdns-auth-50:latest
     services:
       pdns-auth:
         image: "${{ matrix.pdns-auth-image }}"
