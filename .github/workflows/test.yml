@@ -22,7 +22,7 @@ jobs:
           - "1.24"
           - "1.25"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go-version }}
@@ -51,10 +51,10 @@ jobs:
         env:
           PDNS_AUTH_API_KEY: apipw
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go-version }}
           check-latest: true
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: GONOMOCKS=1 go test -v ./...
