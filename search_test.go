@@ -70,7 +70,7 @@ func TestSearch(t *testing.T) {
 	registerSearchMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	results, err := p.Search.Search(context.Background(), "example*", 100, SearchObjectTypeAll)
+	results, err := p.Search.Data(context.Background(), "example*", 100, SearchObjectTypeAll)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -85,7 +85,7 @@ func TestSearchWithObjectType(t *testing.T) {
 	registerSearchMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	results, err := p.Search.Search(context.Background(), "example*", 100, SearchObjectTypeZone)
+	results, err := p.Search.Data(context.Background(), "example*", 100, SearchObjectTypeZone)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -100,7 +100,7 @@ func TestSearchWithObjectType(t *testing.T) {
 func TestSearchError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.BaseURL = "://"
-	if _, err := p.Search.Search(context.Background(), "example*", 100, SearchObjectTypeAll); err == nil {
+	if _, err := p.Search.Data(context.Background(), "example*", 100, SearchObjectTypeAll); err == nil {
 		t.Error("error is nil")
 	}
 }

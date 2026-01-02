@@ -37,11 +37,11 @@ const (
 	SearchObjectTypeComment SearchObjectType = "comment"
 )
 
-// Search searches the PowerDNS server for data matching the query.
+// Data to search inside PowerDNS server and matching the query.
 // The query supports wildcards: * for multiple characters, ? for a single character.
 // The max parameter limits the number of returned results.
 // The objectType parameter filters results by type (all, zone, record, comment).
-func (s *SearchService) Search(ctx context.Context, query string, max int, objectType SearchObjectType) ([]SearchResult, error) {
+func (s *SearchService) Data(ctx context.Context, query string, max int, objectType SearchObjectType) ([]SearchResult, error) {
 	q := url.Values{}
 	q.Add("q", query)
 	q.Add("max", strconv.Itoa(max))
