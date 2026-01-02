@@ -2,11 +2,29 @@ package powerdns
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 )
+
+func generateSearchTestZone() string {
+	domain := fmt.Sprintf("test-%d.com", rand.Int())
+
+	if httpmock.Disabled() {
+		pdns := initialisePowerDNSTestClient()
+		_, err := pdns.Zones.AddNative(context.Background(), domain, false, "", false, "", "", true, []string{"ns.foo.tld."})
+		if err != nil {
+			fmt.Printf("Error creating search test zone %s: %v\n", domain, err)
+		} else {
+			fmt.Printf("Created search test zone %s\n", domain)
+		}
+	}
+
+	return domain
+}
 
 func registerSearchMockResponder() {
 	httpmock.RegisterResponder("GET", generateTestAPIVHostURL()+"/search-data",
@@ -65,12 +83,18 @@ func registerSearchMockResponder() {
 }
 
 func TestSearch(t *testing.T) {
+	testDomain := generateSearchTestZone()
+
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerSearchMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	results, err := p.Search.Data(context.Background(), "example*", 100, SearchObjectTypeAll)
+	searchQuery := "example*"
+	if httpmock.Disabled() {
+		searchQuery = testDomain[:len(testDomain)-4] + "*" // Use the generated domain pattern
+	}
+	results, err := p.Search.Data(context.Background(), searchQuery, 100, SearchObjectTypeAll)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
@@ -80,17 +104,23 @@ func TestSearch(t *testing.T) {
 }
 
 func TestSearchWithObjectType(t *testing.T) {
+	testDomain := generateSearchTestZone()
+
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	registerSearchMockResponder()
 
 	p := initialisePowerDNSTestClient()
-	results, err := p.Search.Data(context.Background(), "example*", 100, SearchObjectTypeZone)
+	searchQuery := "example*"
+	if httpmock.Disabled() {
+		searchQuery = testDomain[:len(testDomain)-4] + "*" // Use the generated domain pattern
+	}
+	results, err := p.Search.Data(context.Background(), searchQuery, 100, SearchObjectTypeZone)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
 	if len(results) != 1 {
-		t.Error("Received amount of search results is not 1")
+		t.Errorf("Received amount of search results is not 1, got %d", len(results))
 	}
 	if *results[0].ObjectType != "zone" {
 		t.Error("Received search result is not a zone")
