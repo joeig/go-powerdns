@@ -17,7 +17,7 @@ permissions:
   contents: read
 jobs:
   govulncheck:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: golang/govulncheck-action@v1
         with:

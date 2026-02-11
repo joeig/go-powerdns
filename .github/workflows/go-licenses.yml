@@ -15,7 +15,7 @@ permissions:
   contents: read
 jobs:
   go-licenses:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v6
       - uses: joeig/go-licenses-action@v1
