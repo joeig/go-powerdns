@@ -22,14 +22,16 @@ jobs:
           - "1.25"
           - "1.26"
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
         with:
           go-version: ${{ matrix.go-version }}
           check-latest: true
       - run: go test -v -coverprofile="coverage.out" ./...
       - run: go tool cover -func="coverage.out"
-      - uses: vladopajic/go-test-coverage@v2.18.4
+      - uses: vladopajic/go-test-coverage@f190f667e23b4441202d0bab0f8c2e7bce8925b6 # v2.18.4
         with:
           config: ".github/testcoverage.yml"
   test-without-mocks:
@@ -45,16 +47,20 @@ jobs:
           - powerdns/pdns-auth-50:latest
     services:
       pdns-auth:
-        image: "${{ matrix.pdns-auth-image }}"
+        image: "${{ matrix.pdns-auth-image }}" # zizmor: ignore[unpinned-images]
         ports:
           - "8080:8081"
         env:
           PDNS_AUTH_API_KEY: apipw
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
         with:
           go-version: ${{ matrix.go-version }}
           check-latest: true
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
       - run: GONOMOCKS=1 go test -v ./...

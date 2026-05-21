@@ -17,7 +17,9 @@ jobs:
   go-licenses:
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v6
-      - uses: joeig/go-licenses-action@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: joeig/go-licenses-action@9588fab1905d7dadf652eb9bb386c52acfaf8c5f # v1
         with:
           disallowed-types: restricted,forbidden,unknown
