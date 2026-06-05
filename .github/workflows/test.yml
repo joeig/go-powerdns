@@ -42,9 +42,9 @@ jobs:
           - "1.25"
           - "1.26"
         pdns-auth-image:
-          - powerdns/pdns-auth-48:latest
           - powerdns/pdns-auth-49:latest
           - powerdns/pdns-auth-50:latest
+          - powerdns/pdns-auth-51:latest
     services:
       pdns-auth:
         image: "${{ matrix.pdns-auth-image }}" # zizmor: ignore[unpinned-images]

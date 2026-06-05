@@ -125,9 +125,9 @@ See [pkg.go.dev](https://pkg.go.dev/github.com/joeig/go-powerdns/v3) for a full 
 
 Supported versions of PowerDNS Authoritative Server ("API v1"):
 
-* 4.8
 * 4.9
 * 5.0
+* 5.1
 
 Version 4.1, 4.2 and 4.3 are probably working fine, but are officially [end-of-life](https://repo.powerdns.com/).
 Be aware that there are breaking changes in "API v1" between PowerDNS 3.x, 4.0 and 4.1.
