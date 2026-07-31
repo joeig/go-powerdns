@@ -2,6 +2,7 @@ package powerdns
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -73,6 +74,60 @@ func registerCryptokeyMockResponder(testDomain string, id uint64) {
 				return httpmock.NewStringResponse(http.StatusNoContent, ""), nil
 			}
 			return httpmock.NewStringResponse(http.StatusUnauthorized, "Unauthorized"), nil
+		},
+	)
+}
+
+func registerCreateCryptokeyMockResponder(testDomain string) {
+	httpmock.RegisterResponder("POST", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain)+"/cryptokeys",
+		func(req *http.Request) (*http.Response, error) {
+			if res := verifyAPIKey(req); res != nil {
+				return res, nil
+			}
+
+			var reqCryptokey Cryptokey
+			if err := json.NewDecoder(req.Body).Decode(&reqCryptokey); err != nil {
+				return httpmock.NewStringResponse(http.StatusBadRequest, "Bad Request"), nil
+			}
+
+			if reqCryptokey.KeyType == nil {
+				return httpmock.NewStringResponse(http.StatusUnprocessableEntity, "keytype is required"), nil
+			}
+
+			responseCryptokey := Cryptokey{
+				Type:      String("Cryptokey"),
+				ID:        Uint64(12),
+				KeyType:   reqCryptokey.KeyType,
+				Active:    Bool(true),
+				Published: Bool(true),
+				DNSkey:    String("257 3 13 thisIsTheNewKey"),
+				DS: []string{
+					"997 13 2 foo",
+				},
+				CDS: []string{
+					"997 13 2 foo",
+				},
+				Algorithm: String("ECDSAP256SHA256"),
+				Bits:      Uint64(256),
+			}
+			return httpmock.NewJsonResponse(http.StatusCreated, responseCryptokey)
+		},
+	)
+}
+
+func registerChangeCryptokeyMockResponder(testDomain string, id uint64) {
+	httpmock.RegisterResponder("PUT", generateTestAPIVHostURL()+"/zones/"+makeDomainCanonical(testDomain)+"/cryptokeys/"+cryptokeyIDToString(id),
+		func(req *http.Request) (*http.Response, error) {
+			if res := verifyAPIKey(req); res != nil {
+				return res, nil
+			}
+
+			var reqCryptokey Cryptokey
+			if err := json.NewDecoder(req.Body).Decode(&reqCryptokey); err != nil {
+				return httpmock.NewStringResponse(http.StatusBadRequest, "Bad Request"), nil
+			}
+
+			return httpmock.NewStringResponse(http.StatusNoContent, ""), nil
 		},
 	)
 }
@@ -170,6 +225,97 @@ func TestDeleteCryptokeyError(t *testing.T) {
 	p := initialisePowerDNSTestClient()
 	p.BaseURL = "://"
 	if err := p.Cryptokeys.Delete(context.Background(), testDomain, uint64(0)); err == nil {
+		t.Error("error is nil")
+	}
+}
+
+func TestCreateCryptokey(t *testing.T) {
+	testDomain := generateNativeZone(true)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	p := initialisePowerDNSTestClient()
+
+	registerCreateCryptokeyMockResponder(testDomain)
+
+	cryptokey, err := p.Cryptokeys.Create(context.Background(), testDomain, Cryptokey{
+		KeyType:   String("ksk"),
+		Active:    Bool(true),
+		Published: Bool(true),
+	})
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+
+	if cryptokey.ID == nil {
+		t.Error("Received cryptokey ID is nil")
+	}
+
+	if cryptokey.KeyType == nil {
+		t.Error("Received cryptokey keytype is nil")
+	}
+
+	if cryptokey.Active == nil || !*cryptokey.Active {
+		t.Error("Received cryptokey is not active")
+	}
+
+	if cryptokey.Published == nil || !*cryptokey.Published {
+		t.Error("Received cryptokey is not published")
+	}
+
+	// The mock returns fixed values that a live server does not reproduce
+	// (the ID is server-assigned, keytype is derived from the key's role in
+	// the zone, and CDS is only populated when CDS publication is enabled).
+	if !httpmock.Disabled() {
+		if *cryptokey.ID != 12 {
+			t.Error("Received cryptokey ID is wrong")
+		}
+
+		if *cryptokey.KeyType != "ksk" {
+			t.Error("Received cryptokey keytype is wrong")
+		}
+
+		if len(cryptokey.CDS) == 0 {
+			t.Error("Received cryptokey CDS is empty")
+		}
+	}
+}
+
+func TestCreateCryptokeyError(t *testing.T) {
+	testDomain := generateNativeZone(false)
+	p := initialisePowerDNSTestClient()
+	p.BaseURL = "://"
+	if _, err := p.Cryptokeys.Create(context.Background(), testDomain, Cryptokey{KeyType: String("ksk")}); err == nil {
+		t.Error("error is nil")
+	}
+}
+
+func TestChangeCryptokey(t *testing.T) {
+	testDomain := generateNativeZone(true)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	p := initialisePowerDNSTestClient()
+
+	registerCryptokeysMockResponder(testDomain)
+	cryptokeys, err := p.Cryptokeys.List(context.Background(), testDomain)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	id := cryptokeys[0].ID
+	registerChangeCryptokeyMockResponder(testDomain, *id)
+
+	if err = p.Cryptokeys.Change(context.Background(), testDomain, *id, Cryptokey{Active: Bool(false)}); err != nil {
+		t.Errorf("%s", err)
+	}
+}
+
+func TestChangeCryptokeyError(t *testing.T) {
+	testDomain := generateNativeZone(false)
+	p := initialisePowerDNSTestClient()
+	p.BaseURL = "://"
+	if err := p.Cryptokeys.Change(context.Background(), testDomain, uint64(0), Cryptokey{Active: Bool(false)}); err == nil {
 		t.Error("error is nil")
 	}
 }

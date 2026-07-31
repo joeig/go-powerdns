@@ -16,8 +16,10 @@ type Cryptokey struct {
 	ID         *uint64  `json:"id,omitempty"`
 	KeyType    *string  `json:"keytype,omitempty"`
 	Active     *bool    `json:"active,omitempty"`
+	Published  *bool    `json:"published,omitempty"`
 	DNSkey     *string  `json:"dnskey,omitempty"`
 	DS         []string `json:"ds,omitempty"`
+	CDS        []string `json:"cds,omitempty"`
 	Privatekey *string  `json:"privatekey,omitempty"`
 	Algorithm  *string  `json:"algorithm,omitempty"`
 	Bits       *uint64  `json:"bits,omitempty"`
@@ -49,6 +51,33 @@ func (c *CryptokeysService) Get(ctx context.Context, domain string, id uint64) (
 	cryptokey := new(Cryptokey)
 	_, err = c.client.do(req, &cryptokey)
 	return cryptokey, err
+}
+
+// Create adds a Cryptokey to a Zone. When cryptokey.Privatekey, cryptokey.Bits and
+// cryptokey.Algorithm are unset, PowerDNS generates a new key based on the server
+// defaults; otherwise the supplied key material is imported. cryptokey.KeyType is
+// required and must be one of "ksk", "zsk" or "csk".
+func (c *CryptokeysService) Create(ctx context.Context, domain string, cryptokey Cryptokey) (*Cryptokey, error) {
+	req, err := c.client.newRequest(ctx, http.MethodPost, path.Join("servers", c.client.VHost, "zones", makeDomainCanonical(domain), "cryptokeys"), nil, cryptokey)
+	if err != nil {
+		return nil, err
+	}
+
+	responseCryptokey := new(Cryptokey)
+	_, err = c.client.do(req, &responseCryptokey)
+	return responseCryptokey, err
+}
+
+// Change (de)activates or (un)publishes an existing Cryptokey. Only cryptokey.Active
+// and cryptokey.Published are honoured by the API. It returns no content on success.
+func (c *CryptokeysService) Change(ctx context.Context, domain string, id uint64, cryptokey Cryptokey) error {
+	req, err := c.client.newRequest(ctx, http.MethodPut, path.Join("servers", c.client.VHost, "zones", makeDomainCanonical(domain), "cryptokeys", cryptokeyIDToString(id)), nil, cryptokey)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.client.do(req, nil)
+	return err
 }
 
 // Delete removes a given Cryptokey
