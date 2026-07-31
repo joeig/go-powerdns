@@ -146,6 +146,12 @@ In accordance with [Go's version support policy](https://golang.org/doc/devel/re
 This API client has not been completed yet, so feel free to contribute.
 The [OpenAPI specification](https://github.com/PowerDNS/pdns/blob/master/docs/http-api/openapi/authoritative-api-openapi.yaml) is a good reference.
 
+A vendored copy of that specification lives in `testdata/authoritative-api-openapi.json`, and `TestStructsMatchOpenAPISpec` validates the API structs' JSON fields against it to catch drift. When adding or changing a struct, refresh the vendored spec if needed:
+
+```bash
+yq -o=json '.' authoritative-api-openapi.yaml > testdata/authoritative-api-openapi.json
+```
+
 You can use Docker Compose to launch a PowerDNS authoritative server including a generic SQLite3 backend, DNSSEC support and some optional fixtures:
 
 ```bash
