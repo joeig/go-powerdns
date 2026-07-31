@@ -94,9 +94,11 @@ server, err := pdns.Servers.Get(ctx, "localhost")
 ### Handle DNSSEC cryptographic material
 
 ```go
-cryptokeys, err := pdns.Cryptokeys.List(ctx)
-cryptokey, err := pdns.Cryptokeys.Get(ctx, "example.com", "1337")
-err := pdns.Cryptokeys.Delete(ctx, "example.com", "1337")
+cryptokey, err := pdns.Cryptokeys.Create(ctx, "example.com", powerdns.Cryptokey{KeyType: powerdns.String("ksk"), Active: powerdns.Bool(true)})
+err := pdns.Cryptokeys.Change(ctx, "example.com", 1337, powerdns.Cryptokey{Active: powerdns.Bool(false)})
+cryptokeys, err := pdns.Cryptokeys.List(ctx, "example.com")
+cryptokey, err := pdns.Cryptokeys.Get(ctx, "example.com", 1337)
+err := pdns.Cryptokeys.Delete(ctx, "example.com", 1337)
 ```
 
 ### Create/change/delete TSIG keys
@@ -142,7 +144,7 @@ In accordance with [Go's version support policy](https://golang.org/doc/devel/re
 ## Contribution
 
 This API client has not been completed yet, so feel free to contribute.
-The [OpenAPI specification](https://github.com/PowerDNS/pdns/blob/master/docs/http-api/swagger/authoritative-api-swagger.yaml) is a good reference.
+The [OpenAPI specification](https://github.com/PowerDNS/pdns/blob/master/docs/http-api/openapi/authoritative-api-openapi.yaml) is a good reference.
 
 You can use Docker Compose to launch a PowerDNS authoritative server including a generic SQLite3 backend, DNSSEC support and some optional fixtures:
 
