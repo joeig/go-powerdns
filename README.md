@@ -71,6 +71,7 @@ export, err := pdns.Zones.Export(ctx, "example.com")
 zone, err := pdns.Zones.AddNative(ctx, "example.com", true, "", false, "foo", "foo", true, []string{"ns.foo.tld."})
 err := pdns.Zones.Change(ctx, "example.com", &zone)
 err := pdns.Zones.Delete(ctx, "example.com")
+result, err := pdns.Zones.Rectify(ctx, "example.com")
 ```
 
 ### Add/change/delete resource records
