@@ -49,8 +49,16 @@ type AxfrRetrieveResult struct {
 
 // RectifyResult structure with JSON API metadata
 type RectifyResult struct {
-	Result *string `json:"result,omitempty"`
+	Result *RectifyStatus `json:"result,omitempty"`
 }
+
+// RectifyStatus string type
+type RectifyStatus string
+
+const (
+	// RectifiedRectifyStatus reports that the zone was rectified
+	RectifiedRectifyStatus RectifyStatus = "Rectified"
+)
 
 // Export string type
 type Export string

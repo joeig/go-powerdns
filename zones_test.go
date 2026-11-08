@@ -705,7 +705,7 @@ func TestRectify(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if *rectifyResult.Result != "Rectified" {
+	if *rectifyResult.Result != RectifiedRectifyStatus {
 		t.Errorf("Wrong result: %q", *rectifyResult.Result)
 	}
 }
