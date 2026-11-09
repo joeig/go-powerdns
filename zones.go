@@ -47,6 +47,19 @@ type AxfrRetrieveResult struct {
 	Result *string `json:"result,omitempty"`
 }
 
+// RectifyResult structure with JSON API metadata
+type RectifyResult struct {
+	Result *RectifyStatus `json:"result,omitempty"`
+}
+
+// RectifyStatus string type
+type RectifyStatus string
+
+const (
+	// RectifiedRectifyStatus reports that the zone was rectified
+	RectifiedRectifyStatus RectifyStatus = "Rectified"
+)
+
 // Export string type
 type Export string
 
@@ -223,6 +236,18 @@ func (z *ZonesService) AxfrRetrieve(ctx context.Context, domain string) (*AxfrRe
 	axfrRetrieveResult := &AxfrRetrieveResult{}
 	_, err = z.client.do(req, axfrRetrieveResult)
 	return axfrRetrieveResult, err
+}
+
+// Rectify rebuilds the DNSSEC ordering, auth flags and empty non-terminals of a zone
+func (z *ZonesService) Rectify(ctx context.Context, domain string) (*RectifyResult, error) {
+	req, err := z.client.newRequest(ctx, http.MethodPut, path.Join("servers", z.client.VHost, "zones", makeDomainCanonical(domain), "rectify"), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	rectifyResult := &RectifyResult{}
+	_, err = z.client.do(req, rectifyResult)
+	return rectifyResult, err
 }
 
 // Export returns a BIND-like Zone file
